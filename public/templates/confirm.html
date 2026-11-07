@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirma&ccedil;&atilde;o de Acesso &mdash; Cadore Advogados</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0a1f23;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0a1f23;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color:#0d2b30;border-radius:12px;border:1px solid #1e4d55;overflow:hidden;max-width:600px;width:100%;">
+        <tr>
+          <td style="background:linear-gradient(135deg,#0c373f 0%,#145d6a 100%);padding:40px 40px 30px;text-align:center;border-bottom:2px solid #dabd97;">
+            <h1 style="color:#dabd97;font-size:26px;margin:0;font-weight:bold;letter-spacing:2px;">CADORE ADVOGADOS</h1>
+            <p style="color:#a89070;font-size:11px;margin:8px 0 0;letter-spacing:3px;text-transform:uppercase;">Sistema de Gest&atilde;o Jur&iacute;dica</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px;">
+            <h2 style="color:#dabd97;font-size:20px;margin:0 0 16px;">Bem-vindo(a) ao nosso sistema!</h2>
+            <p style="color:#b0c4c8;font-size:15px;line-height:1.8;margin:0 0 16px;">
+              Seu cadastro foi recebido com sucesso. Para ativar seu acesso e come&ccedil;ar a usar a plataforma de gest&atilde;o do
+              <strong style="color:#dabd97;">Cadore Advogados</strong>, clique no bot&atilde;o abaixo.
+            </p>
+            <p style="color:#8aa0a5;font-size:13px;line-height:1.6;margin:0 0 32px;">
+              Este link &eacute; v&aacute;lido por <strong>24 horas</strong>. Ap&oacute;s esse per&iacute;odo, ser&aacute; necess&aacute;rio solicitar um novo link de confirma&ccedil;&atilde;o.
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr><td align="center">
+                <a href="{{ .ConfirmationURL }}"
+                   style="display:inline-block;background:linear-gradient(135deg,#dabd97,#c9a87a);color:#0a1f23;font-weight:bold;font-size:15px;padding:16px 44px;border-radius:8px;text-decoration:none;letter-spacing:1px;font-family:Georgia,serif;">
+                  &#x2709;&nbsp; Confirmar meu Acesso
+                </a>
+              </td></tr>
+            </table>
+            <p style="color:#4a6a70;font-size:12px;margin:24px 0 0;text-align:center;">
+              Ou copie e cole este link no seu navegador:<br>
+              <span style="color:#7aa5ad;word-break:break-all;">{{ .ConfirmationURL }}</span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#091a1e;padding:24px 40px;border-top:1px solid #1e4d55;text-align:center;">
+            <p style="color:#4a6a70;font-size:12px;margin:0 0 6px;">Se voc&ecirc; n&atilde;o solicitou esse acesso, pode ignorar este e-mail com seguran&ccedil;a.</p>
+            <p style="color:#4a6a70;font-size:11px;margin:0;">&copy; 2025 Cadore Advogados &middot; Todos os direitos reservados</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

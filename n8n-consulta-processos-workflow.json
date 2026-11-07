@@ -1,0 +1,269 @@
+{
+  "name": "Datajud API",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "consulta-processo",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "d6af84e4-d4be-4fc3-8370-66f2682556b2",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        140
+      ],
+      "webhookId": "consulta-processo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tribunal",
+              "name": "tribunal",
+              "value": "={{ $json.body.tribunal }}",
+              "type": "string"
+            },
+            {
+              "id": "numeroProcesso",
+              "name": "numeroProcesso",
+              "value": "={{ $json.body.numeroProcesso }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "43f90d30-4841-4424-911a-bcece2cfb689",
+      "name": "Extrair Parâmetros",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        100,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://api-publica.datajud.cnj.jus.br/api_publica_' + $json.tribunal + '/_search' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ { \"match\": { \"numeroProcesso\": $json.numeroProcesso } } }}"
+            },
+            {
+              "name": "size",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "71145b7e-85b2-460e-85e4-f7c977a91c92",
+      "name": "Consulta Datajud API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        320,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Processar resposta da API Datajud\nconst response = $input.all()[0].json;\nconst hits = response.hits?.hits || [];\n\nif (hits.length === 0) {\n  return [{\n    json: {\n      success: false,\n      message: 'Processo não encontrado',\n      data: null\n    }\n  }];\n}\n\n// Pegar o primeiro resultado\nconst processo = hits[0]._source;\n\n// Formatar dados do processo\nconst dadosFormatados = {\n  numeroProcesso: processo.numeroProcesso,\n  classe: processo.classe?.nome || 'Não informado',\n  tribunal: processo.tribunal || 'Não informado',\n  sistema: processo.sistema?.nome || 'Não informado',\n  formato: processo.formato?.nome || 'Não informado',\n  grau: processo.grau || 'Não informado',\n  assuntos: (processo.assuntos || []).map(assunto => ({\n    codigo: assunto.codigo,\n    nome: assunto.nome\n  })),\n  dataAjuizamento: processo.dataAjuizamento,\n  dataHoraUltimaAtualizacao: processo.dataHoraUltimaAtualizacao,\n  orgaoJulgador: {\n    codigo: processo.orgaoJulgador?.codigo,\n    nome: processo.orgaoJulgador?.nome || 'Não informado',\n    codigoMunicipioIBGE: processo.orgaoJulgador?.codigoMunicipioIBGE\n  },\n  nivelSigilo: processo.nivelSigilo || 0,\n  partes: (processo.partes || []).map(parte => ({\n    nome: parte.pessoa?.nome || 'Não informado',\n    tipo: parte.polo || 'Não informado'\n  })),\n  movimentos: (processo.movimentos || []).map(mov => ({\n    codigo: mov.codigo,\n    nome: mov.nome || 'Movimento não especificado',\n    dataHora: mov.dataHora,\n    complementosTabelados: mov.complementosTabelados || []\n  }))\n};\n\nreturn [{\n  json: {\n    success: true,\n    message: 'Processo encontrado com sucesso',\n    data: dadosFormatados\n  }\n}];"
+      },
+      "id": "52958b83-8f65-4b48-a49f-7665854111bc",
+      "name": "Processar Resposta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "GET, POST, PUT, DELETE, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Authorization"
+              }
+            ]
+          }
+        }
+      },
+      "id": "f7683f37-6320-40cf-ac66-846dbd8a3322",
+      "name": "Resposta Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        760,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tratamento de erro\nconst error = $input.all()[0].error || 'Erro desconhecido';\n\nreturn [{\n  json: {\n    success: false,\n    message: 'Erro ao consultar processo: ' + error.message || error,\n    data: null\n  }\n}];"
+      },
+      "id": "f9abe72e-7e00-402f-b7f1-ec38b19e4cc5",
+      "name": "Tratar Erro",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "GET, POST, PUT, DELETE, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Authorization"
+              }
+            ]
+          }
+        }
+      },
+      "id": "2c08d6b5-7d29-4f78-a703-5c1debfb1f18",
+      "name": "Resposta Erro",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        760,
+        320
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extrair Parâmetros",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Parâmetros": {
+      "main": [
+        [
+          {
+            "node": "Consulta Datajud API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta Datajud API": {
+      "main": [
+        [
+          {
+            "node": "Processar Resposta",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tratar Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processar Resposta": {
+      "main": [
+        [
+          {
+            "node": "Resposta Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tratar Erro": {
+      "main": [
+        [
+          {
+            "node": "Resposta Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "08cb7d31-895e-4c5a-acbd-9cb30e47bd04",
+  "meta": {
+    "instanceId": "4f4c6a48acf41602a11e15f3750db6fc2e453e760a18fd0c9d1df00d422df9c0"
+  },
+  "id": "ZAtSdLcnLJUYkn1G",
+  "tags": [
+    {
+      "createdAt": "2025-08-16T08:52:57.268Z",
+      "updatedAt": "2025-08-16T08:52:57.268Z",
+      "id": "edVcjUpEe7eyAoMV",
+      "name": "Datajud"
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * ==========================================================================
+   * KERNEL VISUAL E TIPOGRÁFICO IMUTÁVEL — JUS+ (VENDA+ TECH)
+   * ==========================================================================
+   * 02 : Sistema de Cores (Paleta Imutável)
+   * - Azul Marinho (Navy):  #010E38 | RGB(1, 14, 56)    | HSL(226 96% 11%)
+   * - Amarelo Sinal (Gold): #EBB52C | RGB(235, 181, 44) | HSL(43 83% 55%)
+   * - Branco Gelo (Ice):    #F1F4F9 | RGB(241, 244, 249)| HSL(218 36% 96%)
+   * - Combinações aprovadas: GOLD/NAVY, NAVY/BRANCO, NAVY/GOLD, GELO/NAVY
+   *
+   * 05 : Sistema Tipográfico
+   * - DISPLAY : Montserrat Black 900 (uppercase, tracking -1px)
+   * - H1      : Montserrat ExtraBold 800
+   * - H2 / H3 : Montserrat Bold 700
+   * - BODY    : Montserrat Regular 400
+   * - DATA    : Space Mono Bold 700 (KPIs, contadores, valores, métricas)
+   * ==========================================================================
+   */
+  :root {
+    --background: 218 36% 96%;
+    --foreground: 226 96% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 226 96% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 226 96% 11%;
+
+    --primary: 226 96% 11%;
+    --primary-foreground: 43 83% 55%;
+
+    --secondary: 43 83% 55%;
+    --secondary-foreground: 226 96% 11%;
+
+    --muted: 218 32% 91%;
+    --muted-foreground: 226 45% 32%;
+
+    --accent: 43 83% 55%;
+    --accent-foreground: 226 96% 11%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 218 36% 96%;
+
+    --border: 218 28% 85%;
+    --input: 218 28% 85%;
+    --ring: 43 83% 55%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 226 96% 11%;
+    --sidebar-foreground: 218 36% 96%;
+    --sidebar-primary: 43 83% 55%;
+    --sidebar-primary-foreground: 226 96% 11%;
+    --sidebar-accent: 226 85% 16%;
+    --sidebar-accent-foreground: 43 83% 55%;
+    --sidebar-border: 226 75% 18%;
+    --sidebar-ring: 43 83% 55%;
+  }
+
+  .dark {
+    --background: 226 96% 11%;
+    --foreground: 218 36% 96%;
+
+    --card: 226 88% 14%;
+    --card-foreground: 218 36% 96%;
+
+    --popover: 226 88% 14%;
+    --popover-foreground: 218 36% 96%;
+
+    --primary: 43 83% 55%;
+    --primary-foreground: 226 96% 11%;
+
+    --secondary: 226 75% 18%;
+    --secondary-foreground: 218 36% 96%;
+
+    --muted: 226 75% 16%;
+    --muted-foreground: 218 25% 72%;
+
+    --accent: 226 75% 19%;
+    --accent-foreground: 43 83% 55%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 218 36% 96%;
+
+    --border: 226 65% 20%;
+    --input: 226 65% 20%;
+    --ring: 43 83% 55%;
+
+    --sidebar-background: 226 96% 9%;
+    --sidebar-foreground: 218 36% 96%;
+    --sidebar-primary: 43 83% 55%;
+    --sidebar-primary-foreground: 226 96% 11%;
+    --sidebar-accent: 226 85% 15%;
+    --sidebar-accent-foreground: 43 83% 55%;
+    --sidebar-border: 226 70% 17%;
+    --sidebar-ring: 43 83% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  body ::-webkit-scrollbar-thumb,
+  main ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border) / 0.8);
+  }
+
+  body ::-webkit-scrollbar-thumb:hover,
+  main ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.6);
+  }
+
+  /* BODY / Montserrat Regular 400 */
+  body {
+    @apply bg-background text-foreground font-sans font-normal antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* H1 / Montserrat ExtraBold 800 */
+  h1 {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+
+  /* H2, H3, H4 / Montserrat Bold 700 */
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  /* DISPLAY / Montserrat Black 900 · tracking -1px · uppercase */
+  .font-display {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 900;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+  }
+
+  /* DATA / Space Mono Bold 700 */
+  .font-data {
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .gradient-card {
+    @apply bg-card border border-[#010E38]/10 dark:border-[#F1F4F9]/10 shadow-[0_1px_3px_rgba(1,14,56,0.05)];
+  }
+
+  .metric-card {
+    @apply gradient-card p-6 rounded-xl hover:shadow-md hover:border-[#EBB52C] transition-all duration-200;
+  }
+
+  .status-badge {
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border border-current;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-accent text-muted-foreground hover:text-foreground;
+  }
+
+  .nav-item.active {
+    @apply bg-primary/10 text-primary border-r-2 border-primary;
+  }
+}

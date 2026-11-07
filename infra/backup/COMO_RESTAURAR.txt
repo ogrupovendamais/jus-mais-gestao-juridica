@@ -1,0 +1,39 @@
+COMO RESTAURAR O ERP CADORE A PARTIR DESTE BACKUP
+(para o suporte técnico — Venda+ Tech)
+
+Este pacote tem tudo para recolocar o sistema no ar em um Supabase novo (auto-hospedado ou
+supabase.com): banco completo + documentos + mapa de onde cada arquivo fica.
+Restauração do banco testada em 27/10/2026 (todos os registros, usuários, regras de acesso
+e funções conferidos).
+
+PRÉ-REQUISITOS
+- Um projeto Supabase novo (de preferência vazio) e:
+  * a "connection string" do banco (Project Settings > Database), e
+  * a URL do projeto e a chave service_role (Project Settings > API).
+- Computador com psql (cliente PostgreSQL), curl e bash (Linux/Mac, ou Git Bash no Windows).
+- Extrair o .zip do backup com o 7-Zip (pede a senha do backup).
+
+PASSO 1 — BANCO DE DADOS
+  gunzip -c banco/banco_*.sql.gz | psql "CONNECTION_STRING_DO_NOVO_PROJETO"
+Avisos de "already exists" (já existe) e erros sobre graphql/pg_net/event trigger são normais:
+o Supabase novo já vem com essas partes. No fim, confira no SQL Editor:
+  select count(*) from public.clientes;   select count(*) from auth.users;
+Os números devem bater com as planilhas (planilhas/01_clientes.csv etc.).
+Os usuários entram com as MESMAS senhas de antes (os logins estão no backup).
+
+PASSO 2 — DOCUMENTOS E MODELOS
+Na pasta extraída do backup:
+  bash restaurar/restaurar_arquivos.sh https://SEU-PROJETO.supabase.co CHAVE_SERVICE_ROLE
+O script cria os buckets "documentos" e "templates" (privados) e envia cada arquivo para o
+mesmo caminho de antes (restaurar/mapa_arquivos.tsv). Deve terminar com "0 falha(s)".
+
+PASSO 3 — LIGAR O SISTEMA NO NOVO SUPABASE
+- No código do ERP, em src/integrations/supabase/client.ts, troque a URL e a chave anon pelas
+  do projeto novo; gere o build (npx vite build) e publique.
+- Em Authentication > URL Configuration, coloque o endereço do ERP
+  (https://erp.cadoreadvocacia.com.br) como Site URL.
+- Integração com Google Agenda: reconectar a conta em Integrações.
+
+PASSO 4 — CONFERÊNCIA
+Entrar com um usuário da Gestão e abrir: Clientes, Processos, Audiências, Financeiro e um
+documento em Documentos (clicar no nome para visualizar).

@@ -1,0 +1,18 @@
+{
+  "name": "Jus+ (JusMais)",
+  "short_name": "Jus+",
+  "description": "Jus+ (JusMais) - Infraestrutura Comercial e Gestão Jurídica | Venda+ Tech",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#010E38",
+  "theme_color": "#010E38",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/logo-emblema.png",
+      "type": "image/png",
+      "sizes": "any",
+      "purpose": "any"
+    }
+  ]
+}
