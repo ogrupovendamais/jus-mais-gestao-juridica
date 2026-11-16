@@ -343,7 +343,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
             {/* Linha de Metadados Principais */}
             <div className="flex flex-wrap items-center gap-x-2 text-xs text-[#010E38]/80 font-medium">
               <span>Processo</span>
-              <span className="font-mono underline text-[#010E38] cursor-pointer hover:text-[#1B75D0]">
+              <span className="font-mono underline text-[#010E38] cursor-pointer hover:text-[#EBB52C] transition-colors">
                 {metaAstrea.numeroCnj || processo?.numero || "0010509-93.2026.5.15.0047"}
               </span>
             </div>
@@ -441,12 +441,12 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Botão + azul Astrea */}
+            {/* Botão + Jus+ Navy / Ouro */}
             <button
               type="button"
               onClick={handleCriarTarefaRapida}
               title="Adicionar atividade rápida"
-              className="w-8 h-8 rounded bg-[#1B75D0] hover:bg-[#1560ad] text-white flex items-center justify-center shadow-sm transition-colors"
+              className="w-8 h-8 rounded bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/30 flex items-center justify-center shadow-sm transition-colors"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
             </button>
@@ -461,7 +461,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               onClick={() => setAbaAtiva("resumo")}
               className={`pb-2 border-b-2 transition-all ${
                 abaAtiva === "resumo"
-                  ? "border-[#1B75D0] text-[#1B75D0] font-bold"
+                  ? "border-[#EBB52C] text-[#010E38] font-black"
                   : "border-transparent text-slate-500 hover:text-slate-800"
               }`}
             >
@@ -472,7 +472,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               onClick={() => setAbaAtiva("atividades")}
               className={`pb-2 border-b-2 transition-all ${
                 abaAtiva === "atividades"
-                  ? "border-[#1B75D0] text-[#1B75D0] font-bold"
+                  ? "border-[#EBB52C] text-[#010E38] font-black"
                   : "border-transparent text-slate-500 hover:text-slate-800"
               }`}
             >
@@ -483,7 +483,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               onClick={() => setAbaAtiva("historico")}
               className={`pb-2 border-b-2 transition-all ${
                 abaAtiva === "historico"
-                  ? "border-[#1B75D0] text-[#1B75D0] font-bold"
+                  ? "border-[#EBB52C] text-[#010E38] font-black"
                   : "border-transparent text-slate-500 hover:text-slate-800"
               }`}
             >
@@ -495,10 +495,10 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
             <Button
               type="button"
               size="sm"
-              className="bg-[#5C59C2] hover:bg-[#4E4BA8] text-white font-medium text-xs rounded shadow-sm px-3 py-1.5 flex items-center gap-1.5"
+              className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/30 font-bold text-xs rounded shadow-sm px-3.5 py-1.5 flex items-center gap-1.5 transition-colors"
               onClick={() => toast.info("Módulo Peças Jurídicas: modelos de petições, recursos e contestações prontos para edição.")}
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5 text-[#EBB52C]" />
               <span>Criar peça</span>
               <ChevronDown className="w-3.5 h-3.5" />
             </Button>
@@ -506,7 +506,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
         </div>
       </div>
 
-      {/* 3. CARD DE AVISO: HONORÁRIOS REGISTRADOS (BANNER ASTREA) */}
+      {/* 3. CARD DE AVISO: HONORÁRIOS REGISTRADOS */}
       {!honorarioFechado && (
         <div className="bg-white rounded-lg border border-slate-200/80 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-0.5">
@@ -521,7 +521,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
             <Button
               type="button"
               size="sm"
-              className="bg-[#1B75D0] hover:bg-[#1560ad] text-white font-bold text-xs uppercase tracking-wide rounded px-4 py-2"
+              className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/30 font-bold text-xs uppercase tracking-wide rounded px-4 py-2 transition-colors shadow-sm"
               onClick={() => toast.success("Honorários: registre contratos e parcelas no financeiro.")}
             >
               ADICIONAR HONORÁRIO
@@ -546,8 +546,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
           <div className="lg:col-span-7 space-y-4">
             {/* Box: Dados do Processo */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-4">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <Folder className="w-4 h-4 text-[#1B75D0] fill-[#1B75D0]/20" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <Folder className="w-4 h-4 text-[#010E38]" />
                 <span>Dados do Processo</span>
               </div>
 
@@ -630,7 +630,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                 <button
                   type="button"
                   onClick={() => setExpandirMaisPartes((prev) => !prev)}
-                  className="text-xs font-bold text-[#1B75D0] hover:underline flex items-center gap-1 pt-1"
+                  className="text-xs font-bold text-[#010E38] hover:text-[#021B66] hover:underline flex items-center gap-1 pt-1 transition-colors"
                 >
                   <span>{expandirMaisPartes ? "VER MENOS ▴" : "VER MAIS ▾"}</span>
                 </button>
@@ -640,15 +640,15 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
             {/* Box: Últimos Históricos */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                  <FileText className="w-4 h-4 text-[#1B75D0]" />
+                <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                  <FileText className="w-4 h-4 text-[#010E38]" />
                   <span>Últimos históricos</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => toast.info("Adicionar novo histórico manual")}
-                    className="text-slate-400 hover:text-slate-700"
+                    className="text-slate-400 hover:text-[#010E38]"
                     title="Adicionar histórico"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -656,7 +656,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                   <button
                     type="button"
                     onClick={() => setAbaAtiva("historico")}
-                    className="text-slate-400 hover:text-slate-700"
+                    className="text-slate-400 hover:text-[#010E38]"
                     title="Expandir históricos"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -670,7 +670,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                     <span className="font-mono text-slate-500 shrink-0 mt-0.5">
                       {formatarDataBr(hist.data)}
                     </span>
-                    <Cloud className="w-4 h-4 text-[#1B75D0] shrink-0 mt-0.5" />
+                    <Cloud className="w-4 h-4 text-[#010E38]/80 shrink-0 mt-0.5" />
                     <div className="flex-1 space-y-0.5">
                       <p className="text-slate-800 leading-snug">{hist.titulo}</p>
                       {hist.linkDocumento && (
@@ -678,10 +678,10 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                           href={hist.linkDocumento}
                           target="_blank"
                           rel="noreferrer"
-                          className="font-mono text-[11px] text-[#1B75D0] hover:underline flex items-center gap-1"
+                          className="font-mono text-[11px] text-[#010E38] hover:text-[#021B66] hover:underline flex items-center gap-1 font-semibold"
                         >
                           <span>{hist.linkDocumento}</span>
-                          <ExternalLink className="w-3 h-3" />
+                          <ExternalLink className="w-3 h-3 text-[#010E38]" />
                         </a>
                       )}
                     </div>
@@ -693,7 +693,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                 <button
                   type="button"
                   onClick={() => setAbaAtiva("historico")}
-                  className="text-xs font-bold text-[#1B75D0] hover:underline flex items-center gap-1"
+                  className="text-xs font-bold text-[#010E38] hover:text-[#021B66] hover:underline flex items-center gap-1 transition-colors"
                 >
                   <span>VER TODOS</span>
                   <ExternalLink className="w-3 h-3" />
@@ -703,8 +703,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
 
             {/* Box: Recursos e desdobramentos */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <Building2 className="w-4 h-4 text-[#1B75D0]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <Building2 className="w-4 h-4 text-[#010E38]" />
                 <span>Recursos e desdobramentos</span>
               </div>
               <div className="py-2 px-3 rounded border border-slate-100 bg-slate-50/70 flex items-center justify-between text-xs">
@@ -719,8 +719,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
 
             {/* Box: Valores */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <DollarSign className="w-4 h-4 text-[#1B75D0]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <DollarSign className="w-4 h-4 text-[#EBB52C]" />
                 <span>Valores</span>
               </div>
               <div className="grid grid-cols-5 gap-2 text-xs border-b border-slate-100 pb-2 text-slate-500 font-medium">
@@ -741,8 +741,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
 
             {/* Box: Apensos */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-2">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <FolderOpen className="w-4 h-4 text-[#1B75D0]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <FolderOpen className="w-4 h-4 text-[#010E38]" />
                 <span>Apensos</span>
               </div>
               <p className="text-xs text-slate-500">
@@ -756,8 +756,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
             {/* Box: Próximas Atividades (Formulário Rápido de Tarefas) */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                  <CheckSquare className="w-4 h-4 text-[#1B75D0]" />
+                <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                  <CheckSquare className="w-4 h-4 text-[#010E38]" />
                   <span>Próximas atividades</span>
                 </div>
                 <button
@@ -800,7 +800,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                   type="button"
                   disabled={salvandoAtividade || !descAtividade.trim()}
                   onClick={handleCriarTarefaRapida}
-                  className="w-full bg-[#1B75D0] hover:bg-[#1560ad] text-white font-bold text-xs uppercase tracking-wider rounded py-2"
+                  className="w-full bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/30 font-bold text-xs uppercase tracking-wider rounded py-2 transition-colors shadow-sm"
                 >
                   ADICIONAR TAREFA
                 </Button>
@@ -809,8 +809,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
 
             {/* Box: Documentos */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-2">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <FileText className="w-4 h-4 text-[#1B75D0]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <FileText className="w-4 h-4 text-[#010E38]" />
                 <span>Documentos</span>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
@@ -821,7 +821,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               <button
                 type="button"
                 onClick={() => toast.info("Clique na aba Documentos ou arraste arquivos para anexar.")}
-                className="text-xs font-bold text-[#1B75D0] hover:underline pt-1 flex items-center gap-1"
+                className="text-xs font-bold text-[#010E38] hover:text-[#021B66] hover:underline pt-1 flex items-center gap-1 transition-colors"
               >
                 <span>ADICIONAR DOCUMENTOS</span>
                 <ChevronDown className="w-3 h-3" />
@@ -830,8 +830,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
 
             {/* Box: Atendimentos */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-2">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <MessageSquare className="w-4 h-4 text-[#1B75D0]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <MessageSquare className="w-4 h-4 text-[#010E38]" />
                 <span>Atendimentos</span>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
@@ -842,7 +842,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               <button
                 type="button"
                 onClick={() => toast.info("Abra o menu Atendimentos para registrar uma nova reunião ou atendimento.")}
-                className="text-xs font-bold text-[#1B75D0] hover:underline pt-1 block"
+                className="text-xs font-bold text-[#010E38] hover:text-[#021B66] hover:underline pt-1 block transition-colors"
               >
                 ADICIONAR ATENDIMENTOS
               </button>
@@ -850,8 +850,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
 
             {/* Box: Honorários */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <DollarSign className="w-4 h-4 text-[#1B75D0]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <DollarSign className="w-4 h-4 text-[#EBB52C]" />
                 <span>Honorários</span>
               </div>
               <div className="space-y-1.5 text-xs">
@@ -872,8 +872,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
 
             {/* Box: Despesas */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <FolderOpen className="w-4 h-4 text-[#1B75D0]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <FolderOpen className="w-4 h-4 text-[#010E38]" />
                 <span>Despesas</span>
               </div>
               <div className="space-y-1.5 text-xs">
@@ -894,8 +894,8 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
 
             {/* Box: Timesheet */}
             <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                <Clock className="w-4 h-4 text-[#1B75D0]" />
+              <div className="flex items-center gap-2 text-sm font-bold text-[#010E38]">
+                <Clock className="w-4 h-4 text-[#010E38]" />
                 <span>Timesheet</span>
               </div>
               <div className="space-y-1.5 text-xs">
@@ -938,7 +938,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                 <Button
                   type="button"
                   size="sm"
-                  className="bg-[#1B75D0] hover:bg-[#1560ad] text-white font-bold text-xs uppercase tracking-wide rounded px-4 py-2"
+                  className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/30 font-bold text-xs uppercase tracking-wide rounded px-4 py-2 transition-colors shadow-sm"
                   onClick={() => toast.success("Honorários: registre contratos e parcelas no financeiro.")}
                 >
                   ADICIONAR HONORÁRIO
@@ -961,9 +961,9 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               <button
                 type="button"
                 onClick={() => setSubAbaAtividades("aberta")}
-                className={`transition-colors ${
+                className={`transition-colors pb-1 ${
                   subAbaAtividades === "aberta"
-                    ? "text-[#1B75D0] underline underline-offset-8"
+                    ? "text-[#010E38] border-b-2 border-[#EBB52C] font-black"
                     : "text-slate-500 hover:text-slate-800"
                 }`}
               >
@@ -972,9 +972,9 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               <button
                 type="button"
                 onClick={() => setSubAbaAtividades("concluida")}
-                className={`transition-colors ${
+                className={`transition-colors pb-1 ${
                   subAbaAtividades === "concluida"
-                    ? "text-[#1B75D0] underline underline-offset-8"
+                    ? "text-[#010E38] border-b-2 border-[#EBB52C] font-black"
                     : "text-slate-500 hover:text-slate-800"
                 }`}
               >
@@ -1021,7 +1021,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
         </div>
       )}
 
-      {/* 6. ABA HISTÓRICO COMPLETO (IDÊNTICO AO ASTREA - SCREENSHOT 8) */}
+      {/* 6. ABA HISTÓRICO COMPLETO */}
       {abaAtiva === "historico" && (
         <div className="space-y-4">
           {/* Card aviso honorário se não fechado */}
@@ -1039,7 +1039,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                 <Button
                   type="button"
                   size="sm"
-                  className="bg-[#1B75D0] hover:bg-[#1560ad] text-white font-bold text-xs uppercase tracking-wide rounded px-4 py-2"
+                  className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/30 font-bold text-xs uppercase tracking-wide rounded px-4 py-2 transition-colors shadow-sm"
                   onClick={() => toast.success("Honorários: registre contratos e parcelas no financeiro.")}
                 >
                   ADICIONAR HONORÁRIO
@@ -1127,7 +1127,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                   <span className="font-mono text-slate-500 w-24 shrink-0 pt-0.5">
                     {formatarDataBr(hist.data)}
                   </span>
-                  <Cloud className="w-4 h-4 text-[#1B75D0] shrink-0 mt-0.5" />
+                  <Cloud className="w-4 h-4 text-[#010E38]/80 shrink-0 mt-0.5" />
                   <div className="flex-1 space-y-0.5">
                     <p className="text-slate-800 leading-snug">{hist.titulo}</p>
                     {hist.linkDocumento && (
@@ -1135,10 +1135,10 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
                         href={hist.linkDocumento}
                         target="_blank"
                         rel="noreferrer"
-                        className="font-mono text-[11px] text-[#1B75D0] hover:underline flex items-center gap-1"
+                        className="font-mono text-[11px] text-[#010E38] hover:text-[#021B66] hover:underline flex items-center gap-1 font-semibold"
                       >
                         <span>{hist.linkDocumento}</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3 h-3 text-[#010E38]" />
                       </a>
                     )}
                   </div>
@@ -1150,7 +1150,7 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
               <button
                 type="button"
                 onClick={() => setExpandirHistoricoCompleto((p) => !p)}
-                className="text-xs font-bold text-[#1B75D0] hover:underline inline-flex items-center gap-1 uppercase"
+                className="text-xs font-bold text-[#010E38] hover:text-[#021B66] hover:underline inline-flex items-center gap-1 uppercase transition-colors"
               >
                 <span>VER TODOS</span>
                 <ExternalLink className="w-3 h-3" />
@@ -1160,20 +1160,20 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
         </div>
       )}
 
-      {/* FOOTER OFICIAL ASTREA / JUS+ GESTÃO JURÍDICA */}
+      {/* FOOTER OFICIAL JUS+ GESTÃO JURÍDICA */}
       <div className="text-center text-xs text-slate-500 pt-6">
-        © copyright 2026 - Jus+ Gestão Jurídica - Versão 2.02
+        © Copyright 2026 - JUS+ Gestão Jurídica · Venda+ Tech - Versão 2.02
       </div>
 
-      {/* FLOATING ACTION CHAT BUBBLE (IDÊNTICO AO ASTREA) */}
+      {/* FLOATING ACTION CHAT BUBBLE (JUS+ BRANDING) */}
       <div className="fixed bottom-5 right-5 z-40">
         <button
           type="button"
-          onClick={() => toast.info("Central de Ajuda e Suporte Jus+ Gestão Jurídica")}
-          className="w-12 h-12 rounded-full bg-[#1B75D0] hover:bg-[#1560ad] text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105"
+          onClick={() => toast.info("Central de Ajuda e Suporte JUS+ Gestão Jurídica")}
+          className="w-12 h-12 rounded-full bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 flex items-center justify-center shadow-lg transition-transform hover:scale-105"
           title="Fale conosco / Ajuda"
         >
-          <MessageSquare className="w-5 h-5 fill-white text-[#1B75D0]" />
+          <MessageSquare className="w-5 h-5 fill-[#EBB52C] text-[#010E38]" />
         </button>
       </div>
     </div>
