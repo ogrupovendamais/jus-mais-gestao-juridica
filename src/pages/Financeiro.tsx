@@ -60,6 +60,7 @@ import { ModalHonorarioAstrea } from "@/components/financeiro/ModalHonorarioAstr
 import { ModalEntradaAstrea } from "@/components/financeiro/ModalEntradaAstrea";
 import { ModalSaidaAstrea } from "@/components/financeiro/ModalSaidaAstrea";
 import { ModalTransferenciaAstrea } from "@/components/financeiro/ModalTransferenciaAstrea";
+import { AbaFaturasAstrea } from "@/components/financeiro/AbaFaturasAstrea";
 import { useSubmitUnico } from "@/hooks/useSubmitUnico";
 import { dataDeIso, vencimentoMensal } from "@/lib/diasUteis";
 
@@ -119,6 +120,7 @@ const Financeiro = () => {
   const [statusUpdateTarget, setStatusUpdateTarget] =
     useState<Lancamento | null>(null);
   const [subAbaFinanceiro, setSubAbaFinanceiro] = useState<"lancamentos" | "faturas" | "fluxo" | "config">("lancamentos");
+  const [subAbaFaturas, setSubAbaFaturas] = useState<"a_faturar" | "emitidas">("a_faturar");
   const [openModalHonorario, setOpenModalHonorario] = useState(false);
   const [openModalEntrada, setOpenModalEntrada] = useState(false);
   const [openModalSaida, setOpenModalSaida] = useState(false);
@@ -1273,17 +1275,46 @@ const Financeiro = () => {
           >
             Lançamentos
           </button>
-          <button
-            type="button"
-            onClick={() => setSubAbaFinanceiro("faturas")}
-            className={`pb-2 border-b-2 transition-all ${
-              subAbaFinanceiro === "faturas"
-                ? "border-[#EBB52C] text-[#010E38] font-black"
-                : "border-transparent text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            Faturas
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setSubAbaFinanceiro("faturas")}
+                className={`pb-2 border-b-2 transition-all flex items-center gap-1 ${
+                  subAbaFinanceiro === "faturas"
+                    ? "border-[#EBB52C] text-[#010E38] font-black"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <span>Faturas</span>
+                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-36 bg-white border border-slate-200 shadow-md p-1 text-xs">
+              <DropdownMenuItem
+                onClick={() => {
+                  setSubAbaFinanceiro("faturas");
+                  setSubAbaFaturas("a_faturar");
+                }}
+                className={`cursor-pointer py-2 px-3 font-semibold rounded ${
+                  subAbaFinanceiro === "faturas" && subAbaFaturas === "a_faturar" ? "bg-slate-100 text-[#010E38]" : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                A faturar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSubAbaFinanceiro("faturas");
+                  setSubAbaFaturas("emitidas");
+                }}
+                className={`cursor-pointer py-2 px-3 font-semibold rounded ${
+                  subAbaFinanceiro === "faturas" && subAbaFaturas === "emitidas" ? "bg-slate-100 text-[#010E38]" : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                Emitidas
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <button
             type="button"
             onClick={() => setSubAbaFinanceiro("fluxo")}
@@ -1609,28 +1640,15 @@ const Financeiro = () => {
         </>
       )}
 
-      {/* 3. CONTEÚDO DA ABA: FATURAS */}
+      {/* 3. CONTEÚDO DA ABA: FATURAS (OFICIAL ASTREA - PRINTS 1, 2 E 3) */}
       {subAbaFinanceiro === "faturas" && (
-        <div className="bg-white rounded-lg border border-slate-200/80 p-6 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-[#010E38]">Faturas do Escritório</h2>
-              <p className="text-xs text-slate-500">Agrupe lançamentos de honorários em faturas unificadas para envio ao cliente.</p>
-            </div>
-            <Button
-              type="button"
-              onClick={() => toast.info("Geração de faturas e boletos integrada às contas cadastradas.")}
-              className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] font-bold text-xs uppercase px-4 py-2 rounded"
-            >
-              Nova Fatura
-            </Button>
-          </div>
-          <div className="py-12 text-center text-xs text-slate-500 space-y-2">
-            <FileText className="w-8 h-8 mx-auto text-slate-400" />
-            <p className="font-semibold text-slate-700">Nenhuma fatura pendente de fechamento</p>
-            <p>Selecione honorários na aba Lançamentos para consolidar uma fatura por cliente.</p>
-          </div>
-        </div>
+        <AbaFaturasAstrea
+          subAbaFaturas={subAbaFaturas}
+          onMudarSubAba={setSubAbaFaturas}
+          lancamentos={lancamentos}
+          clientes={clientes}
+          onAtualizarLancamentos={load}
+        />
       )}
 
       {/* 4. CONTEÚDO DA ABA: FLUXO DE CAIXA */}
