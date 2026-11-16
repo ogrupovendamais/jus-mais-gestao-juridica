@@ -293,34 +293,34 @@ export function DashboardParceiro() {
   );
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
+    <div className="p-3.5 sm:p-5 md:p-6 space-y-4 sm:space-y-6 animate-fade-in max-w-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
             Olá, {primeiroNome}! 👋
           </h1>
-          <p className="text-muted-foreground">Seu painel de acompanhamento</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Seu painel de acompanhamento</p>
         </div>
-        <Badge variant="outline" className="border-amber-500/30 text-amber-500 bg-amber-500/10 px-3 py-1">
+        <Badge variant="outline" className="border-amber-500/30 text-amber-500 bg-amber-500/10 px-2.5 py-1 text-xs shrink-0">
           <Users2 className="w-3 h-3 mr-1" />
           Parceiro
         </Badge>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* KPIs - 2 colunas em mobile e 4 em desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
         {kpis.map((k) => (
-          <Card key={k.title} className="gradient-card hover:shadow-lg transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{k.title}</p>
-                  <p className="text-2xl font-bold mt-1">{k.value}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{k.sub}</p>
+          <Card key={k.title} className="gradient-card hover:shadow-md transition-all duration-300 rounded-xl">
+            <CardContent className="p-3.5 sm:p-5 md:p-6">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground truncate">{k.title}</p>
+                  <p className="font-data text-xl sm:text-2xl font-bold mt-1 truncate">{k.value}</p>
+                  <p className="text-[9.5px] sm:text-xs text-muted-foreground mt-0.5 truncate">{k.sub}</p>
                 </div>
-                <div className={`p-3 rounded-lg ${k.bg}`}>
-                  <k.icon className={`w-6 h-6 ${k.color}`} />
+                <div className={`p-2 sm:p-3 rounded-lg shrink-0 ${k.bg}`}>
+                  <k.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${k.color}`} />
                 </div>
               </div>
             </CardContent>
@@ -355,23 +355,23 @@ export function DashboardParceiro() {
                 {meusProcessos.map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{p.numero}</p>
-                      <p className="text-xs text-muted-foreground truncate">{p.cliente}</p>
+                      <p className="font-medium text-xs sm:text-sm truncate">{p.numero}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{p.cliente}</p>
                     </div>
-                    <div className="flex items-center gap-2 ml-3 shrink-0">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 sm:ml-3 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-[#010E38]/5">
                       <Badge
                         variant="outline"
-                        className={`text-xs border ${getStatusColor(p.status)}`}
+                        className={`text-[10px] sm:text-xs border ${getStatusColor(p.status)}`}
                       >
                         {p.status}
                       </Badge>
                       {p.prioridade && (
                         <Badge
                           variant="outline"
-                          className={`text-xs border ${getPrioridadeColor(p.prioridade)}`}
+                          className={`text-[10px] sm:text-xs border ${getPrioridadeColor(p.prioridade)}`}
                         >
                           {p.prioridade}
                         </Badge>
@@ -380,8 +380,8 @@ export function DashboardParceiro() {
                         variant="outline"
                         className={
                           p.papel === "Principal"
-                            ? "text-xs border border-blue-500/20 bg-blue-500/10 text-blue-500"
-                            : "text-xs border border-violet-500/20 bg-violet-500/10 text-violet-500"
+                            ? "text-[10px] sm:text-xs border border-blue-500/20 bg-blue-500/10 text-blue-500"
+                            : "text-[10px] sm:text-xs border border-violet-500/20 bg-violet-500/10 text-violet-500"
                         }
                       >
                         {p.papel === "Principal" ? (

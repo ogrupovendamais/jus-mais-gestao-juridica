@@ -112,49 +112,87 @@ export function PainelNichos() {
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 sm:px-6 pt-2 sm:pt-4">
         {linhas.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-6">Nenhum cliente com nicho {isAdmin ? "para este filtro" : "na sua carteira"}.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nicho</TableHead>
-                  <TableHead className="text-right">Clientes</TableHead>
-                  <TableHead className="text-right">Ativos</TableHead>
-                  <TableHead className="text-right">Processos</TableHead>
-                  <TableHead className="text-right">Ativos</TableHead>
-                  <TableHead className="text-right">Arquivados</TableHead>
-                  <TableHead className="text-right">Atrasados</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {linhas.map(([nicho, g]) => (
-                  <TableRow key={nicho}>
-                    <TableCell className="font-medium">{nicho}</TableCell>
-                    <TableCell className="text-right tabular-nums">{g.clientes}</TableCell>
-                    <TableCell className="text-right tabular-nums">{g.ativos}</TableCell>
-                    <TableCell className="text-right tabular-nums">{g.proc}</TableCell>
-                    <TableCell className="text-right tabular-nums">{g.andamento}</TableCell>
-                    <TableCell className="text-right tabular-nums">{g.concluidos}</TableCell>
-                    <TableCell className={`text-right tabular-nums ${g.atrasados > 0 ? "text-red-500 font-semibold" : ""}`}>{g.atrasados}</TableCell>
+          <>
+            {/* Visualização Mobile (sm:hidden): Cards por Nicho */}
+            <div className="sm:hidden space-y-2.5">
+              {linhas.map(([nicho, g]) => (
+                <div
+                  key={nicho}
+                  className="p-3 rounded-lg bg-[#F1F4F9] dark:bg-white/5 border border-[#010E38]/8 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-[#010E38] dark:text-[#F1F4F9] truncate max-w-[200px]">
+                      {nicho}
+                    </span>
+                    {g.atrasados > 0 && (
+                      <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">
+                        {g.atrasados} atrasado(s)
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="p-1.5 rounded bg-white dark:bg-black/20 border border-slate-200/60">
+                      <span className="text-[9.5px] font-bold text-slate-500 uppercase block">Clientes</span>
+                      <span className="font-data font-bold text-[#010E38] dark:text-[#EBB52C]">{g.clientes}</span>
+                    </div>
+                    <div className="p-1.5 rounded bg-white dark:bg-black/20 border border-slate-200/60">
+                      <span className="text-[9.5px] font-bold text-slate-500 uppercase block">Ativos</span>
+                      <span className="font-data font-bold text-emerald-600">{g.ativos}</span>
+                    </div>
+                    <div className="p-1.5 rounded bg-white dark:bg-black/20 border border-slate-200/60">
+                      <span className="text-[9.5px] font-bold text-slate-500 uppercase block">Processos</span>
+                      <span className="font-data font-bold text-[#010E38] dark:text-white">{g.proc}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Visualização Desktop (hidden sm:block): Tabela tradicional */}
+            <div className="hidden sm:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nicho</TableHead>
+                    <TableHead className="text-right">Clientes</TableHead>
+                    <TableHead className="text-right">Ativos</TableHead>
+                    <TableHead className="text-right">Processos</TableHead>
+                    <TableHead className="text-right">Ativos</TableHead>
+                    <TableHead className="text-right">Arquivados</TableHead>
+                    <TableHead className="text-right">Atrasados</TableHead>
                   </TableRow>
-                ))}
-                {linhas.length > 1 && (
-                  <TableRow className="font-semibold">
-                    <TableCell>Total</TableCell>
-                    <TableCell className="text-right tabular-nums">{total.clientes}</TableCell>
-                    <TableCell />
-                    <TableCell className="text-right tabular-nums">{total.proc}</TableCell>
-                    <TableCell className="text-right tabular-nums">{total.andamento}</TableCell>
-                    <TableCell />
-                    <TableCell className="text-right tabular-nums">{total.atrasados}</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {linhas.map(([nicho, g]) => (
+                    <TableRow key={nicho}>
+                      <TableCell className="font-medium">{nicho}</TableCell>
+                      <TableCell className="text-right tabular-nums">{g.clientes}</TableCell>
+                      <TableCell className="text-right tabular-nums">{g.ativos}</TableCell>
+                      <TableCell className="text-right tabular-nums">{g.proc}</TableCell>
+                      <TableCell className="text-right tabular-nums">{g.andamento}</TableCell>
+                      <TableCell className="text-right tabular-nums">{g.concluidos}</TableCell>
+                      <TableCell className={`text-right tabular-nums ${g.atrasados > 0 ? "text-red-500 font-semibold" : ""}`}>{g.atrasados}</TableCell>
+                    </TableRow>
+                  ))}
+                  {linhas.length > 1 && (
+                    <TableRow className="font-semibold">
+                      <TableCell>Total</TableCell>
+                      <TableCell className="text-right tabular-nums">{total.clientes}</TableCell>
+                      <TableCell />
+                      <TableCell className="text-right tabular-nums">{total.proc}</TableCell>
+                      <TableCell className="text-right tabular-nums">{total.andamento}</TableCell>
+                      <TableCell />
+                      <TableCell className="text-right tabular-nums">{total.atrasados}</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
