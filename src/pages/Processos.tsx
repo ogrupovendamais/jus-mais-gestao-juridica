@@ -108,9 +108,11 @@ import {
   carregarConfigOabAdvogado,
   salvarConfigOabAdvogado,
   lerMetadadosAstreaProcessos,
+  lerListaProcessosAstreaCache,
   salvarMetadadoAstreaProcesso,
   sincronizarProcessosAdvogadoPorOab,
   formatarNumeroCnj,
+  detectarNichoPorCnjOuClasse,
 } from "@/lib/oabSync";
 import {
   EtiquetaItem,
@@ -295,8 +297,44 @@ const Processos = () => {
         createdAt: p.created_at,
       };
     });
+    // Mescla processos da OAB sincronizados (cache persistente), garantindo que nunca sumam
+    const dbCnjSet = new Set<string>();
+    processosMapped.forEach((p) => {
+      const c = formatarNumeroCnj(p.numero || "");
+      if (c) dbCnjSet.add(c);
+    });
+
+    const cachedOab = lerListaProcessosAstreaCache();
+    for (const oabItem of cachedOab) {
+      const cnj = formatarNumeroCnj(oabItem.numeroCnj || "");
+      if (!cnj || dbCnjSet.has(cnj)) continue;
+      dbCnjSet.add(cnj);
+
+      const clienteNome = oabItem.poloAtivo || (oabItem.tituloPartes ? oabItem.tituloPartes.split(" x ")[0] : "Cliente OAB");
+      processosMapped.push({
+        id: oabItem.processoId || `oab-${cnj}`,
+        numero: cnj,
+        cliente: clienteNome,
+        clienteId: undefined,
+        nichoId: undefined,
+        nicho: detectarNichoPorCnjOuClasse(cnj, oabItem.acaoClasse || ""),
+        assunto: oabItem.acaoClasse || "Procedimento Judicial",
+        assuntoPrincipal: oabItem.tituloPartes || clienteNome,
+        status: oabItem.encerrado ? "Arquivado" : "Aguardando movimentação",
+        dataInicio: oabItem.ultimaMovData || new Date().toISOString().slice(0, 10),
+        dataLimite: "",
+        prioridade: "Média",
+        responsavel_a_id: user?.id || "",
+        responsavel_b_id: "",
+        responsavel: oabConfig.numeroOab ? `OAB/${oabConfig.ufOab} ${oabConfig.numeroOab}` : "Advogado Titular",
+        valor: oabItem.valorCausa ? String(oabItem.valorCausa) : "R$ 0,00",
+        instancia: oabItem.foroVara || "1ª Instância",
+        createdAt: oabItem.ultimaMovData || new Date().toISOString(),
+      });
+    }
+
     setProcessos(processosMapped);
-  }, [usuarios]);
+  }, [usuarios, user?.id, oabConfig.numeroOab, oabConfig.ufOab]);
 
   useEffect(() => {
     fetchData();

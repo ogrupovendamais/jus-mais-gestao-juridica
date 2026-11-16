@@ -121,6 +121,25 @@ export function salvarMultiplosMetadadosAstrea(map: Record<string, ProcessoExtra
 }
 
 /**
+ * Retorna a lista desduplicada de todos os processos da OAB armazenados em cache local
+ */
+export function lerListaProcessosAstreaCache(): ProcessoExtraAstrea[] {
+  const metaMap = lerMetadadosAstreaProcessos();
+  const list: ProcessoExtraAstrea[] = [];
+  const seenCnj = new Set<string>();
+
+  for (const item of Object.values(metaMap)) {
+    if (!item || !item.numeroCnj) continue;
+    const cleanCnj = formatarNumeroCnj(item.numeroCnj);
+    if (seenCnj.has(cleanCnj)) continue;
+    seenCnj.add(cleanCnj);
+    list.push(item);
+  }
+
+  return list;
+}
+
+/**
  * Carrega a configuração de OAB + UF do advogado (do Supabase profiles + localStorage)
  */
 export async function carregarConfigOabAdvogado(userId?: string): Promise<ConfigOabAdvogado> {
@@ -451,16 +470,14 @@ export async function sincronizarProcessosAdvogadoPorOab(params: {
       }
     }
 
-    // Insere o processo na tabela `processos`
-    const payloadProcesso = {
+    // Insere o processo na tabela `processos` usando apenas colunas existentes no Postgres
+    const payloadProcesso: any = {
       numero: item.numeroCnj,
-      cliente_id: clienteId,
-      assunto_principal: item.tituloPartes,
+      cliente_id: clienteId || (clientesExistentes[0]?.id || null),
       assunto: `${item.acaoClasse}${item.ultimaMovTexto ? ` — Últ. publicação: ${item.ultimaMovTexto}` : ""}`,
       status: "Aguardando movimentação",
       data_inicio: item.ultimaMovData || new Date().toISOString().slice(0, 10),
       prioridade: "Média",
-      responsavel_a_id: userId,
       responsavel: `OAB ${numeroOab}/${ufOab}`,
       valor_causa: 0,
       instancia: `${item.foroVara}${item.siglaTribunal ? ` (${item.siglaTribunal})` : ""}`,
