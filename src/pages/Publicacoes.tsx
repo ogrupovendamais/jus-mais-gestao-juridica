@@ -558,24 +558,157 @@ export default function Publicacoes() {
         </div>
       )}
 
-      {/* 5. TABELA DE PUBLICAÇÕES (RESPONSIVA, SEM CORTES, PADRÃO JUS+) */}
+      {/* 5. TABELA DE PUBLICAÇÕES (RESPONSIVA DUAL: CARDS EM MOBILE + TABELA EM DESKTOP) */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        {/* Sub-header da tabela */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 text-xs bg-slate-50/50">
+        {/* Sub-header */}
+        <div className="flex items-center justify-between px-3.5 sm:px-4 py-3 border-b border-slate-100 text-xs bg-slate-50/50">
           <span className="text-[#010E38] font-bold">
             Mostrando <strong className="text-[#010E38]">{publicacoesFiltradas.length}</strong> publicações
           </span>
           <button
             type="button"
             onClick={alternarExpandirTodos}
-            className="text-[#010E38] hover:text-[#021B66] hover:underline font-extrabold text-xs"
+            className="text-[#010E38] hover:text-[#021B66] hover:underline font-extrabold text-xs hidden sm:inline-block"
           >
             Expandir todos
           </button>
         </div>
 
-        {/* Tabela com container de scroll horizontal seguro */}
-        <div className="w-full overflow-x-auto">
+        {/* ============================================================== */}
+        {/* VISUALIZAÇÃO MOBILE (md:hidden): CARDS MODERNOS COM TOQUE FÁCIL */}
+        {/* ============================================================== */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {publicacoesFiltradas.length === 0 ? (
+            <div className="py-12 text-center text-slate-400 font-medium px-4 text-xs">
+              Nenhuma publicação encontrada para os filtros selecionados.
+            </div>
+          ) : (
+            publicacoesFiltradas.map((pub) => (
+              <div key={pub.id} className="p-3.5 space-y-3 bg-white hover:bg-slate-50/60 transition-colors">
+                {/* Linha 1: Tag Diário + Data + Status */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Checkbox
+                      checked={selectedIds.includes(pub.id)}
+                      onCheckedChange={() => toggleSelectOne(pub.id)}
+                    />
+                    {pub.tipo === "intimacao" ? (
+                      <Bell className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" title="Intimação Eletrônica" />
+                    ) : (
+                      <FileText className="w-3.5 h-3.5 text-[#010E38]/60 shrink-0" title="Diário Oficial" />
+                    )}
+                    <span className="text-[11px] font-bold text-[#010E38]/70 truncate max-w-[150px]">
+                      {pub.diario}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[11px] font-extrabold text-[#010E38]">
+                      {formatarDataBr(pub.dataDivulgacao)}
+                    </span>
+                    {pub.status === "nao_tratada" ? (
+                      <span className="bg-[#EBB52C]/15 text-[#010E38] text-[9.5px] font-black px-1.5 py-0.5 rounded border border-[#EBB52C]/50 shadow-xs">
+                        NÃO TRATADA
+                      </span>
+                    ) : pub.status === "tratada" ? (
+                      <span className="bg-emerald-100 text-emerald-900 text-[9.5px] font-black px-1.5 py-0.5 rounded border border-emerald-300 shadow-xs">
+                        TRATADA
+                      </span>
+                    ) : (
+                      <span className="bg-slate-100 text-slate-700 text-[9.5px] font-black px-1.5 py-0.5 rounded border border-slate-300 shadow-xs">
+                        DESCARTADA
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Linha 2: Processo e Partes */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPubSelecionada(pub);
+                      setIsDetalheOpen(true);
+                    }}
+                    className="text-left font-mono font-bold text-sm text-[#010E38] hover:underline block tracking-tight"
+                  >
+                    {pub.numeroProcesso}
+                  </button>
+                  <p className="text-xs font-semibold text-[#010E38]/85 mt-0.5 line-clamp-1">
+                    {pub.partesProcesso}
+                  </p>
+                  <p className="text-[11px] text-[#010E38]/60 mt-0.5">
+                    Nome: <strong className="text-[#010E38]">{pub.nomePesquisado}</strong> · Resp: {pub.responsavel || "ALEX F"}
+                  </p>
+                </div>
+
+                {/* Linha 3: Trecho do conteúdo oficial */}
+                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px] text-slate-700 leading-relaxed font-normal">
+                  <p className="line-clamp-3">{pub.conteudoCompleto}</p>
+                </div>
+
+                {/* Linha 4: Sugestões de IA Mobile */}
+                {pub.sugestoesIa && pub.sugestoesIa.length > 0 && pub.status === "nao_tratada" && (
+                  <div className="space-y-1.5 pt-0.5">
+                    <span className="text-[10.5px] font-black text-[#010E38] flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-[#EBB52C]" /> IA Sugestões:
+                    </span>
+                    {pub.sugestoesIa.map((sug, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() =>
+                          sug.tipo === "prazo"
+                            ? handleAdicionarPrazo(pub, sug.dias || 15)
+                            : handleAdicionarAudiencia(pub, sug.dataSugerida || "2027-05-10")
+                        }
+                        className="w-full text-left bg-[#EBB52C]/15 hover:bg-[#EBB52C]/25 text-[#010E38] border border-[#EBB52C]/50 px-2.5 py-1.5 rounded-md text-[10.5px] font-black uppercase tracking-wider shadow-xs flex items-center justify-between transition-colors"
+                      >
+                        <span className="truncate">{sug.label || sug.descricao}</span>
+                        <Plus className="w-3.5 h-3.5 shrink-0 ml-1.5" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Linha 5: Botões de Ação no Mobile */}
+                <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setPubSelecionada(pub);
+                      setIsDetalheOpen(true);
+                    }}
+                    className="flex-1 bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] font-black text-xs uppercase tracking-wider h-9 rounded-md shadow-xs border border-[#EBB52C]/30"
+                  >
+                    ACESSAR PUBLICAÇÃO
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => handleAdicionarPrazo(pub, 15)}
+                    title="Adicionar prazo rápido (15 dias)"
+                    className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-200 bg-white text-[#010E38] hover:bg-slate-50 shrink-0"
+                  >
+                    <Plus className="w-4 h-4 stroke-[2.5]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMarcarTratada(pub)}
+                    title="Marcar como tratada"
+                    className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-200 bg-white text-emerald-600 hover:bg-emerald-50 shrink-0"
+                  >
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* ============================================================== */}
+        {/* VISUALIZAÇÃO DESKTOP (hidden md:block): TABELA COMPLETA COM SCROLL */}
+        {/* ============================================================== */}
+        <div className="hidden md:block w-full overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1050px]">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] font-black text-[#010E38]/70 uppercase tracking-wider">

@@ -1779,10 +1779,147 @@ const Processos = () => {
         </div>
       </div>
 
-      {/* TABELA DE PROCESSOS E CASOS IDÊNTICA AO ASTREA COM IDENTIDADE JUS+ */}
+      {/* TABELA DE PROCESSOS E CASOS (RESPONSIVA DUAL: CARDS EM MOBILE + TABELA EM DESKTOP) */}
       <Card className="border border-[#010E38]/12 bg-white shadow-sm rounded-md overflow-hidden">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          {/* ============================================================== */}
+          {/* VISUALIZAÇÃO MOBILE (md:hidden): CARDS DE PROCESSOS TOQUE FÁCIL */}
+          {/* ============================================================== */}
+          <div className="md:hidden divide-y divide-[#010E38]/10">
+            {filteredProcessos.length === 0 ? (
+              <div className="py-12 text-center text-[#010E38]/50 font-medium px-4 text-xs">
+                Nenhum processo encontrado para os filtros selecionados.
+              </div>
+            ) : (
+              filteredProcessos.map((processo) => {
+                const meta = getMetaForProcesso(processo);
+                const isAtivo = processoAtivo(processo.status);
+                const isChecked = selectedIds.includes(processo.id);
+
+                return (
+                  <div
+                    key={processo.id}
+                    className={`p-3.5 space-y-2.5 transition-colors ${
+                      isChecked ? "bg-[#EBB52C]/10" : "bg-white"
+                    }`}
+                  >
+                    {/* Linha 1: Checkbox + Estrela + RSS + Status + Data */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={() => toggleSelectRow(processo.id)}
+                          className="border-[#010E38]/30 data-[state=checked]:bg-[#010E38] data-[state=checked]:text-[#EBB52C]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleFavorito(processo)}
+                          className="text-[#010E38]/35 hover:text-[#EBB52C] transition-colors"
+                          title={meta.favorito ? "Remover destaque" : "Marcar como importante"}
+                        >
+                          <Star
+                            className={`w-4 h-4 ${
+                              meta.favorito
+                                ? "text-[#EBB52C] fill-[#EBB52C]"
+                                : "text-[#010E38]/30"
+                            }`}
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toggleMonitoramentoRss(processo)}
+                          className="transition-colors"
+                          title={meta.monitoradoRss ? "Monitoramento CNJ ativo" : "Ativar monitoramento CNJ"}
+                        >
+                          <Rss
+                            className={`w-3.5 h-3.5 ${
+                              meta.monitoradoRss
+                                ? "text-emerald-600 stroke-[2.5]"
+                                : "text-[#010E38]/25"
+                            }`}
+                          />
+                        </button>
+                        <span
+                          className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
+                            isAtivo
+                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                              : "bg-slate-100 text-slate-700 border border-slate-200"
+                          }`}
+                        >
+                          {isAtivo ? "Ativo" : "Arquivado"}
+                        </span>
+                      </div>
+
+                      <span className="text-[11px] font-bold text-[#010E38]/70">
+                        {formatarDataUltimaMov(processo)}
+                      </span>
+                    </div>
+
+                    {/* Linha 2: Título das Partes (Autor x Réu) */}
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => handleView(processo)}
+                        className="text-left font-bold text-sm text-[#010E38] hover:text-[#010E38]/75 leading-snug block"
+                      >
+                        {meta.tituloPartes}
+                      </button>
+                      {meta.numeroCnj && (
+                        <button
+                          type="button"
+                          onClick={() => handleView(processo)}
+                          className="font-mono text-xs text-[#010E38]/70 underline mt-0.5 block hover:text-[#010E38]"
+                        >
+                          {meta.numeroCnj}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Linha 3: Detalhes do Cliente e Foro */}
+                    <div className="grid grid-cols-2 gap-2 text-xs p-2 rounded bg-[#F1F4F9]/60 border border-[#010E38]/8">
+                      <div>
+                        <span className="text-[10px] font-bold text-[#010E38]/50 uppercase block">Cliente</span>
+                        <span className="font-semibold text-[#010E38] truncate block">
+                          {meta.poloAtivo || processo.cliente || "—"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#010E38]/50 uppercase block">Foro / Juízo</span>
+                        <span className="font-semibold text-[#010E38] truncate block">
+                          {meta.juizo || processo.instancia || "—"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Linha 4: Botões de Ação no Mobile */}
+                    <div className="flex items-center gap-2 pt-1 border-t border-[#010E38]/8">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => handleView(processo)}
+                        className="flex-1 bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] font-black text-xs uppercase tracking-wider h-8 rounded shadow-xs"
+                      >
+                        ACESSAR PROCESSO
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(processo)}
+                        className="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-[#010E38]"
+                        title="Editar processo"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* ============================================================== */}
+          {/* VISUALIZAÇÃO DESKTOP (hidden md:block): TABELA COMPLETA         */}
+          {/* ============================================================== */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[#010E38]/15 bg-[#F1F4F9]/60 text-[11px] font-extrabold text-[#010E38]/70 uppercase tracking-wider">
