@@ -24,6 +24,7 @@ import Relatorios from "./pages/Relatorios";
 import Mensagens from "./pages/Mensagens";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -93,6 +94,7 @@ const App = () => {
             <BrowserRouter>
               <AuthRedirectHandler />
               <Routes>
+                <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/verify" element={<Auth />} />
                 <Route path="/*" element={
