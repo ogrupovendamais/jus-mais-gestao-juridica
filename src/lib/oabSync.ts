@@ -140,6 +140,26 @@ export function lerListaProcessosAstreaCache(): ProcessoExtraAstrea[] {
 }
 
 /**
+ * Carrega a configuração da OAB de forma síncrona imediata (0ms) a partir do localStorage
+ */
+export function carregarConfigOabAdvogadoSync(): ConfigOabAdvogado {
+  try {
+    const raw = localStorage.getItem(OAB_CONFIG_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.numeroOab) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return {
+    numeroOab: "432226",
+    ufOab: "SP",
+    autoSync: true,
+  };
+}
+
+/**
  * Carrega a configuração de OAB + UF do advogado (do Supabase profiles + localStorage)
  */
 export async function carregarConfigOabAdvogado(userId?: string): Promise<ConfigOabAdvogado> {

@@ -106,6 +106,7 @@ import {
   ConfigOabAdvogado,
   ProcessoExtraAstrea,
   carregarConfigOabAdvogado,
+  carregarConfigOabAdvogadoSync,
   salvarConfigOabAdvogado,
   lerMetadadosAstreaProcessos,
   lerListaProcessosAstreaCache,
@@ -157,6 +158,56 @@ type OpcaoNicho = {
   nicho: string;
 };
 
+/**
+ * Carrega instantaneamente (0ms) todos os processos em cache local no primeiro frame
+ */
+function carregarProcessosIniciais(): Processo[] {
+  try {
+    const cachedOab = lerListaProcessosAstreaCache();
+    if (!cachedOab || cachedOab.length === 0) return [];
+
+    const cfg = carregarConfigOabAdvogadoSync();
+    const cnjSet = new Set<string>();
+    const list: Processo[] = [];
+
+    for (const oabItem of cachedOab) {
+      const cnj = formatarNumeroCnj(oabItem.numeroCnj || "");
+      if (!cnj || cnjSet.has(cnj)) continue;
+      cnjSet.add(cnj);
+
+      const clienteNome =
+        oabItem.poloAtivo ||
+        (oabItem.tituloPartes ? oabItem.tituloPartes.split(" x ")[0] : "Cliente OAB");
+
+      list.push({
+        id: oabItem.processoId || `oab-${cnj}`,
+        numero: cnj,
+        cliente: clienteNome,
+        clienteId: undefined,
+        nichoId: undefined,
+        nicho: detectarNichoPorCnjOuClasse(cnj, oabItem.acaoClasse || ""),
+        assunto: oabItem.acaoClasse || "Procedimento Judicial",
+        assuntoPrincipal: oabItem.tituloPartes || clienteNome,
+        status: oabItem.encerrado ? "Arquivado" : "Aguardando movimentação",
+        dataInicio: oabItem.ultimaMovData || new Date().toISOString().slice(0, 10),
+        dataLimite: "",
+        prioridade: "Média",
+        responsavel_a_id: "",
+        responsavel_b_id: "",
+        responsavel: cfg.numeroOab
+          ? `OAB/${cfg.ufOab} ${cfg.numeroOab}`
+          : "Advogado Titular",
+        valor: oabItem.valorCausa ? String(oabItem.valorCausa) : "R$ 0,00",
+        instancia: oabItem.foroVara || "1ª Instância",
+        createdAt: oabItem.ultimaMovData || new Date().toISOString(),
+      });
+    }
+    return list;
+  } catch {
+    return [];
+  }
+}
+
 const Processos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<
@@ -170,7 +221,9 @@ const Processos = () => {
   const [sortMovAsc, setSortMovAsc] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const [processos, setProcessos] = useState<Processo[]>([]);
+  const [processos, setProcessos] = useState<Processo[]>(() =>
+    carregarProcessosIniciais()
+  );
   const [clientes, setClientes] = useState<{ id: string; nome: string }[]>([]);
   const [opcoesNicho, setOpcoesNicho] = useState<OpcaoNicho[]>([]);
   const usuarios = useUsuarios();
@@ -189,11 +242,9 @@ const Processos = () => {
   const [novaTagCor, setNovaTagCor] = useState(typeof CORES_ETIQUETAS[0] === 'string' ? CORES_ETIQUETAS[0] : (CORES_ETIQUETAS[0] as any).hex);
 
   // Configuração e Sincronização Nativa por OAB + UF
-  const [oabConfig, setOabConfig] = useState<ConfigOabAdvogado>({
-    numeroOab: "",
-    ufOab: "SP",
-    autoSync: true,
-  });
+  const [oabConfig, setOabConfig] = useState<ConfigOabAdvogado>(() =>
+    carregarConfigOabAdvogadoSync()
+  );
   const [isOabModalOpen, setIsOabModalOpen] = useState(false);
   const [isSyncingOab, setIsSyncingOab] = useState(false);
   const [autoSyncExecuted, setAutoSyncExecuted] = useState(false);
@@ -419,11 +470,8 @@ const Processos = () => {
       oabConfig.autoSync
     ) {
       setAutoSyncExecuted(true);
-      // Sincroniza em background caso a última sincronização tenha mais de 30 minutos
-      const lastSync = oabConfig.ultimaSincronizacao
-        ? new Date(oabConfig.ultimaSincronizacao).getTime()
-        : 0;
-      if (Date.now() - lastSync > 30 * 60 * 1000) {
+      // Sincroniza em background apenas se a lista local estiver vazia
+      if (processos.length === 0) {
         executarSincronizacaoOab(oabConfig.numeroOab, oabConfig.ufOab, true);
       }
     }
