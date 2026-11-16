@@ -1851,7 +1851,7 @@ const Processos = () => {
                       </div>
 
                       <span className="text-[11px] font-bold text-[#010E38]/70">
-                        {formatarDataUltimaMov(processo)}
+                        {formatDataMovimentacao(meta.ultimaMovData)}
                       </span>
                     </div>
 
