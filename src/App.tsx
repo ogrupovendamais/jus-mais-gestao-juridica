@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import Clientes from "./pages/Clientes";
 import Atendimentos from "./pages/Atendimentos";
 import Processos from "./pages/Processos";
+import Publicacoes from "./pages/Publicacoes";
 import Audiencias from "./pages/Audiencias";
 import Tarefas from "./pages/Tarefas";
 import Workflows from "./pages/Workflows";
@@ -114,6 +115,7 @@ const App = () => {
                               <Route path="/clientes" element={<Clientes />} />
                               <Route path="/atendimentos" element={<Atendimentos />} />
                               <Route path="/processos" element={<Processos />} />
+                              <Route path="/publicacoes" element={<Publicacoes />} />
                               <Route path="/audiencias" element={<Audiencias />} />
                               <Route path="/tarefas" element={<Tarefas />} />
                               <Route path="/workflows" element={<Workflows />} />

@@ -60,7 +60,11 @@ self.addEventListener('fetch', (event) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(event.request);
+      return fetch(event.request).catch((err) => {
+        // Fallback resiliente para evitar unhandled promise rejection
+        console.warn('SW fetch offline fallback:', event.request.url);
+        return new Response(null, { status: 503, statusText: 'Offline/Network Timeout' });
+      });
     })
   );
 });

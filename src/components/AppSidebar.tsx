@@ -17,6 +17,8 @@ import {
   Map,
   GitBranch,
   MessageCircle,
+  Newspaper,
+  CheckCircle2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -113,6 +115,20 @@ export function AppSidebar() {
                     <Link to="/processos" className="flex items-center gap-3">
                       <Briefcase className="w-4 h-4" />
                       <span>Processos</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild className={navClass("/publicacoes")}>
+                    <Link to="/publicacoes" className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <Newspaper className="w-4 h-4" />
+                        <span>Publicações</span>
+                      </div>
+                      <span className="bg-[#E53E3E] text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full shadow-xs">
+                        26
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -247,6 +263,60 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          {/* CARD DE ONBOARDING PASSO 3: PUBLICAÇÕES & INTIMAÇÕES ELETRÔNICAS */}
+          <div className="mx-1 mt-4 p-2.5 rounded-lg bg-[#0F224D] border border-blue-400/25 text-white text-xs shadow-sm">
+            <Link to="/publicacoes" className="block group">
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-bold text-[11px] text-blue-200 group-hover:text-white flex items-center gap-1.5">
+                  <Newspaper className="w-3.5 h-3.5 text-[#EBB52C]" />
+                  Passo 3: Publicações
+                </span>
+                <span className="text-[10px] text-blue-300 font-semibold">1 de 4</span>
+              </div>
+              <div className="w-full bg-white/15 h-1 rounded-full mb-2 overflow-hidden">
+                <div className="bg-[#EBB52C] h-full w-1/4 rounded-full" />
+              </div>
+            </Link>
+
+            <div className="space-y-1 text-[10.5px]">
+              <Link
+                to="/publicacoes"
+                className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/90 transition-colors"
+              >
+                <div className="flex items-center gap-1.5 truncate">
+                  <FileText className="w-3 h-3 text-blue-300 shrink-0" />
+                  <span className="truncate">Trate uma publicação</span>
+                </div>
+                <span className="text-[9px] text-[#EBB52C] font-bold">26</span>
+              </Link>
+
+              <Link
+                to="/publicacoes"
+                className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/70 transition-colors"
+              >
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="w-3 h-3 flex items-center justify-center text-[10px] text-blue-300 font-bold">▾</span>
+                  <span className="truncate">Filtre as publicações</span>
+                </div>
+              </Link>
+
+              <Link
+                to="/publicacoes"
+                className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/70 transition-colors"
+              >
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="w-3 h-3 flex items-center justify-center text-[10px] text-blue-300 font-bold">💻</span>
+                  <span className="truncate">Cadastre intimações</span>
+                </div>
+              </Link>
+
+              <div className="flex items-center gap-1.5 py-0.5 px-1.5 text-emerald-400 font-medium">
+                <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                <span className="truncate">Defina um nome (Ativo)</span>
+              </div>
+            </div>
+          </div>
         </SidebarContent>
 
         <SidebarFooter className="p-4 space-y-2 border-t border-white/10">
