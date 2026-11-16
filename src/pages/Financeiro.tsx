@@ -56,6 +56,10 @@ import {
 import { DeleteLancamentoDialog } from "@/components/financeiro/DeleteLancamentoDialog";
 import { StatusUpdateDialog } from "@/components/financeiro/StatusUpdateDialog";
 import { EsteiraHonorarios } from "@/components/financeiro/EsteiraHonorarios";
+import { ModalHonorarioAstrea } from "@/components/financeiro/ModalHonorarioAstrea";
+import { ModalEntradaAstrea } from "@/components/financeiro/ModalEntradaAstrea";
+import { ModalSaidaAstrea } from "@/components/financeiro/ModalSaidaAstrea";
+import { ModalTransferenciaAstrea } from "@/components/financeiro/ModalTransferenciaAstrea";
 import { useSubmitUnico } from "@/hooks/useSubmitUnico";
 import { dataDeIso, vencimentoMensal } from "@/lib/diasUteis";
 
@@ -114,6 +118,13 @@ const Financeiro = () => {
   );
   const [statusUpdateTarget, setStatusUpdateTarget] =
     useState<Lancamento | null>(null);
+  const [subAbaFinanceiro, setSubAbaFinanceiro] = useState<"lancamentos" | "faturas" | "fluxo" | "config">("lancamentos");
+  const [openModalHonorario, setOpenModalHonorario] = useState(false);
+  const [openModalEntrada, setOpenModalEntrada] = useState(false);
+  const [openModalSaida, setOpenModalSaida] = useState(false);
+  const [openModalTransferencia, setOpenModalTransferencia] = useState(false);
+  const [mostrarOnboardingManual, setMostrarOnboardingManual] = useState(false);
+
   const { toast } = useToast();
   const { user, role, classificacao } = useAuth();
   // Gestão e Assistente Financeira gerenciam os lançamentos; excluir só a Gestão
@@ -1180,179 +1191,543 @@ const Financeiro = () => {
             };
 
   return (
-    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-      <header>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Gestão Financeira</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
-          Acompanhe os recebimentos do seu escritório.
-        </p>
-      </header>
+    <div className="p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-6 min-h-screen bg-[#F1F4F9] text-[#010E38]">
+      {/* 1. TOPO OFICIAL ASTREA: TÍTULO + BOTÃO + ABAS */}
+      <div className="bg-white rounded-lg border border-slate-200/80 p-4 sm:p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#010E38] tracking-tight">
+              Financeiro
+            </h1>
+            <p className="text-xs text-slate-500">
+              Controle de honorários, entradas, saídas, repasses e fluxo de caixa.
+            </p>
+          </div>
 
-      <EsteiraHonorarios onLancamentosGerados={load} />
+          <div className="flex items-center gap-2">
+            {lancamentos.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setMostrarOnboardingManual((prev) => !prev)}
+                className="text-xs font-semibold text-slate-600 hover:text-[#010E38] border border-slate-200 rounded px-3 py-2 bg-slate-50 hover:bg-slate-100 transition-colors"
+                title="Alternar entre lista e visão inicial de introdução"
+              >
+                {mostrarOnboardingManual ? "Ver Lançamentos" : "Visão de Boas-Vindas"}
+              </button>
+            )}
 
-      {isAdmin && (
-        <div className="grid gap-4 md:grid-cols-3">
-          {stats.map((stat) => (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon
-                  className={`h-4 w-4 text-muted-foreground ${stat.color}`}
-                />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-              </CardContent>
-            </Card>
-          ))}
+            {/* BOTÃO ADICIONAR LANÇAMENTO ▾ (OFICIAL ASTREA) */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-4 py-2 rounded shadow-sm flex items-center gap-2 transition-all"
+                >
+                  <span>ADICIONAR LANÇAMENTO</span>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-52 bg-white border border-slate-200 shadow-xl text-[#010E38] p-1.5 font-medium text-xs z-50 rounded-lg"
+              >
+                <DropdownMenuItem
+                  onClick={() => setOpenModalHonorario(true)}
+                  className="cursor-pointer py-2.5 px-3 font-semibold hover:bg-slate-50 rounded text-slate-800"
+                >
+                  Honorário
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setOpenModalEntrada(true)}
+                  className="cursor-pointer py-2.5 px-3 font-semibold hover:bg-slate-50 rounded text-slate-800"
+                >
+                  Outras Entradas
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setOpenModalSaida(true)}
+                  className="cursor-pointer py-2.5 px-3 font-semibold hover:bg-slate-50 rounded text-slate-800"
+                >
+                  Saída
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setOpenModalTransferencia(true)}
+                  className="cursor-pointer py-2.5 px-3 font-semibold hover:bg-slate-50 rounded text-slate-800"
+                >
+                  Transferência
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        {/* Sub-Abas: Lançamentos | Faturas | Fluxo de caixa | Configurações */}
+        <div className="flex items-center gap-6 text-sm font-semibold border-t border-slate-100 pt-3">
+          <button
+            type="button"
+            onClick={() => setSubAbaFinanceiro("lancamentos")}
+            className={`pb-2 border-b-2 transition-all ${
+              subAbaFinanceiro === "lancamentos"
+                ? "border-[#EBB52C] text-[#010E38] font-black"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Lançamentos
+          </button>
+          <button
+            type="button"
+            onClick={() => setSubAbaFinanceiro("faturas")}
+            className={`pb-2 border-b-2 transition-all ${
+              subAbaFinanceiro === "faturas"
+                ? "border-[#EBB52C] text-[#010E38] font-black"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Faturas
+          </button>
+          <button
+            type="button"
+            onClick={() => setSubAbaFinanceiro("fluxo")}
+            className={`pb-2 border-b-2 transition-all ${
+              subAbaFinanceiro === "fluxo"
+                ? "border-[#EBB52C] text-[#010E38] font-black"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Fluxo de caixa
+          </button>
+          <button
+            type="button"
+            onClick={() => setSubAbaFinanceiro("config")}
+            className={`pb-2 border-b-2 transition-all ${
+              subAbaFinanceiro === "config"
+                ? "border-[#EBB52C] text-[#010E38] font-black"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Configurações
+          </button>
+        </div>
+      </div>
+
+      {/* 2. CONTEÚDO DA ABA: LANÇAMENTOS */}
+      {subAbaFinanceiro === "lancamentos" && (
+        <>
+          {/* EMPTY STATE / ONBOARDING OFICIAL ASTREA (SCREENSHOT 1) */}
+          {(lancamentos.length === 0 || mostrarOnboardingManual) ? (
+            <div className="bg-white rounded-lg border border-slate-200/80 p-8 sm:p-12 shadow-sm text-center flex flex-col items-center justify-center space-y-6">
+              {/* Ilustração SVG de Gestão Financeira com Homem, Porquinho, Laptop e Moedas */}
+              <div className="w-72 sm:w-80 h-48 relative flex items-center justify-center">
+                <svg viewBox="0 0 400 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Fundo suave */}
+                  <circle cx="200" cy="120" r="90" fill="#F1F4F9" />
+                  
+                  {/* Prateleira com vasinho */}
+                  <rect x="290" y="80" width="40" height="4" rx="2" fill="#CBD5E1" />
+                  <path d="M305 80 L310 65 L320 65 L325 80 Z" fill="#E2E8F0" />
+                  <circle cx="315" cy="60" r="5" fill="#10B981" />
+                  <circle cx="318" cy="54" r="4" fill="#34D399" />
+
+                  {/* Mesa de trabalho */}
+                  <rect x="70" y="150" width="260" height="8" rx="3" fill="#E2E8F0" />
+
+                  {/* Laptop */}
+                  <path d="M90 148 L105 115 L145 115 L160 148 Z" fill="#93C5FD" />
+                  <rect x="100" y="118" width="45" height="26" rx="2" fill="#FFFFFF" />
+                  <line x1="105" y1="126" x2="135" y2="126" stroke="#010E38" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="105" y1="133" x2="125" y2="133" stroke="#010E38" strokeWidth="2" strokeLinecap="round" />
+
+                  {/* Porquinho cofrinho */}
+                  <ellipse cx="180" cy="142" rx="14" ry="10" fill="#93C5FD" />
+                  <circle cx="172" cy="142" r="4" fill="#60A5FA" />
+                  <circle cx="178" cy="138" r="1.5" fill="#010E38" />
+
+                  {/* Maleta executiva */}
+                  <rect x="260" y="125" width="30" height="23" rx="3" fill="#60A5FA" />
+                  <path d="M270 125 L270 121 Q275 119 280 121 L280 125" stroke="#3B82F6" strokeWidth="2" fill="none" />
+                  <circle cx="275" cy="134" r="2" fill="#FFFFFF" />
+
+                  {/* Moedas caindo / Notas */}
+                  <g className="animate-bounce" style={{ animationDuration: "3s" }}>
+                    <circle cx="180" cy="115" r="7" fill="#EBB52C" stroke="#B45309" strokeWidth="1" />
+                    <text x="178" y="118" fontSize="8" fontWeight="bold" fill="#010E38">$</text>
+                  </g>
+                  <g className="animate-pulse">
+                    <rect x="145" y="75" width="22" height="14" rx="2" transform="rotate(-15 145 75)" fill="#93C5FD" opacity="0.8" />
+                    <circle cx="155" cy="82" r="3" fill="#FFFFFF" />
+                  </g>
+
+                  {/* Homem executivo */}
+                  <circle cx="225" cy="85" r="14" fill="#7C3AED" />
+                  <circle cx="225" cy="85" r="12" fill="#8D5B4C" />
+                  {/* Cabelo */}
+                  <path d="M213 83 Q225 70 237 83 Q235 76 225 75 Q215 76 213 83 Z" fill="#1E293B" />
+                  {/* Corpo e paletó */}
+                  <path d="M205 148 L210 108 Q225 105 240 108 L245 148 Z" fill="#E2E8F0" />
+                  <path d="M218 108 L225 125 L232 108" fill="#60A5FA" />
+                  {/* Braço jogando moeda */}
+                  <path d="M215 115 Q195 112 185 118" stroke="#8D5B4C" strokeWidth="5" strokeLinecap="round" fill="none" />
+                </svg>
+              </div>
+
+              {/* Textos de Onboarding */}
+              <div className="max-w-lg space-y-2">
+                <h2 className="text-base sm:text-lg font-bold text-[#010E38] leading-snug">
+                  Faça a gestão financeira do seu escritório de forma integrada e eficiente
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  Registre e acompanhe os lançamentos financeiros e personalize o módulo criando categorias e centros de custo para suas despesas e rendimentos.
+                </p>
+              </div>
+
+              {/* Botão ADICIONAR LANÇAMENTO ▾ Central */}
+              <div className="space-y-3 pt-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-6 py-2.5 rounded shadow-md flex items-center gap-2 transition-all"
+                    >
+                      <span>ADICIONAR LANÇAMENTO</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="center"
+                    className="w-52 bg-white border border-slate-200 shadow-xl text-[#010E38] p-1.5 font-medium text-xs z-50 rounded-lg"
+                  >
+                    <DropdownMenuItem
+                      onClick={() => setOpenModalHonorario(true)}
+                      className="cursor-pointer py-2.5 px-3 font-semibold hover:bg-slate-50 rounded text-slate-800"
+                    >
+                      Honorário
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setOpenModalEntrada(true)}
+                      className="cursor-pointer py-2.5 px-3 font-semibold hover:bg-slate-50 rounded text-slate-800"
+                    >
+                      Outras Entradas
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setOpenModalSaida(true)}
+                      className="cursor-pointer py-2.5 px-3 font-semibold hover:bg-slate-50 rounded text-slate-800"
+                    >
+                      Saída
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setOpenModalTransferencia(true)}
+                      className="cursor-pointer py-2.5 px-3 font-semibold hover:bg-slate-50 rounded text-slate-800"
+                    >
+                      Transferência
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => toast.info("Guia do Financeiro: cadastre honorários com parcelamento automático, receitas e despesas vinculadas a processos.")}
+                    className="text-xs font-semibold text-[#010E38] hover:underline"
+                  >
+                    Saiba como começar a usar o financeiro
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* TABELA / CARDS DE LANÇAMENTOS EXISTENTES */}
+              <EsteiraHonorarios onLancamentosGerados={load} />
+
+              {isAdmin && (
+                <div className="grid gap-4 md:grid-cols-3">
+                  {stats.map((stat) => (
+                    <Card key={stat.title} className="bg-white border-slate-200/80 shadow-sm">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-slate-700">
+                          {stat.title}
+                        </CardTitle>
+                        <stat.icon
+                          className={`h-4 w-4 ${stat.color}`}
+                        />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-[#010E38]">{stat.value}</div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              <Card className="bg-white border-slate-200/80 shadow-sm">
+                <CardHeader className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                    <div className="relative w-full sm:max-w-sm">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Buscar por descrição ou cliente..."
+                        className="pl-10 text-sm bg-white border-slate-200"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <Select value={filtroCliente} onValueChange={setFiltroCliente}>
+                      <SelectTrigger className="w-full sm:w-64 text-sm bg-white border-slate-200"><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-white border-slate-200 shadow-md">
+                        <SelectItem value="todos">Todos os clientes</SelectItem>
+                        {clientesComLancamento.map(([id, nome]) => (
+                          <SelectItem key={id} value={id}>{nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={filtroSituacao} onValueChange={setFiltroSituacao}>
+                      <SelectTrigger className="w-full sm:w-40 text-sm bg-white border-slate-200"><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-white border-slate-200 shadow-md">
+                        <SelectItem value="todas">Todas as situações</SelectItem>
+                        <SelectItem value="Pendente">Pendentes</SelectItem>
+                        <SelectItem value="Atrasado">Atrasados</SelectItem>
+                        <SelectItem value="Pago">Pagos</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                      <Button 
+                        variant="outline"
+                        onClick={() => setIsImportExportOpen(true)}
+                        className="w-full sm:w-auto border-slate-200 hover:bg-slate-50 text-xs py-5"
+                      >
+                        <FileSpreadsheet className="w-4 h-4 mr-1.5 text-primary animate-pulse" />
+                        Planilhas (Excel)
+                      </Button>
+                      <Button 
+                        onClick={() => handleOpenForm()} 
+                        className="w-full sm:w-auto text-sm bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] font-bold border border-[#EBB52C]/30"
+                      >
+                        <Plus className="mr-2 h-4 w-4" /> Formulário Avançado
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6">
+                  {resumoCliente && (
+                    <div className="mb-4 grid grid-cols-2 sm:grid-cols-5 gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+                      <div><p className="text-xs text-muted-foreground">Lançamentos</p><p className="font-semibold tabular-nums">{resumoCliente.qtd}</p></div>
+                      <div><p className="text-xs text-muted-foreground">Total</p><p className="font-semibold tabular-nums">{brlF(resumoCliente.total)}</p></div>
+                      <div><p className="text-xs text-muted-foreground">Pago</p><p className="font-semibold tabular-nums text-green-600">{brlF(resumoCliente.pago)}</p></div>
+                      <div><p className="text-xs text-muted-foreground">A vencer</p><p className="font-semibold tabular-nums text-amber-600">{brlF(resumoCliente.pendente)}</p></div>
+                      <div><p className="text-xs text-muted-foreground">Atrasado</p><p className="font-semibold tabular-nums text-red-600">{brlF(resumoCliente.atrasado)}</p></div>
+                    </div>
+                  )}
+
+                  {/* Desktop Table View */}
+                  <div className="hidden md:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Descrição</TableHead>
+                          <TableHead>Cliente</TableHead>
+                          {isAdmin && <TableHead>Responsável</TableHead>}
+                          <TableHead className="text-right">Valor</TableHead>
+                          <TableHead>Vencimento</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="w-[80px] text-center">Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {gruposLancamentos.map((g) =>
+                          g.itens.length === 1 ? (
+                            renderLinhaDesktop(g.itens[0])
+                          ) : (
+                            <Fragment key={g.chave}>
+                              <TableRow
+                                className="cursor-pointer bg-slate-50 hover:bg-slate-100 font-medium"
+                                onClick={() => alternarGrupo(g.chave)}
+                              >
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    {grupoAberto(g.chave) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                    <Layers className="h-4 w-4 text-[#010E38]" />
+                                    <span>{g.itens.length} lançamentos</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <p className="font-semibold">{g.clienteNome}</p>
+                                  <p className="text-[11px] text-muted-foreground">
+                                    Pago {formatCurrency(g.pago)} · Em aberto {formatCurrency(g.aberto)}
+                                    {g.atrasado > 0 && <span className="text-red-500"> · Atrasado {formatCurrency(g.atrasado)}</span>}
+                                  </p>
+                                </TableCell>
+                                {isAdmin && <TableCell />}
+                                <TableCell className="text-right font-semibold">{formatCurrency(g.total)}</TableCell>
+                                <TableCell className="text-sm">{g.proximo ? <>próx. {formatDataBr(g.proximo)}</> : "—"}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className={getBadgeClass(g.situacao)}>
+                                    {g.qtdAtrasados > 0 ? `${g.qtdAtrasados} atrasado${g.qtdAtrasados > 1 ? "s" : ""}` : g.situacao.text}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-center text-xs text-muted-foreground">{grupoAberto(g.chave) ? "fechar" : "abrir"}</TableCell>
+                              </TableRow>
+                              {grupoAberto(g.chave) && g.itens.map((l) => renderLinhaDesktop(l, true))}
+                            </Fragment>
+                          )
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Mobile Card View */}
+                  <div className="md:hidden space-y-4">
+                    {gruposLancamentos.map((g) =>
+                      g.itens.length === 1 ? (
+                        renderCardMobile(g.itens[0])
+                      ) : (
+                        <div key={g.chave} className="space-y-2">
+                          <button
+                            type="button"
+                            onClick={() => alternarGrupo(g.chave)}
+                            className="w-full text-left rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-1"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-semibold text-sm flex items-center gap-1.5">
+                                {grupoAberto(g.chave) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                {g.clienteNome}
+                              </span>
+                              <span className="font-semibold text-sm">{formatCurrency(g.total)}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {g.itens.length} lançamentos · Pago {formatCurrency(g.pago)} · Em aberto {formatCurrency(g.aberto)}
+                              {g.qtdAtrasados > 0 && <span className="text-red-500"> · {g.qtdAtrasados} atrasado(s)</span>}
+                            </p>
+                          </button>
+                          {grupoAberto(g.chave) && <div className="pl-3 border-l-2 border-[#010E38]/30 space-y-3">{g.itens.map((l) => renderCardMobile(l))}</div>}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </>
+      )}
+
+      {/* 3. CONTEÚDO DA ABA: FATURAS */}
+      {subAbaFinanceiro === "faturas" && (
+        <div className="bg-white rounded-lg border border-slate-200/80 p-6 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-[#010E38]">Faturas do Escritório</h2>
+              <p className="text-xs text-slate-500">Agrupe lançamentos de honorários em faturas unificadas para envio ao cliente.</p>
+            </div>
+            <Button
+              type="button"
+              onClick={() => toast.info("Geração de faturas e boletos integrada às contas cadastradas.")}
+              className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] font-bold text-xs uppercase px-4 py-2 rounded"
+            >
+              Nova Fatura
+            </Button>
+          </div>
+          <div className="py-12 text-center text-xs text-slate-500 space-y-2">
+            <FileText className="w-8 h-8 mx-auto text-slate-400" />
+            <p className="font-semibold text-slate-700">Nenhuma fatura pendente de fechamento</p>
+            <p>Selecione honorários na aba Lançamentos para consolidar uma fatura por cliente.</p>
+          </div>
         </div>
       )}
 
-      <Card>
-        <CardHeader className="p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            <div className="relative w-full sm:max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por descrição ou cliente..."
-                className="pl-10 text-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+      {/* 4. CONTEÚDO DA ABA: FLUXO DE CAIXA */}
+      {subAbaFinanceiro === "fluxo" && (
+        <div className="bg-white rounded-lg border border-slate-200/80 p-6 shadow-sm space-y-4">
+          <div className="border-b border-slate-100 pb-4">
+            <h2 className="text-base sm:text-lg font-bold text-[#010E38]">Projeção e Fluxo de Caixa</h2>
+            <p className="text-xs text-slate-500">Entradas, saídas e saldo previsto para os próximos 30, 60 e 90 dias.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-100 space-y-1">
+              <span className="text-xs font-semibold text-emerald-800">Entradas Previstas</span>
+              <p className="text-xl font-bold text-emerald-700">{formatBRL(totalAReceber)}</p>
             </div>
-            <Select value={filtroCliente} onValueChange={setFiltroCliente}>
-              <SelectTrigger className="w-full sm:w-64 text-sm"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os clientes</SelectItem>
-                {clientesComLancamento.map(([id, nome]) => (
-                  <SelectItem key={id} value={id}>{nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filtroSituacao} onValueChange={setFiltroSituacao}>
-              <SelectTrigger className="w-full sm:w-40 text-sm"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas as situações</SelectItem>
-                <SelectItem value="Pendente">Pendentes</SelectItem>
-                <SelectItem value="Atrasado">Atrasados</SelectItem>
-                <SelectItem value="Pago">Pagos</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-              <Button 
-                variant="outline"
-                onClick={() => setIsImportExportOpen(true)}
-                className="w-full sm:w-auto border-primary/20 hover:border-primary/50 text-xs py-5"
-              >
-                <FileSpreadsheet className="w-4 h-4 mr-1.5 text-primary animate-pulse" />
-                Planilhas (Excel)
-              </Button>
-              <Button onClick={() => handleOpenForm()} className="w-full sm:w-auto text-sm">
-                <Plus className="mr-2 h-4 w-4" /> Adicionar Lançamento
+            <div className="p-4 rounded-lg bg-rose-50 border border-rose-100 space-y-1">
+              <span className="text-xs font-semibold text-rose-800">Saídas / Despesas</span>
+              <p className="text-xl font-bold text-rose-700">R$ 0,00</p>
+            </div>
+            <div className="p-4 rounded-lg bg-blue-50 border border-blue-100 space-y-1">
+              <span className="text-xs font-semibold text-blue-800">Saldo Líquido Projetado</span>
+              <p className="text-xl font-bold text-blue-700">{formatBRL(totalAReceber)}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. CONTEÚDO DA ABA: CONFIGURAÇÕES */}
+      {subAbaFinanceiro === "config" && (
+        <div className="bg-white rounded-lg border border-slate-200/80 p-6 shadow-sm space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+            <h2 className="text-base sm:text-lg font-bold text-[#010E38]">Configurações Financeiras</h2>
+            <p className="text-xs text-slate-500">Gerencie contas bancárias, categorias e centros de custo.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div className="border border-slate-200 rounded-lg p-4 space-y-2">
+              <h3 className="font-bold text-slate-800 text-sm">Contas Bancárias</h3>
+              <p className="text-slate-500">Conta padrão, Banco do Brasil, Santander, Caixa e NuBank PJ.</p>
+              <Button variant="outline" size="sm" onClick={() => toast.info("Configuração de contas")} className="w-full text-xs">
+                Gerenciar Contas
               </Button>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6">
-          {resumoCliente && (
-            <div className="mb-4 grid grid-cols-2 sm:grid-cols-5 gap-2 rounded-lg border bg-muted/10 p-3 text-sm">
-              <div><p className="text-xs text-muted-foreground">Lançamentos</p><p className="font-semibold tabular-nums">{resumoCliente.qtd}</p></div>
-              <div><p className="text-xs text-muted-foreground">Total</p><p className="font-semibold tabular-nums">{brlF(resumoCliente.total)}</p></div>
-              <div><p className="text-xs text-muted-foreground">Pago</p><p className="font-semibold tabular-nums text-green-600">{brlF(resumoCliente.pago)}</p></div>
-              <div><p className="text-xs text-muted-foreground">A vencer</p><p className="font-semibold tabular-nums text-amber-600">{brlF(resumoCliente.pendente)}</p></div>
-              <div><p className="text-xs text-muted-foreground">Atrasado</p><p className="font-semibold tabular-nums text-red-600">{brlF(resumoCliente.atrasado)}</p></div>
+            <div className="border border-slate-200 rounded-lg p-4 space-y-2">
+              <h3 className="font-bold text-slate-800 text-sm">Categorias</h3>
+              <p className="text-slate-500">Honorários, Consultoria, Custas, Aluguel e Salários.</p>
+              <Button variant="outline" size="sm" onClick={() => toast.info("Configuração de categorias")} className="w-full text-xs">
+                Gerenciar Categorias
+              </Button>
             </div>
-          )}
-          {/* Desktop Table View */}
-          <div className="hidden md:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  {isAdmin && <TableHead>Responsável</TableHead>}
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead>Vencimento</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[80px] text-center">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {gruposLancamentos.map((g) =>
-                  g.itens.length === 1 ? (
-                    renderLinhaDesktop(g.itens[0])
-                  ) : (
-                    <Fragment key={g.chave}>
-                      <TableRow
-                        className="cursor-pointer bg-muted/30 hover:bg-muted/50 font-medium"
-                        onClick={() => alternarGrupo(g.chave)}
-                      >
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {grupoAberto(g.chave) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                            <Layers className="h-4 w-4 text-primary" />
-                            <span>{g.itens.length} lançamentos</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <p className="font-semibold">{g.clienteNome}</p>
-                          <p className="text-[11px] text-muted-foreground">
-                            Pago {formatCurrency(g.pago)} · Em aberto {formatCurrency(g.aberto)}
-                            {g.atrasado > 0 && <span className="text-red-500"> · Atrasado {formatCurrency(g.atrasado)}</span>}
-                          </p>
-                        </TableCell>
-                        {isAdmin && <TableCell />}
-                        <TableCell className="text-right font-semibold">{formatCurrency(g.total)}</TableCell>
-                        <TableCell className="text-sm">{g.proximo ? <>próx. {formatDataBr(g.proximo)}</> : "—"}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={getBadgeClass(g.situacao)}>
-                            {g.qtdAtrasados > 0 ? `${g.qtdAtrasados} atrasado${g.qtdAtrasados > 1 ? "s" : ""}` : g.situacao.text}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-center text-xs text-muted-foreground">{grupoAberto(g.chave) ? "fechar" : "abrir"}</TableCell>
-                      </TableRow>
-                      {grupoAberto(g.chave) && g.itens.map((l) => renderLinhaDesktop(l, true))}
-                    </Fragment>
-                  )
-                )}
-              </TableBody>
-            </Table>
+            <div className="border border-slate-200 rounded-lg p-4 space-y-2">
+              <h3 className="font-bold text-slate-800 text-sm">Centros de Custo</h3>
+              <p className="text-slate-500">Geral, Trabalhista, Cível, Previdenciário e Empresarial.</p>
+              <Button variant="outline" size="sm" onClick={() => toast.info("Configuração de centros de custo")} className="w-full text-xs">
+                Gerenciar Centros
+              </Button>
+            </div>
           </div>
+        </div>
+      )}
 
-          {/* Mobile Card View */}
-          <div className="md:hidden space-y-4">
-            {gruposLancamentos.map((g) =>
-              g.itens.length === 1 ? (
-                renderCardMobile(g.itens[0])
-              ) : (
-                <div key={g.chave} className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => alternarGrupo(g.chave)}
-                    className="w-full text-left rounded-lg border bg-muted/30 p-4 space-y-1"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-sm flex items-center gap-1.5">
-                        {grupoAberto(g.chave) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        {g.clienteNome}
-                      </span>
-                      <span className="font-semibold text-sm">{formatCurrency(g.total)}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {g.itens.length} lançamentos · Pago {formatCurrency(g.pago)} · Em aberto {formatCurrency(g.aberto)}
-                      {g.qtdAtrasados > 0 && <span className="text-red-500"> · {g.qtdAtrasados} atrasado(s)</span>}
-                    </p>
-                  </button>
-                  {grupoAberto(g.chave) && <div className="pl-3 border-l-2 border-primary/30 space-y-3">{g.itens.map((l) => renderCardMobile(l))}</div>}
-                </div>
-              )
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* FOOTER OFICIAL JUS+ GESTÃO JURÍDICA */}
+      <div className="text-center text-xs text-slate-500 pt-6">
+        © Copyright 2026 - JUS+ Gestão Jurídica · Venda+ Tech - Versão 2.02
+      </div>
 
+      {/* MODAL HONORÁRIOS ASTREA (SCREENSHOT 2) */}
+      <ModalHonorarioAstrea
+        open={openModalHonorario}
+        onOpenChange={setOpenModalHonorario}
+        onSuccess={load}
+        clientes={clientes}
+      />
+
+      {/* MODAL ENTRADA ASTREA (SCREENSHOT 3) */}
+      <ModalEntradaAstrea
+        open={openModalEntrada}
+        onOpenChange={setOpenModalEntrada}
+        onSuccess={load}
+        clientes={clientes}
+      />
+
+      {/* MODAL SAÍDA ASTREA (SCREENSHOT 4) */}
+      <ModalSaidaAstrea
+        open={openModalSaida}
+        onOpenChange={setOpenModalSaida}
+        onSuccess={load}
+        clientes={clientes}
+      />
+
+      {/* MODAL TRANSFERÊNCIA ASTREA (SCREENSHOT 5) */}
+      <ModalTransferenciaAstrea
+        open={openModalTransferencia}
+        onOpenChange={setOpenModalTransferencia}
+        onSuccess={load}
+        clientes={clientes}
+      />
+
+      {/* MODAIS LEGADOS / EXISTENTES */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="mx-4 max-w-lg max-h-[90vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
