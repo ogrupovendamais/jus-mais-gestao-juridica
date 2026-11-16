@@ -201,6 +201,7 @@ const Processos = () => {
   const [selectedProcesso, setSelectedProcesso] = useState<Processo | null>(
     null
   );
+  const [viewingProcesso, setViewingProcesso] = useState<Processo | null>(null);
   const [mode, setMode] = useState<"add" | "edit" | "view">("add");
   const [processoDetalhe, setProcessoDetalhe] = useState<Processo | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -635,6 +636,19 @@ const Processos = () => {
           pasta: values.pasta || nichoSel?.nicho || "",
         });
         setAstreaMetaMap(lerMetadadosAstreaProcessos());
+        if (viewingProcesso && selectedProcesso && viewingProcesso.id === selectedProcesso.id) {
+          setViewingProcesso((prev: any) => ({
+            ...prev,
+            numero: numero || prev?.numero,
+            assunto: values.assunto || prev?.assunto,
+            assunto_principal: tituloComputado || prev?.assunto_principal,
+            status: values.status || prev?.status,
+            instancia: values.foroVara || prev?.instancia,
+            valor_causa: parseCurrency(values.valor),
+            valor: values.valor,
+            cliente: clienteNome,
+          }));
+        }
         await fetchData();
         toast.success("Processo atualizado com sucesso!");
       }
@@ -667,9 +681,7 @@ const Processos = () => {
   };
 
   const handleView = (processo: Processo) => {
-    setMode("view");
-    setSelectedProcesso(processo);
-    setIsSheetOpen(true);
+    setViewingProcesso(processo);
   };
 
   const handleDeleteClick = (processo: Processo) => {
@@ -686,6 +698,9 @@ const Processos = () => {
         .eq("id", selectedProcesso.id);
       if (error) throw error;
       setProcessos((prev) => prev.filter((p) => p.id !== selectedProcesso.id));
+      if (viewingProcesso?.id === selectedProcesso.id) {
+        setViewingProcesso(null);
+      }
       toast.success("Processo excluído com sucesso.");
     } catch (e) {
       console.error(e);
@@ -1202,6 +1217,124 @@ const Processos = () => {
       </div>
     );
   };
+
+  if (viewingProcesso) {
+    return (
+      <>
+        <ProcessoAstreaDetalhe
+          processo={viewingProcesso}
+          onVoltar={() => setViewingProcesso(null)}
+          onEditar={(proc) => {
+            handleEdit(proc);
+          }}
+          onExcluir={(proc) => {
+            handleDeleteClick(proc);
+          }}
+        />
+
+        {/* MODAL / SHEET DE EDITAR PROCESSO */}
+        {isDesktop ? (
+          <Dialog open={isSheetOpen && mode !== "view"} onOpenChange={setIsSheetOpen}>
+            <DialogContent
+              className="sm:max-w-[640px]"
+              onInteractOutside={(e) => mode !== "view" && e.preventDefault()}
+            >
+              <DialogHeader>
+                <DialogTitle className="text-lg font-extrabold text-[#010E38]">
+                  {mode === "add" && "Adicionar Processo ou Caso"}
+                  {mode === "edit" && "Editar Processo ou Caso"}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="max-h-[68vh] overflow-y-auto">
+                {renderForm()}
+              </div>
+              <DialogFooter className="flex-col sm:flex-row gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSheetOpen(false)}
+                  className="border-[#010E38]/20 text-[#010E38]"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  form="processo-form"
+                  className="bg-[#010E38] hover:bg-[#010E38]/90 text-[#EBB52C] font-extrabold uppercase tracking-wider text-xs"
+                >
+                  Salvar Alterações
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <Sheet open={isSheetOpen && mode !== "view"} onOpenChange={setIsSheetOpen}>
+            <SheetContent side="right" className="w-full sm:max-w-[540px] overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle className="text-lg font-extrabold text-[#010E38]">
+                  {mode === "add" && "Adicionar Processo ou Caso"}
+                  {mode === "edit" && "Editar Processo ou Caso"}
+                </SheetTitle>
+              </SheetHeader>
+              <div className="py-4">
+                {renderForm()}
+              </div>
+              <SheetFooter className="gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSheetOpen(false)}
+                  className="border-[#010E38]/20 text-[#010E38]"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  form="processo-form"
+                  className="bg-[#010E38] hover:bg-[#010E38]/90 text-[#EBB52C] font-extrabold uppercase tracking-wider text-xs"
+                >
+                  Salvar Alterações
+                </Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        )}
+
+        {/* DIALOG DE CONFIRMAR EXCLUSÃO */}
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-base font-extrabold text-[#010E38]">
+                Excluir Processo
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-xs text-[#010E38]/70">
+                Tem certeza que deseja excluir o processo{" "}
+                <strong className="text-[#010E38]">
+                  {selectedProcesso?.numero || "selecionado"}
+                </strong>
+                ? Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="border-[#010E38]/20 text-[#010E38]">
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  await handleDeleteConfirm();
+                  setViewingProcesso(null);
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase"
+              >
+                Excluir Definitivamente
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F1F4F9] p-4 sm:p-6 space-y-4 animate-fade-in">

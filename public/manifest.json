@@ -1,7 +1,7 @@
 {
-  "name": "Jus+ (JusMais)",
+  "name": "Jus+ Gestão Jurídica",
   "short_name": "Jus+",
-  "description": "Jus+ (JusMais) - Infraestrutura Comercial e Gestão Jurídica | Venda+ Tech",
+  "description": "Jus+ Gestão Jurídica - Inteligência, Processos e Produtividade para Advocacia",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#010E38",
@@ -11,8 +11,14 @@
     {
       "src": "/logo-emblema.png",
       "type": "image/png",
-      "sizes": "any",
+      "sizes": "33x44",
       "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ]
 }

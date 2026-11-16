@@ -432,25 +432,25 @@ export function ContatoAstreaDetalhe({
   }, [etiquetas, meta.etiquetas]);
 
   const telefonesPreenchidos = useMemo(
-    () => meta.telefones.filter((t) => t.numero.trim()),
+    () => (meta.telefones || []).filter((t) => (t?.numero || "").trim()),
     [meta.telefones]
   );
   const emailsPreenchidos = useMemo(
-    () => meta.emails.filter((e) => e.endereco.trim()),
+    () => (meta.emails || []).filter((e) => (e?.endereco || "").trim()),
     [meta.emails]
   );
   const sitesPreenchidos = useMemo(
-    () => meta.sites.filter((s) => s.url.trim()),
+    () => (meta.sites || []).filter((s) => (s?.url || "").trim()),
     [meta.sites]
   );
   const enderecosPreenchidos = useMemo(
     () =>
-      meta.enderecos.filter(
+      (meta.enderecos || []).filter(
         (end) =>
-          end.rua.trim() ||
-          end.cep.trim() ||
-          end.cidade.trim() ||
-          end.bairro.trim()
+          (end?.rua || "").trim() ||
+          (end?.cep || "").trim() ||
+          (end?.cidade || "").trim() ||
+          (end?.bairro || "").trim()
       ),
     [meta.enderecos]
   );

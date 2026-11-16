@@ -193,13 +193,19 @@ export function AtendimentosView({
           .order("nome", { ascending: true }),
         supabase
           .from("processos")
-          .select("id, numero, cliente, assunto")
-          .order("updated_at", { ascending: false }),
+          .select("id, numero, cliente_id, assunto")
+          .order("created_at", { ascending: false }),
       ]);
 
+      const listaClientes = (clis as any[]) || [];
+      const listaProcessosMapeados = ((procs as any[]) || []).map((p) => ({
+        ...p,
+        cliente: listaClientes.find((c) => c.id === p.cliente_id)?.nome || "",
+      }));
+
       setAtendimentos(listaAtend);
-      setClientesLista((clis as any[]) || []);
-      setProcessosLista((procs as any[]) || []);
+      setClientesLista(listaClientes);
+      setProcessosLista(listaProcessosMapeados);
 
       if (atendimentoAberto) {
         const atualizado = listaAtend.find(

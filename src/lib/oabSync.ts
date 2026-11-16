@@ -24,17 +24,32 @@ export interface ProcessoExtraAstrea {
   tituloPartes: string; // Ex: "Admilson De Almeida Carvalho x Souza Lima Seguranca Patrimonial Ltda."
   poloAtivo?: string;
   poloPassivo?: string;
+  reusExtras?: string[];
+  advogadosAutor?: string[];
   acaoClasse: string; // Ex: "Acao Trabalhista - Rito Ordinario"
   foroVara: string; // Ex: "Con2 - Sorocaba"
+  juizo?: string;
   siglaTribunal?: string; // Ex: "TRT15", "TJSP"
+  valorCausa?: number | string;
+  valorCondenacao?: number | string;
+  dataDistribuicao?: string;
+  dataCriacao?: string;
   ultimaMovData: string; // ISO YYYY-MM-DD
   ultimaMovTexto?: string;
   pasta?: string;
   etiquetas: string[];
   favorito: boolean;
   monitoradoRss: boolean;
-   encerrado?: boolean;
+  encerrado?: boolean;
   origemSincronizacao?: "CNJ_COMUNICA_PJE" | "ESCAVADOR" | "MANUAL";
+  historicoCompleto?: Array<{
+    id: string;
+    data: string;
+    titulo: string;
+    descricao?: string;
+    linkDocumento?: string;
+    tribunal?: string;
+  }>;
 }
 
 const OAB_CONFIG_STORAGE_KEY = "jusmais_oab_config_v1";
