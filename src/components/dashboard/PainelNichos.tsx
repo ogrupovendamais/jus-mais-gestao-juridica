@@ -73,14 +73,14 @@ export function PainelNichos() {
 
   return (
     <Card className="gradient-card">
-      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <CardTitle className="flex items-center gap-2">
-          <Scale className="w-5 h-5" />
-          {isAdmin ? "Carteira por Nicho" : "Minha Carteira por Nicho"}
+      <CardHeader className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 px-4 sm:px-6">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-bold shrink-0">
+          <Scale className="w-5 h-5 text-[#EBB52C]" />
+          <span>{isAdmin ? "Carteira por Nicho" : "Minha Carteira por Nicho"}</span>
         </CardTitle>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-2 w-full lg:w-auto">
           <Select value={filtroNicho} onValueChange={setFiltroNicho}>
-            <SelectTrigger className="w-full sm:w-52 text-sm"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full lg:w-48 text-xs font-semibold h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos os nichos</SelectItem>
               {NICHOS.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
@@ -88,7 +88,7 @@ export function PainelNichos() {
           </Select>
           {isAdmin && (
             <Select value={filtroResp} onValueChange={setFiltroResp}>
-              <SelectTrigger className="w-full sm:w-52 text-sm"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full lg:w-48 text-xs font-semibold h-9"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos os responsáveis</SelectItem>
                 {usuarios.map((u) => (
@@ -102,7 +102,7 @@ export function PainelNichos() {
           )}
           {isAdmin && (
             <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-              <SelectTrigger className="w-full sm:w-52 text-sm"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full lg:w-48 text-xs font-semibold h-9"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos os parceiros</SelectItem>
                 <SelectItem value="parceiro_juridico_oab">Parceiros Jurídicos OAB</SelectItem>

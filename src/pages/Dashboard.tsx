@@ -213,27 +213,27 @@ const Dashboard = () => {
   return role === "parceiro" ? (
     <DashboardParceiro />
   ) : (
-    <div className="p-3.5 sm:p-5 md:p-6 space-y-4 sm:space-y-6 animate-fade-in max-w-full overflow-hidden">
-      {/* Cabeçalho H1: Montserrat ExtraBold 800 */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#010E38]/10 pb-3 sm:pb-4">
-        <div>
-          <span className="inline-block text-[9.5px] sm:text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#010E38] bg-[#EBB52C] px-2 py-0.5 rounded mb-1.5 shadow-xs">
-            INFRAESTRUTURA COMERCIAL JURÍDICA
-          </span>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#010E38] dark:text-[#F1F4F9] tracking-tight">
-            Painel Executivo
-          </h1>
-          <p className="text-xs sm:text-sm text-[#010E38]/70 dark:text-[#F1F4F9]/70 font-normal mt-0.5">
-            CRM, automação, dados e processos em tempo real.
-          </p>
-        </div>
-        <div className="flex items-center sm:flex-col sm:items-end justify-between sm:justify-start gap-1">
-          <p className="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-[#010E38]/55 dark:text-[#F1F4F9]/55">
-            Última sincronização
-          </p>
-          <p className="font-data text-xs font-bold text-[#010E38] dark:text-[#EBB52C]">
-            {ultimaAtualizacao ? format(ultimaAtualizacao, "'Hoje,' HH:mm", { locale: ptBR }) : "Sincronizando..."}
-          </p>
+    <div className="p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-6 animate-fade-in max-w-full overflow-hidden">
+      {/* Cabeçalho H1: Responsivo sem vazamentos */}
+      <div className="border-b border-[#010E38]/10 pb-3 sm:pb-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-2.5">
+          <div>
+            <span className="inline-block text-[9.5px] sm:text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#010E38] bg-[#EBB52C] px-2 py-0.5 rounded mb-1.5 shadow-xs">
+              INFRAESTRUTURA COMERCIAL JURÍDICA
+            </span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#010E38] dark:text-[#F1F4F9] tracking-tight">
+              Painel Executivo
+            </h1>
+            <p className="text-xs sm:text-sm text-[#010E38]/70 dark:text-[#F1F4F9]/70 font-normal mt-0.5">
+              CRM, automação, dados e processos em tempo real.
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-[#010E38]/60 dark:text-[#F1F4F9]/60 md:text-right pt-0.5">
+            <span className="text-[10.5px] uppercase tracking-wider font-bold">Sincronizado:</span>
+            <span className="font-data text-xs font-bold text-[#010E38] dark:text-[#EBB52C]">
+              {ultimaAtualizacao ? format(ultimaAtualizacao, "'Hoje às' HH:mm", { locale: ptBR }) : "Sincronizando..."}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -313,23 +313,25 @@ const Dashboard = () => {
               {processos.map((processo) => (
                 <div
                   key={processo.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 sm:p-3.5 rounded-lg bg-[#F1F4F9] dark:bg-white/5 hover:border-[#EBB52C] border border-transparent transition-all"
+                  className="p-3 sm:p-3.5 rounded-lg bg-[#F1F4F9] dark:bg-white/5 hover:border-[#EBB52C] border border-transparent transition-all space-y-1.5"
                 >
-                  <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
                     <p className="font-data text-xs sm:text-sm font-bold text-[#010E38] dark:text-[#F1F4F9] truncate">
                       {processo.numero}
                     </p>
-                    <p className="text-[11px] sm:text-xs text-[#010E38]/70 dark:text-[#F1F4F9]/70 truncate">
-                      {processo.cliente}
-                    </p>
+                    {processo.prazo && processo.prazo !== "-" && (
+                      <span className="font-data text-[10.5px] sm:text-xs font-bold text-[#010E38]/70 dark:text-[#F1F4F9]/70 shrink-0">
+                        {processo.prazo}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-[#010E38]/5">
-                    <span className={`status-badge text-[10px] sm:text-xs px-2 py-0.5 ${getStatusBadge(processo.status)}`}>
+                  <div className="flex items-center justify-between gap-2 pt-0.5">
+                    <p className="text-[11px] sm:text-xs text-[#010E38]/70 dark:text-[#F1F4F9]/70 truncate flex-1">
+                      {processo.cliente || "Cliente não informado"}
+                    </p>
+                    <span className={`status-badge text-[9px] sm:text-[10px] px-2 py-0.5 shrink-0 ${getStatusBadge(processo.status)}`}>
                       {processo.status}
                     </span>
-                    <p className="font-data text-[11px] sm:text-xs font-bold text-[#010E38]/70 dark:text-[#F1F4F9]/70">
-                      {processo.prazo}
-                    </p>
                   </div>
                 </div>
               ))}
