@@ -11,14 +11,8 @@
     {
       "src": "/icon.svg",
       "type": "image/svg+xml",
-      "sizes": "192x192 512x512",
+      "sizes": "any",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/logo-emblema.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any"
     }
   ]
 }

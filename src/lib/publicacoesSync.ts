@@ -46,6 +46,7 @@ export interface ConfigNomesPublicacoes {
     diarios: string[];
     ativo: boolean;
   }[];
+  diariosAbrangencia: string[];
 }
 
 export interface CredenciamentoTribunal {
@@ -359,15 +360,15 @@ export function atualizarStatusPublicacao(
  * Configuração dos nomes pesquisados nos Diários Oficiais (Passo 3)
  */
 export function lerConfigNomesPublicacoes(): ConfigNomesPublicacoes {
-  try {
-    const raw = localStorage.getItem(STORAGE_CONFIG_NOMES_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {
-    // ignore
-  }
-  return {
-    plano: "Company",
-    limiteNomes: 5,
+  const padrao: ConfigNomesPublicacoes = {
+    plano: "VIP",
+    limiteNomes: 10,
+    diariosAbrangencia: [
+      "DJEN - Diário de Justiça Eletrônico Nacional",
+      "DJESP - Diário de Justiça do Estado de São Paulo",
+      "TRT15 - Diário Eletrônico da Justiça do Trabalho (Campinas/Sorocaba)",
+      "TRF3 - Diário da Justiça Federal da 3ª Região",
+    ],
     nomes: [
       {
         id: "nome-1",
@@ -389,6 +390,24 @@ export function lerConfigNomesPublicacoes(): ConfigNomesPublicacoes {
       },
     ],
   };
+
+  try {
+    const raw = localStorage.getItem(STORAGE_CONFIG_NOMES_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        ...padrao,
+        ...parsed,
+        diariosAbrangencia: Array.isArray(parsed?.diariosAbrangencia) && parsed.diariosAbrangencia.length > 0
+          ? parsed.diariosAbrangencia
+          : padrao.diariosAbrangencia,
+        nomes: Array.isArray(parsed?.nomes) ? parsed.nomes : padrao.nomes,
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return padrao;
 }
 
 export function salvarConfigNomesPublicacoes(cfg: ConfigNomesPublicacoes): void {

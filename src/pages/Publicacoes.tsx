@@ -597,227 +597,227 @@ export default function Publicacoes() {
                 <th className="py-3 pr-4 text-right min-w-[220px]">AÇÕES</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
-              {publicacoesFiltradas.length === 0 ? (
+            {publicacoesFiltradas.length === 0 ? (
+              <tbody className="divide-y divide-slate-100 text-xs">
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400 font-medium">
                     Nenhuma publicação encontrada para os filtros selecionados.
                   </td>
                 </tr>
-              ) : (
-                publicacoesFiltradas.map((pub) => {
-                  const isExp = !!expandidos[pub.id];
-                  return (
-                    <React.Fragment key={pub.id}>
-                      <tr className="hover:bg-slate-50/80 transition-colors group">
-                        {/* Checkbox */}
-                        <td className="py-3.5 pl-4 pr-2 align-top">
-                          <Checkbox
-                            checked={selectedIds.includes(pub.id)}
-                            onCheckedChange={() => toggleSelectOne(pub.id)}
-                          />
-                        </td>
+              </tbody>
+            ) : (
+              publicacoesFiltradas.map((pub) => {
+                const isExp = !!expandidos[pub.id];
+                return (
+                  <tbody key={pub.id} className="divide-y divide-slate-100 text-xs border-b border-slate-100 last:border-b-0">
+                    <tr className="hover:bg-slate-50/80 transition-colors group">
+                      {/* Checkbox */}
+                      <td className="py-3.5 pl-4 pr-2 align-top">
+                        <Checkbox
+                          checked={selectedIds.includes(pub.id)}
+                          onCheckedChange={() => toggleSelectOne(pub.id)}
+                        />
+                      </td>
 
-                        {/* Divulgado em / Publicado em */}
-                        <td className="py-3.5 px-3 align-top whitespace-nowrap">
-                          <p className="font-extrabold text-[#010E38] text-[12.5px]">
-                            {formatarDataBr(pub.dataDivulgacao)}
-                          </p>
-                          <p className="text-[11px] text-[#010E38]/60 mt-0.5 font-medium">
-                            Publicado em: {formatarDataBr(pub.dataPublicacao || pub.dataDivulgacao)}
-                          </p>
-                        </td>
+                      {/* Divulgado em / Publicado em */}
+                      <td className="py-3.5 px-3 align-top whitespace-nowrap">
+                        <p className="font-extrabold text-[#010E38] text-[12.5px]">
+                          {formatarDataBr(pub.dataDivulgacao)}
+                        </p>
+                        <p className="text-[11px] text-[#010E38]/60 mt-0.5 font-medium">
+                          Publicado em: {formatarDataBr(pub.dataPublicacao || pub.dataDivulgacao)}
+                        </p>
+                      </td>
 
-                        {/* Tipo (Ícone Documento ou Intimação) */}
-                        <td className="py-3.5 px-2 align-top text-center">
-                          {pub.tipo === "intimacao" ? (
-                            <Bell className="w-4 h-4 text-[#EBB52C] inline-block" title="Intimação Eletrônica" />
-                          ) : (
-                            <FileText className="w-4 h-4 text-[#010E38]/60 inline-block" title="Publicação Diário Oficial" />
-                          )}
-                        </td>
+                      {/* Tipo (Ícone Documento ou Intimação) */}
+                      <td className="py-3.5 px-2 align-top text-center">
+                        {pub.tipo === "intimacao" ? (
+                          <Bell className="w-4 h-4 text-[#EBB52C] inline-block" title="Intimação Eletrônica" />
+                        ) : (
+                          <FileText className="w-4 h-4 text-[#010E38]/60 inline-block" title="Publicação Diário Oficial" />
+                        )}
+                      </td>
 
-                        {/* Processo / Partes / Responsável */}
-                        <td className="py-3.5 px-3 align-top">
+                      {/* Processo / Partes / Responsável */}
+                      <td className="py-3.5 px-3 align-top">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPubSelecionada(pub);
+                            setIsDetalheOpen(true);
+                          }}
+                          className="font-mono font-bold text-[#010E38] hover:text-[#010E38]/70 underline text-left block text-[13px]"
+                        >
+                          {pub.numeroProcesso}
+                        </button>
+                        <p className="text-[11.5px] text-[#010E38]/80 font-medium truncate max-w-sm mt-0.5">
+                          {pub.partesProcesso}
+                        </p>
+                        <p className="text-[10.5px] text-[#010E38]/60 mt-0.5">
+                          Responsável: <strong className="text-[#010E38]">{pub.responsavel || "ALEX F"}</strong>
+                        </p>
+                      </td>
+
+                      {/* Diário Oficial */}
+                      <td className="py-3.5 px-3 align-top text-[#010E38]/80 font-medium text-[11.5px]">
+                        <p className="line-clamp-2">{pub.diario}</p>
+                      </td>
+
+                      {/* Nome Pesquisado */}
+                      <td className="py-3.5 px-3 align-top text-[#010E38] font-bold uppercase text-[11px]">
+                        {pub.nomePesquisado}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-3.5 px-3 align-top whitespace-nowrap">
+                        {pub.status === "nao_tratada" ? (
+                          <Badge className="bg-[#EBB52C]/15 text-[#010E38] hover:bg-[#EBB52C]/25 text-[10px] font-black uppercase rounded border border-[#EBB52C]/50 shadow-xs">
+                            NÃO TRATADA
+                          </Badge>
+                        ) : pub.status === "tratada" ? (
+                          <Badge className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100 text-[10px] font-black uppercase rounded border border-emerald-300 shadow-xs">
+                            TRATADA
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-100 text-[10px] font-black uppercase rounded border border-slate-300 shadow-xs">
+                            DESCARTADA
+                          </Badge>
+                        )}
+                      </td>
+
+                      {/* Botões de Ação na Linha (sem quebrar ou cortar) */}
+                      <td className="py-3.5 pr-4 align-top text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
+                            onClick={() => handleAdicionarPrazo(pub, 15)}
+                            title="Adicionar Prazo fatal rápido (15 dias)"
+                            className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-[#010E38] transition-colors"
+                          >
+                            <Plus className="w-4 h-4 stroke-[2.5]" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMarcarTratada(pub)}
+                            title="Marcar como Tratada"
+                            className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-emerald-600 transition-colors"
+                          >
+                            <Check className="w-4 h-4 stroke-[2.5]" />
+                          </button>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-[#010E38] transition-colors"
+                              >
+                                <MoreVertical className="w-4 h-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 bg-white border-slate-200 shadow-md">
+                              <DropdownMenuItem onClick={() => handleMarcarTratada(pub)} className="font-semibold text-xs">
+                                <Check className="w-3.5 h-3.5 mr-2 text-emerald-600" />
+                                Marcar tratada
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDescartar(pub)} className="font-semibold text-xs text-red-600">
+                                <X className="w-3.5 h-3.5 mr-2 text-red-600" />
+                                Descartar publicação
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  navigator.clipboard.writeText(pub.conteudoCompleto);
+                                  toast.success("Texto integral da publicação copiado!");
+                                }}
+                                className="font-semibold text-xs"
+                              >
+                                <Copy className="w-3.5 h-3.5 mr-2 text-slate-500" />
+                                Copiar texto
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
+                          <Button
+                            type="button"
+                            size="sm"
                             onClick={() => {
                               setPubSelecionada(pub);
                               setIsDetalheOpen(true);
                             }}
-                            className="font-mono font-bold text-[#010E38] hover:text-[#010E38]/70 underline text-left block text-[13px]"
+                            className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] hover:text-white font-black text-[11px] uppercase tracking-wider rounded-md px-3 py-1.5 h-8 ml-1 shadow-xs border border-[#EBB52C]/30 shrink-0 transition-all"
                           >
-                            {pub.numeroProcesso}
-                          </button>
-                          <p className="text-[11.5px] text-[#010E38]/80 font-medium truncate max-w-sm mt-0.5">
-                            {pub.partesProcesso}
+                            ACESSAR PUBLICAÇÃO
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Snippet de Conteúdo e Tratamentos Sugeridos por IA */}
+                    <tr>
+                      <td colSpan={8} className="px-4 pb-4 pt-0 bg-slate-50/30">
+                        <div className="pl-6 border-l-2 border-[#EBB52C] space-y-2 pt-1 text-[#010E38]/80 text-[11.5px]">
+                          <p className="line-clamp-2 leading-relaxed font-normal">
+                            {pub.conteudoCompleto}
                           </p>
-                          <p className="text-[10.5px] text-[#010E38]/60 mt-0.5">
-                            Responsável: <strong className="text-[#010E38]">{pub.responsavel || "ALEX F"}</strong>
-                          </p>
-                        </td>
 
-                        {/* Diário Oficial */}
-                        <td className="py-3.5 px-3 align-top text-[#010E38]/80 font-medium text-[11.5px]">
-                          <p className="line-clamp-2">{pub.diario}</p>
-                        </td>
+                          {/* Tratamentos Sugeridos por IA Jus+ */}
+                          {pub.sugestoesIa && pub.sugestoesIa.length > 0 && pub.status === "nao_tratada" && (
+                            <div className="flex flex-wrap items-center gap-2 pt-1">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-black text-[#010E38]">
+                                <Sparkles className="w-3.5 h-3.5 text-[#EBB52C]" /> IA Sugestões:
+                              </span>
 
-                        {/* Nome Pesquisado */}
-                        <td className="py-3.5 px-3 align-top text-[#010E38] font-bold uppercase text-[11px]">
-                          {pub.nomePesquisado}
-                        </td>
-
-                        {/* Status */}
-                        <td className="py-3.5 px-3 align-top whitespace-nowrap">
-                          {pub.status === "nao_tratada" ? (
-                            <Badge className="bg-[#EBB52C]/15 text-[#010E38] hover:bg-[#EBB52C]/25 text-[10px] font-black uppercase rounded border border-[#EBB52C]/50 shadow-xs">
-                              NÃO TRATADA
-                            </Badge>
-                          ) : pub.status === "tratada" ? (
-                            <Badge className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100 text-[10px] font-black uppercase rounded border border-emerald-300 shadow-xs">
-                              TRATADA
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-100 text-[10px] font-black uppercase rounded border border-slate-300 shadow-xs">
-                              DESCARTADA
-                            </Badge>
-                          )}
-                        </td>
-
-                        {/* Botões de Ação na Linha (sem quebrar ou cortar) */}
-                        <td className="py-3.5 pr-4 align-top text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => handleAdicionarPrazo(pub, 15)}
-                              title="Adicionar Prazo fatal rápido (15 dias)"
-                              className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-[#010E38] transition-colors"
-                            >
-                              <Plus className="w-4 h-4 stroke-[2.5]" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleMarcarTratada(pub)}
-                              title="Marcar como Tratada"
-                              className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-emerald-600 transition-colors"
-                            >
-                              <Check className="w-4 h-4 stroke-[2.5]" />
-                            </button>
-
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button
-                                  type="button"
-                                  className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-[#010E38] transition-colors"
-                                >
-                                  <MoreVertical className="w-4 h-4" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48 bg-white border-slate-200 shadow-md">
-                                <DropdownMenuItem onClick={() => handleMarcarTratada(pub)} className="font-semibold text-xs">
-                                  <Check className="w-3.5 h-3.5 mr-2 text-emerald-600" />
-                                  Marcar tratada
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDescartar(pub)} className="font-semibold text-xs text-red-600">
-                                  <X className="w-3.5 h-3.5 mr-2 text-red-600" />
-                                  Descartar publicação
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(pub.conteudoCompleto);
-                                    toast.success("Texto integral da publicação copiado!");
-                                  }}
-                                  className="font-semibold text-xs"
-                                >
-                                  <Copy className="w-3.5 h-3.5 mr-2 text-slate-500" />
-                                  Copiar texto
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-
-                            <Button
-                              type="button"
-                              size="sm"
-                              onClick={() => {
-                                setPubSelecionada(pub);
-                                setIsDetalheOpen(true);
-                              }}
-                              className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] hover:text-white font-black text-[11px] uppercase tracking-wider rounded-md px-3 py-1.5 h-8 ml-1 shadow-xs border border-[#EBB52C]/30 shrink-0 transition-all"
-                            >
-                              ACESSAR PUBLICAÇÃO
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-
-                      {/* Snippet de Conteúdo e Tratamentos Sugeridos por IA */}
-                      <tr>
-                        <td colSpan={8} className="px-4 pb-4 pt-0 bg-slate-50/30">
-                          <div className="pl-6 border-l-2 border-[#EBB52C] space-y-2 pt-1 text-[#010E38]/80 text-[11.5px]">
-                            <p className="line-clamp-2 leading-relaxed font-normal">
-                              {pub.conteudoCompleto}
-                            </p>
-
-                            {/* Tratamentos Sugeridos por IA Jus+ */}
-                            {pub.sugestoesIa && pub.sugestoesIa.length > 0 && pub.status === "nao_tratada" && (
-                              <div className="flex flex-wrap items-center gap-2 pt-1">
-                                <span className="inline-flex items-center gap-1 text-[11px] font-black text-[#010E38]">
-                                  <Sparkles className="w-3.5 h-3.5 text-[#EBB52C]" /> IA Sugestões:
-                                </span>
-
-                                {pub.sugestoesIa.map((sug, idx) => {
-                                  if (sug.tipo === "prazo") {
-                                    return (
-                                      <button
-                                        key={idx}
-                                        type="button"
-                                        onClick={() => handleAdicionarPrazo(pub, sug.dias || 15)}
-                                        className="bg-[#EBB52C]/15 hover:bg-[#EBB52C]/30 text-[#010E38] border border-[#EBB52C]/50 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
-                                      >
-                                        <Clock className="w-3 h-3 text-[#010E38]" />
-                                        <span>ADICIONAR UM PRAZO PARA {sug.dataSugerida || "QUA, 25 DE NOV 2026"}</span>
-                                      </button>
-                                    );
-                                  }
-                                  if (sug.tipo === "audiencia") {
-                                    return (
-                                      <button
-                                        key={idx}
-                                        type="button"
-                                        onClick={() => handleAdicionarAudiencia(pub, sug.dataSugerida || "2027-05-10")}
-                                        className="bg-[#010E38]/10 hover:bg-[#010E38]/20 text-[#010E38] border border-[#010E38]/30 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
-                                      >
-                                        <Calendar className="w-3 h-3 text-[#010E38]" />
-                                        <span>ADICIONAR UMA AUDIÊNCIA PARA {sug.dataSugerida || "TER, 10 DE MAI 2027 ÀS 10:45"}</span>
-                                      </button>
-                                    );
-                                  }
+                              {pub.sugestoesIa.map((sug, idx) => {
+                                if (sug.tipo === "prazo") {
                                   return (
                                     <button
                                       key={idx}
                                       type="button"
-                                      onClick={() => {
-                                        setPubSelecionada(pub);
-                                        setIsDetalheOpen(true);
-                                      }}
-                                      className="bg-slate-100 hover:bg-slate-200 text-[#010E38] border border-slate-300 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
+                                      onClick={() => handleAdicionarPrazo(pub, sug.dias || 15)}
+                                      className="bg-[#EBB52C]/15 hover:bg-[#EBB52C]/30 text-[#010E38] border border-[#EBB52C]/50 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
                                     >
-                                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                      <span>{sug.descricao}</span>
+                                      <Clock className="w-3 h-3 text-[#010E38]" />
+                                      <span>ADICIONAR UM PRAZO PARA {sug.dataSugerida || "QUA, 25 DE NOV 2026"}</span>
                                     </button>
                                   );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    </React.Fragment>
-                  );
-                })
-              )}
-            </tbody>
+                                }
+                                if (sug.tipo === "audiencia") {
+                                  return (
+                                    <button
+                                      key={idx}
+                                      type="button"
+                                      onClick={() => handleAdicionarAudiencia(pub, sug.dataSugerida || "2027-05-10")}
+                                      className="bg-[#010E38]/10 hover:bg-[#010E38]/20 text-[#010E38] border border-[#010E38]/30 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
+                                    >
+                                      <Calendar className="w-3 h-3 text-[#010E38]" />
+                                      <span>ADICIONAR UMA AUDIÊNCIA PARA {sug.dataSugerida || "TER, 10 DE MAI 2027 ÀS 10:45"}</span>
+                                    </button>
+                                  );
+                                }
+                                return (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => {
+                                      setPubSelecionada(pub);
+                                      setIsDetalheOpen(true);
+                                    }}
+                                    className="bg-slate-100 hover:bg-slate-200 text-[#010E38] border border-slate-300 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
+                                  >
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                    <span>{sug.descricao}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                );
+              })
+            )}
           </table>
         </div>
       </div>
@@ -828,6 +828,11 @@ export default function Publicacoes() {
       {pubSelecionada && (
         <Dialog open={isDetalheOpen} onOpenChange={setIsDetalheOpen}>
           <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0 border-[#010E38]/20">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Publicação do Processo {pubSelecionada.numeroProcesso}</DialogTitle>
+              <DialogDescription>Tratamento de publicação e intimação eletrônica oficial</DialogDescription>
+            </DialogHeader>
+
             {/* Header com identidade Jus+ */}
             <div className="bg-[#010E38] text-white p-5 rounded-t-lg">
               <div className="flex items-center justify-between gap-3">
@@ -1011,27 +1016,35 @@ export default function Publicacoes() {
             <div className="space-y-2">
               <Label className="text-xs font-bold text-[#010E38]">Nomes Cadastrados</Label>
               <div className="space-y-1.5">
-                {configNomes.nomes.map((nome, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span>{nome}</span>
+                {(configNomes?.nomes || []).map((item: any, i) => {
+                  const nomeStr = typeof item === "string" ? item : (item?.nome || "Advogado Cadastrado");
+                  return (
+                    <div
+                      key={item?.id || i}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span>{nomeStr}</span>
+                      </div>
+                      <Badge variant="outline" className="text-[10px] font-bold border-slate-300">
+                        Monitorando DJEN
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="text-[10px] font-bold border-slate-300">
-                      Monitorando DJEN
-                    </Badge>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 space-y-1 text-xs">
               <span className="font-bold text-[#010E38] block">Abrangência de Consulta:</span>
               <p className="text-slate-600">
-                {configNomes.diariosAbrangencia.join(", ")}
+                {(configNomes?.diariosAbrangencia || [
+                  "DJEN - Diário de Justiça Eletrônico Nacional",
+                  "DJESP - São Paulo",
+                  "TRT15 - Sorocaba / Campinas",
+                  "TRF3 - Diário da Justiça Federal"
+                ]).join(", ")}
               </p>
             </div>
           </div>
@@ -1075,37 +1088,40 @@ export default function Publicacoes() {
           </DialogHeader>
 
           <div className="space-y-3 py-2">
-            {credenciamentos.map((cred) => (
-              <div
-                key={cred.id}
-                className="p-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between gap-3 text-xs"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-black text-[#010E38]">{cred.sistema}</span>
-                    <span className="text-slate-500 font-mono text-[11px]">— {cred.tribunal}</span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Login: <strong className="text-slate-700">{cred.usuarioLogin}</strong>
-                  </p>
-                  {cred.ultimoAcesso && (
-                    <p className="text-[10px] text-slate-400">
-                      Última sincronização: {formatarDataBr(cred.ultimoAcesso)}
-                    </p>
-                  )}
-                </div>
-
-                <Badge
-                  className={
-                    cred.status === "conectado"
-                      ? "bg-emerald-100 text-emerald-800 border-emerald-200 font-bold text-[10px]"
-                      : "bg-amber-100 text-amber-800 border-amber-200 font-bold text-[10px]"
-                  }
+            {(credenciamentos || []).map((cred: any) => {
+              const isConectado = cred.statusConexao === "Conectado" || cred.status === "conectado";
+              return (
+                <div
+                  key={cred.id}
+                  className="p-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between gap-3 text-xs"
                 >
-                  {cred.status === "conectado" ? "Conectado" : "Pendente 2FA"}
-                </Badge>
-              </div>
-            ))}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-[#010E38]">{cred.sistema}</span>
+                      <span className="text-slate-500 font-mono text-[11px]">— {cred.tribunal}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Login: <strong className="text-slate-700">{cred.login || cred.usuarioLogin || "432226/SP"}</strong>
+                    </p>
+                    {(cred.ultimaSincronizacao || cred.ultimoAcesso) && (
+                      <p className="text-[10px] text-slate-400">
+                        Última sincronização: {formatarDataBr(cred.ultimaSincronizacao || cred.ultimoAcesso)}
+                      </p>
+                    )}
+                  </div>
+
+                  <Badge
+                    className={
+                      isConectado
+                        ? "bg-emerald-100 text-emerald-800 border-emerald-200 font-bold text-[10px]"
+                        : "bg-amber-100 text-amber-800 border-amber-200 font-bold text-[10px]"
+                    }
+                  >
+                    {isConectado ? "Conectado" : "Pendente 2FA"}
+                  </Badge>
+                </div>
+              );
+            })}
           </div>
 
           <DialogFooter>
