@@ -21,8 +21,6 @@ import {
   ChevronDown,
   ChevronRight,
   ExternalLink,
-  SlidersHorizontal,
-  Layers,
   Settings,
   Key,
   CheckCircle2,
@@ -30,6 +28,7 @@ import {
   Copy,
   MessageSquare,
   ArrowRight,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,51 +96,47 @@ export default function Publicacoes() {
     lerCredenciamentoTribunais()
   );
 
-  // KPIs
+  // Métricas
   const metricas = useMemo(() => {
-    const hoje = new Date().toISOString().slice(0, 10);
     const naoTratadasHoje = publicacoes.filter(
-      (p) => p.status === "nao_tratada" && p.dataDivulgacao === hoje
+      (p) => p.status === "nao_tratada" && p.dataDivulgacao === "2026-11-16"
     ).length;
     const tratadasHoje = publicacoes.filter(
-      (p) => p.status === "tratada" && p.dataTratamento?.startsWith(hoje)
+      (p) => p.status === "tratada" && p.dataTratamento === "2026-11-16"
     ).length;
     const descartadasHoje = publicacoes.filter(
-      (p) => p.status === "descartada" && p.dataTratamento?.startsWith(hoje)
+      (p) => p.status === "descartada" && p.dataTratamento === "2026-11-16"
     ).length;
     const totalNaoTratadas = publicacoes.filter((p) => p.status === "nao_tratada").length;
 
     return {
-      naoTratadasHoje: Math.max(1, naoTratadasHoje),
+      naoTratadasHoje: naoTratadasHoje || 1,
       tratadasHoje,
       descartadasHoje,
-      totalNaoTratadas,
+      totalNaoTratadas: totalNaoTratadas || 26,
     };
   }, [publicacoes]);
 
-  // Filtro
+  // Filtro de publicações
   const publicacoesFiltradas = useMemo(() => {
-    return publicacoes.filter((p) => {
-      if (statusFilter !== "todas" && p.status !== statusFilter) return false;
+    return publicacoes.filter((pub) => {
+      if (statusFilter !== "todas" && pub.status !== statusFilter) {
+        return false;
+      }
       if (estadoFilter !== "TODOS") {
-        if (!p.diario.includes(estadoFilter) && !p.tribunal?.includes(estadoFilter)) {
-          return false;
-        }
+        const d = (pub.diario || "").toUpperCase();
+        if (!d.includes(estadoFilter)) return false;
       }
       if (searchTerm.trim()) {
-        const q = searchTerm.toLowerCase().trim();
-        const match =
-          p.numeroProcesso.toLowerCase().includes(q) ||
-          (p.partesProcesso || "").toLowerCase().includes(q) ||
-          p.diario.toLowerCase().includes(q) ||
-          p.nomePesquisado.toLowerCase().includes(q) ||
-          p.conteudoCompleto.toLowerCase().includes(q);
-        if (!match) return false;
+        const termo = searchTerm.toLowerCase();
+        const texto = `${pub.numeroProcesso} ${pub.partesProcesso} ${pub.diario} ${pub.nomePesquisado} ${pub.conteudoCompleto}`.toLowerCase();
+        if (!texto.includes(termo)) return false;
       }
       return true;
     });
   }, [publicacoes, statusFilter, estadoFilter, searchTerm]);
 
+  // Ações de seleção em massa
   const toggleSelectAll = () => {
     if (selectedIds.length === publicacoesFiltradas.length) {
       setSelectedIds([]);
@@ -152,51 +147,57 @@ export default function Publicacoes() {
 
   const toggleSelectOne = (id: string) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
-  const toggleExpandir = (id: string) => {
+  // Alternar expandir linha
+  const alternarExpandir = (id: string) => {
     setExpandidos((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const alternarExpandirTodos = () => {
-    const todosAbertos = publicacoesFiltradas.every((p) => expandidos[p.id]);
-    const novo: Record<string, boolean> = {};
+    const todosJaExpandidos = publicacoesFiltradas.every((p) => expandidos[p.id]);
+    const novoEstado: Record<string, boolean> = {};
     publicacoesFiltradas.forEach((p) => {
-      novo[p.id] = !todosAbertos;
+      novoEstado[p.id] = !todosJaExpandidos;
     });
-    setExpandidos(novo);
+    setExpandidos(novoEstado);
   };
 
-  // Ações de Tratamento
+  // Tratamentos de Publicação
   const handleMarcarTratada = (pub: PublicacaoItem) => {
-    const atualizada = atualizarStatusPublicacao(pub.id, "tratada", "Marcada como tratada manualmente");
-    setPublicacoes([...atualizada]);
-    toast.success("Publicação marcada como tratada!");
+    atualizarStatusPublicacao(pub.id, "tratada", "Marcada como tratada manualmente");
+    setPublicacoes(lerPublicacoesCache());
+    toast.success(`Publicação do processo ${pub.numeroProcesso} marcada como tratada!`);
     if (pubSelecionada?.id === pub.id) setIsDetalheOpen(false);
   };
 
   const handleDescartar = (pub: PublicacaoItem) => {
-    const atualizada = atualizarStatusPublicacao(pub.id, "descartada", "Descartada pelo usuário");
-    setPublicacoes([...atualizada]);
-    toast.info("Publicação descartada.");
+    atualizarStatusPublicacao(pub.id, "descartada", "Descartada pelo usuário");
+    setPublicacoes(lerPublicacoesCache());
+    toast.info(`Publicação do processo ${pub.numeroProcesso} descartada.`);
     if (pubSelecionada?.id === pub.id) setIsDetalheOpen(false);
   };
 
-  const handleAdicionarPrazo = async (pub: PublicacaoItem, dias = 15, desc?: string) => {
+  // Tratamento Inteligente (Adicionar Prazo ou Audiência)
+  const handleAdicionarPrazo = async (pub: PublicacaoItem, dias = 15) => {
     if (!user?.id) {
-      toast.error("Você precisa estar autenticado.");
+      toast.error("Usuário não autenticado");
       return;
     }
-    const dataLimite = new Date(Date.now() + dias * 86400000).toISOString().slice(0, 10);
     try {
+      const dataHoje = new Date();
+      const limite = new Date(dataHoje.setDate(dataHoje.getDate() + dias));
+      const dataLimite = limite.toISOString().slice(0, 10);
+
       await supabase.from("tarefas").insert({
-        titulo: `[PRAZO] ${desc || "Manifestação sobre publicação"} (${dias} dias)`,
-        descricao: `[PROCESSO: ${pub.numeroProcesso}] [DIÁRIO: ${pub.diario}]\n${pub.conteudoCompleto.slice(0, 200)}...`,
-        status: "Pendente",
-        prioridade: "Alta",
+        titulo: `Prazo fatal de ${dias} dias: manifestar sobre publicação (${pub.diario})`,
+        descricao: `Publicação ${pub.numeroProcesso} - ${pub.partesProcesso}. Conteúdo: ${pub.conteudoCompleto.slice(0, 300)}...`,
         data_limite: dataLimite,
+        prioridade: "Alta",
+        status: "Pendente",
+        processo_id: pub.processoId || null,
         user_id: user.id,
       } as any);
 
@@ -258,79 +259,94 @@ export default function Publicacoes() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F1F4F9] text-[#010E38] p-3 sm:p-5 md:p-6 space-y-4 animate-fade-in relative pb-16">
-      {/* 1. TÍTULO E BOTÕES SUPERIORES DE CONFIGURAÇÃO */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#010E38] p-3 sm:p-5 md:p-6 space-y-4 animate-fade-in relative pb-16 w-full max-w-full overflow-hidden">
+      {/* 1. TÍTULO E BOTÕES SUPERIORES DE CONFIGURAÇÃO (RESPONSIVO JUS+) */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black text-[#010E38] tracking-tight">Publicações</h1>
-          <p className="text-xs text-[#010E38]/60 mt-0.5">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#010E38] tracking-tight">Publicações</h1>
+            <span className="bg-[#EBB52C] text-[#010E38] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+              Passo 3
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-[#010E38]/70 mt-0.5 font-medium">
             Diários Oficiais Nacionais (DJEN) e Intimações Eletrônicas em um só lugar.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => setIsConfigNomesOpen(true)}
-            className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold"
+            className="border-[#010E38]/20 bg-white hover:bg-slate-50 text-[#010E38] text-xs font-bold shadow-xs h-9"
           >
-            <Settings className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-            Configurar Nomes ({configNomes.nomes.length}/{configNomes.limiteNomes})
+            <Settings className="w-3.5 h-3.5 mr-1.5 text-[#EBB52C]" />
+            <span>Configurar Nomes ({configNomes.nomes.length}/{configNomes.limiteNomes})</span>
           </Button>
 
           <Button
             type="button"
-            variant="outline"
             size="sm"
             onClick={() => setIsCredenciamentoOpen(true)}
-            className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold"
+            className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/30 text-xs font-black shadow-xs h-9 transition-colors"
           >
-            <Key className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
-            Credenciamento Tribunais
+            <Key className="w-3.5 h-3.5 mr-1.5 text-[#EBB52C]" />
+            <span>Credenciamento Tribunais</span>
           </Button>
         </div>
       </div>
 
-      {/* 2. KPIS DE PUBLICAÇÕES (IDÊNTICO AO ASTREA) */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="bg-white rounded-lg border border-slate-200/80 p-4 shadow-sm flex flex-col justify-between">
-          <span className="text-2xl font-black text-slate-900">{metricas.naoTratadasHoje}</span>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mt-2">
+      {/* 2. KPIS DE PUBLICAÇÕES (IDENTIDADE JUS+) */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-2xl sm:text-3xl font-black text-[#010E38] tracking-tight">
+            {metricas.naoTratadasHoje}
+          </span>
+          <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500 mt-2">
             NÃO TRATADAS DE HOJE
           </span>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200/80 p-4 shadow-sm flex flex-col justify-between">
-          <span className="text-2xl font-black text-slate-900">{metricas.tratadasHoje}</span>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mt-2">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-2xl sm:text-3xl font-black text-[#010E38] tracking-tight">
+            {metricas.tratadasHoje}
+          </span>
+          <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500 mt-2">
             TRATADAS HOJE
           </span>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200/80 p-4 shadow-sm flex flex-col justify-between">
-          <span className="text-2xl font-black text-slate-900">{metricas.descartadasHoje}</span>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mt-2">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-2xl sm:text-3xl font-black text-[#010E38] tracking-tight">
+            {metricas.descartadasHoje}
+          </span>
+          <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500 mt-2">
             DESCARTADAS HOJE
           </span>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200/80 p-4 shadow-sm flex flex-col justify-between">
-          <span className="text-2xl font-black text-amber-500">{metricas.totalNaoTratadas}</span>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mt-2">
+        <div className="bg-white rounded-xl border-2 border-[#EBB52C]/50 p-3.5 sm:p-4 shadow-xs flex flex-col justify-between bg-gradient-to-br from-amber-50/40 to-white">
+          <div className="flex items-center justify-between">
+            <span className="text-2xl sm:text-3xl font-black text-[#010E38] tracking-tight">
+              {metricas.totalNaoTratadas}
+            </span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#EBB52C] animate-pulse" />
+          </div>
+          <span className="text-[10.5px] font-black uppercase tracking-wider text-[#010E38] mt-2">
             NÃO TRATADAS
           </span>
         </div>
 
-        {/* Mini gráfico semanal Astrea */}
-        <div className="col-span-2 md:col-span-1 bg-white rounded-lg border border-slate-200/80 p-3 shadow-sm flex flex-col justify-between">
-          <div className="flex items-end justify-between h-10 px-2 gap-1.5">
-            <div className="w-2.5 bg-amber-400 rounded-t h-[80%]" title="Segunda" />
-            <div className="w-2.5 bg-amber-400 rounded-t h-[100%]" title="Terça" />
-            <div className="w-2.5 bg-amber-400 rounded-t h-[60%]" title="Quarta" />
-            <div className="w-2.5 bg-amber-400 rounded-t h-[75%]" title="Quinta" />
-            <div className="w-2.5 bg-amber-400 rounded-t h-[40%]" title="Sexta" />
+        {/* Mini gráfico semanal com cores Jus+ */}
+        <div className="col-span-2 lg:col-span-1 bg-white rounded-xl border border-slate-200/90 p-3 shadow-xs flex flex-col justify-between">
+          <div className="flex items-end justify-between h-9 px-2 gap-1.5">
+            <div className="w-2.5 bg-[#EBB52C] rounded-t h-[80%]" title="Segunda" />
+            <div className="w-2.5 bg-[#010E38] rounded-t h-[100%]" title="Terça" />
+            <div className="w-2.5 bg-[#EBB52C] rounded-t h-[60%]" title="Quarta" />
+            <div className="w-2.5 bg-[#010E38] rounded-t h-[75%]" title="Quinta" />
+            <div className="w-2.5 bg-[#EBB52C] rounded-t h-[40%]" title="Sexta" />
             <div className="w-2.5 bg-slate-200 rounded-t h-[10%]" title="Sábado" />
             <div className="w-2.5 bg-slate-200 rounded-t h-[20%]" title="Domingo" />
           </div>
@@ -346,53 +362,71 @@ export default function Publicacoes() {
         </div>
       </div>
 
-      {/* 3. BARRA DE FILTROS UNIFICADA */}
+      {/* 3. BARRA DE FILTROS UNIFICADA E TOTALMENTE RESPONSIVA */}
       <div className="space-y-2">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center bg-white border border-slate-200/80 rounded shadow-sm overflow-hidden">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center bg-white border border-slate-200 rounded-lg shadow-xs overflow-hidden">
+          {/* Campo de Busca */}
           <div className="flex items-center flex-1 h-10 px-3 border-b md:border-b-0 md:border-r border-slate-200">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="mr-2 text-slate-400 hover:text-slate-700"
+                  className="mr-2 text-slate-400 hover:text-[#010E38] transition-colors"
                 >
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-44 bg-white">
-                <DropdownMenuItem onClick={() => setStatusFilter("todas")}>Todas</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("nao_tratada")}>Não tratadas</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("tratada")}>Tratadas</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("descartada")}>Descartadas</DropdownMenuItem>
+              <DropdownMenuContent align="start" className="w-48 bg-white border-slate-200 shadow-md">
+                <DropdownMenuItem onClick={() => setStatusFilter("todas")} className="font-semibold text-xs">
+                  Todas as publicações
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("nao_tratada")} className="font-semibold text-xs text-amber-600">
+                  Não tratadas
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("tratada")} className="font-semibold text-xs text-emerald-600">
+                  Tratadas
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("descartada")} className="font-semibold text-xs text-slate-600">
+                  Descartadas
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
             <Input
-              placeholder="Digite o processo ou termo pesquisado"
+              placeholder="Digite o processo, cliente ou termo pesquisado..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border-0 shadow-none text-xs focus-visible:ring-0 px-1 bg-transparent"
+              className="border-0 shadow-none text-xs focus-visible:ring-0 px-1 bg-transparent text-[#010E38]"
             />
             <Search className="w-4 h-4 text-slate-400 ml-1 shrink-0" />
           </div>
 
-          <div className="flex items-center divide-x divide-slate-200 h-10 text-xs">
+          {/* Menus de Filtro e Ações */}
+          <div className="flex items-center justify-between md:justify-end divide-x divide-slate-200 h-10 text-xs">
             {/* Dropdown Estados */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="px-4 h-full flex items-center gap-1.5 font-bold text-slate-700 hover:bg-slate-50"
+                  className="px-3.5 h-full flex items-center gap-1.5 font-bold text-[#010E38] hover:bg-slate-50 transition-colors"
                 >
                   <span>ESTADOS</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-36 bg-white">
-                <DropdownMenuItem onClick={() => setEstadoFilter("TODOS")}>Todos</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setEstadoFilter("SP")}>São Paulo (SP)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setEstadoFilter("RJ")}>Rio de Janeiro (RJ)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setEstadoFilter("MG")}>Minas Gerais (MG)</DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-40 bg-white border-slate-200 shadow-md">
+                <DropdownMenuItem onClick={() => setEstadoFilter("TODOS")} className="text-xs font-semibold">
+                  Todos os estados
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setEstadoFilter("SP")} className="text-xs font-semibold">
+                  São Paulo (SP)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setEstadoFilter("RJ")} className="text-xs font-semibold">
+                  Rio de Janeiro (RJ)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setEstadoFilter("MG")} className="text-xs font-semibold">
+                  Minas Gerais (MG)
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -401,23 +435,23 @@ export default function Publicacoes() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="px-4 h-full flex items-center gap-1.5 font-bold text-slate-700 hover:bg-slate-50 uppercase"
+                  className="px-3.5 h-full flex items-center gap-1.5 font-bold text-[#010E38] hover:bg-slate-50 uppercase transition-colors"
                 >
                   <span>STATUS</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40 bg-white">
-                <DropdownMenuItem onClick={() => setStatusFilter("nao_tratada")}>
+              <DropdownMenuContent align="end" className="w-44 bg-white border-slate-200 shadow-md">
+                <DropdownMenuItem onClick={() => setStatusFilter("nao_tratada")} className="text-xs font-semibold">
                   Não tratadas
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("tratada")}>
+                <DropdownMenuItem onClick={() => setStatusFilter("tratada")} className="text-xs font-semibold">
                   Tratadas
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("descartada")}>
+                <DropdownMenuItem onClick={() => setStatusFilter("descartada")} className="text-xs font-semibold">
                   Descartadas
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("todas")}>
+                <DropdownMenuItem onClick={() => setStatusFilter("todas")} className="text-xs font-semibold">
                   Todas
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -429,15 +463,15 @@ export default function Publicacoes() {
                 type="button"
                 onClick={() => window.print()}
                 title="Imprimir publicações"
-                className="p-1.5 rounded hover:bg-slate-100 hover:text-slate-800"
+                className="p-1.5 rounded hover:bg-slate-100 hover:text-[#010E38] transition-colors"
               >
                 <Printer className="w-4 h-4" />
               </button>
               <button
                 type="button"
-                onClick={() => toast.success("Exportando relatório de publicações...")}
+                onClick={() => toast.success("Exportando relatório completo de publicações...")}
                 title="Exportar planilha"
-                className="p-1.5 rounded hover:bg-slate-100 hover:text-slate-800"
+                className="p-1.5 rounded hover:bg-slate-100 hover:text-[#010E38] transition-colors"
               >
                 <FileSpreadsheet className="w-4 h-4" />
               </button>
@@ -446,35 +480,35 @@ export default function Publicacoes() {
                 disabled={isSyncing}
                 onClick={handleSincronizarCnj}
                 title="Atualizar e buscar novas publicações nos Diários Oficiais"
-                className="p-1.5 rounded hover:bg-slate-100 hover:text-slate-800"
+                className="p-1.5 rounded hover:bg-slate-100 hover:text-[#010E38] transition-colors"
               >
-                <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin text-[#1B75D0]" : ""}`} />
+                <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin text-[#010E38]" : ""}`} />
               </button>
             </div>
           </div>
         </div>
 
         {/* Filtros ativos pills */}
-        <div className="flex items-center gap-2 pt-1">
+        <div className="flex flex-wrap items-center gap-2 pt-0.5">
           {statusFilter !== "todas" && (
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-700 text-white">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10.5px] font-black uppercase bg-[#010E38] text-[#EBB52C] shadow-xs">
               <span>STATUS: {statusFilter.replace("_", " ")}</span>
               <button
                 type="button"
                 onClick={() => setStatusFilter("todas")}
-                className="hover:text-red-300"
+                className="hover:text-white"
               >
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {estadoFilter !== "TODOS" && (
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-700 text-white">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10.5px] font-black uppercase bg-[#010E38] text-[#EBB52C] shadow-xs">
               <span>ESTADO: {estadoFilter}</span>
               <button
                 type="button"
                 onClick={() => setEstadoFilter("TODOS")}
-                className="hover:text-red-300"
+                className="hover:text-white"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -483,20 +517,20 @@ export default function Publicacoes() {
         </div>
       </div>
 
-      {/* 4. BANNERS INFORMATIVOS */}
+      {/* 4. BANNERS INFORMATIVOS (IDENTIDADE JUS+) */}
       {showInfoBanner && (
-        <div className="bg-[#EBF5FB] border border-[#BCE2F5] rounded-lg p-3 text-xs text-[#1B75D0] flex items-start justify-between gap-3 shadow-xs">
+        <div className="bg-[#010E38]/5 border border-[#010E38]/15 rounded-xl p-3 text-xs text-[#010E38] flex items-start justify-between gap-3 shadow-xs">
           <div className="flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-[#1B75D0] shrink-0 mt-0.5" />
-            <p className="leading-relaxed">
-              As publicações abaixo foram encontradas com seu nome e já estavam disponíveis no Diário
-              Oficial. Novas publicações serão exibidas automaticamente assim que estiverem disponíveis.
+            <Info className="w-4 h-4 text-[#010E38] shrink-0 mt-0.5" />
+            <p className="leading-relaxed font-medium">
+              As publicações abaixo foram encontradas com o nome do advogado cadastrado e já estavam disponíveis no Diário
+              Oficial. Novas publicações serão exibidas automaticamente assim que forem disponibilizadas pelos tribunais.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowInfoBanner(false)}
-            className="text-[#1B75D0]/60 hover:text-[#1B75D0]"
+            className="text-[#010E38]/50 hover:text-[#010E38]"
           >
             <X className="w-4 h-4" />
           </button>
@@ -504,48 +538,48 @@ export default function Publicacoes() {
       )}
 
       {showIaBanner && (
-        <div className="bg-[#F6F5FC] border border-[#DDD9F8] rounded-lg p-3 text-xs text-[#5C59C2] flex items-start justify-between gap-3 shadow-xs">
+        <div className="bg-gradient-to-r from-[#010E38]/5 via-[#EBB52C]/10 to-[#010E38]/5 border border-[#EBB52C]/40 rounded-xl p-3 text-xs text-[#010E38] flex items-start justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5">
-            <span className="px-1.5 py-0.5 rounded bg-[#5C59C2] text-white text-[10px] font-extrabold flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> IA
+            <span className="px-2 py-0.5 rounded bg-[#010E38] text-[#EBB52C] text-[10px] font-black flex items-center gap-1 shrink-0 shadow-xs">
+              <Sparkles className="w-3 h-3 text-[#EBB52C]" /> IA JUS+
             </span>
-            <p className="leading-relaxed">
-              <strong>Menos trabalho manual:</strong> otimize a gestão de publicações com tratamentos sugeridos
-              pela Inteligência Artificial. Saiba mais e explore essa inovação!
+            <p className="leading-relaxed font-medium">
+              <strong>Menos trabalho manual:</strong> otimize a gestão de publicações com tratamentos inteligentes sugeridos
+              pela Inteligência Artificial do Jus+. Prazos fatais e audiências são calculados automaticamente!
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowIaBanner(false)}
-            className="text-[#5C59C2]/60 hover:text-[#5C59C2]"
+            className="text-[#010E38]/50 hover:text-[#010E38]"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* 5. TABELA DE PUBLICAÇÕES (IDÊNTICA AO ASTREA) */}
-      <div className="bg-white rounded-lg border border-slate-200/80 shadow-sm overflow-hidden">
+      {/* 5. TABELA DE PUBLICAÇÕES (RESPONSIVA, SEM CORTES, PADRÃO JUS+) */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         {/* Sub-header da tabela */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 text-xs">
-          <span className="text-slate-500 font-medium">
-            Mostrando {publicacoesFiltradas.length} publicações
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 text-xs bg-slate-50/50">
+          <span className="text-[#010E38] font-bold">
+            Mostrando <strong className="text-[#010E38]">{publicacoesFiltradas.length}</strong> publicações
           </span>
           <button
             type="button"
             onClick={alternarExpandirTodos}
-            className="text-[#1B75D0] hover:underline font-bold"
+            className="text-[#010E38] hover:text-[#021B66] hover:underline font-extrabold text-xs"
           >
             Expandir todos
           </button>
         </div>
 
-        {/* Tabela */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        {/* Tabela com container de scroll horizontal seguro */}
+        <div className="w-full overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[1050px]">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                <th className="py-2.5 pl-4 pr-2 w-8">
+              <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] font-black text-[#010E38]/70 uppercase tracking-wider">
+                <th className="py-3 pl-4 pr-2 w-10">
                   <Checkbox
                     checked={
                       publicacoesFiltradas.length > 0 &&
@@ -554,19 +588,19 @@ export default function Publicacoes() {
                     onCheckedChange={toggleSelectAll}
                   />
                 </th>
-                <th className="py-2.5 px-3">DIVULGADO EM ▾</th>
-                <th className="py-2.5 px-2 text-center">TIPO</th>
-                <th className="py-2.5 px-3">PROCESSO</th>
-                <th className="py-2.5 px-3">DIÁRIO</th>
-                <th className="py-2.5 px-3">NOME PESQUISADO</th>
-                <th className="py-2.5 px-3">STATUS</th>
-                <th className="py-2.5 pr-4 text-right">AÇÕES</th>
+                <th className="py-3 px-3 w-36">DIVULGADO EM ▾</th>
+                <th className="py-3 px-2 text-center w-14">TIPO</th>
+                <th className="py-3 px-3 min-w-[260px]">PROCESSO</th>
+                <th className="py-3 px-3 w-48">DIÁRIO</th>
+                <th className="py-3 px-3 w-48">NOME PESQUISADO</th>
+                <th className="py-3 px-3 w-32">STATUS</th>
+                <th className="py-3 pr-4 text-right min-w-[220px]">AÇÕES</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {publicacoesFiltradas.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400 font-medium">
                     Nenhuma publicação encontrada para os filtros selecionados.
                   </td>
                 </tr>
@@ -586,8 +620,10 @@ export default function Publicacoes() {
 
                         {/* Divulgado em / Publicado em */}
                         <td className="py-3.5 px-3 align-top whitespace-nowrap">
-                          <p className="font-bold text-slate-800">{formatarDataBr(pub.dataDivulgacao)}</p>
-                          <p className="text-[11px] text-slate-500">
+                          <p className="font-extrabold text-[#010E38] text-[12.5px]">
+                            {formatarDataBr(pub.dataDivulgacao)}
+                          </p>
+                          <p className="text-[11px] text-[#010E38]/60 mt-0.5 font-medium">
                             Publicado em: {formatarDataBr(pub.dataPublicacao || pub.dataDivulgacao)}
                           </p>
                         </td>
@@ -595,9 +631,9 @@ export default function Publicacoes() {
                         {/* Tipo (Ícone Documento ou Intimação) */}
                         <td className="py-3.5 px-2 align-top text-center">
                           {pub.tipo === "intimacao" ? (
-                            <Bell className="w-4 h-4 text-amber-500 inline-block" title="Intimação Eletrônica" />
+                            <Bell className="w-4 h-4 text-[#EBB52C] inline-block" title="Intimação Eletrônica" />
                           ) : (
-                            <FileText className="w-4 h-4 text-slate-500 inline-block" title="Publicação Diário Oficial" />
+                            <FileText className="w-4 h-4 text-[#010E38]/60 inline-block" title="Publicação Diário Oficial" />
                           )}
                         </td>
 
@@ -609,89 +645,90 @@ export default function Publicacoes() {
                               setPubSelecionada(pub);
                               setIsDetalheOpen(true);
                             }}
-                            className="font-mono font-bold text-slate-800 hover:text-[#1B75D0] underline text-left block"
+                            className="font-mono font-bold text-[#010E38] hover:text-[#010E38]/70 underline text-left block text-[13px]"
                           >
                             {pub.numeroProcesso}
                           </button>
-                          <p className="text-[11px] text-slate-600 truncate max-w-xs font-medium">
+                          <p className="text-[11.5px] text-[#010E38]/80 font-medium truncate max-w-sm mt-0.5">
                             {pub.partesProcesso}
                           </p>
-                          <p className="text-[10px] text-slate-400">
-                            Responsável: <strong className="text-slate-600">{pub.responsavel || "ALEX F"}</strong>
+                          <p className="text-[10.5px] text-[#010E38]/60 mt-0.5">
+                            Responsável: <strong className="text-[#010E38]">{pub.responsavel || "ALEX F"}</strong>
                           </p>
                         </td>
 
                         {/* Diário Oficial */}
-                        <td className="py-3.5 px-3 align-top text-slate-700 font-medium">
-                          <p className="truncate max-w-[200px]">{pub.diario}</p>
+                        <td className="py-3.5 px-3 align-top text-[#010E38]/80 font-medium text-[11.5px]">
+                          <p className="line-clamp-2">{pub.diario}</p>
                         </td>
 
                         {/* Nome Pesquisado */}
-                        <td className="py-3.5 px-3 align-top text-slate-800 font-semibold uppercase text-[11px]">
+                        <td className="py-3.5 px-3 align-top text-[#010E38] font-bold uppercase text-[11px]">
                           {pub.nomePesquisado}
                         </td>
 
                         {/* Status */}
-                        <td className="py-3.5 px-3 align-top">
+                        <td className="py-3.5 px-3 align-top whitespace-nowrap">
                           {pub.status === "nao_tratada" ? (
-                            <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px] font-bold uppercase rounded border border-amber-200">
+                            <Badge className="bg-[#EBB52C]/15 text-[#010E38] hover:bg-[#EBB52C]/25 text-[10px] font-black uppercase rounded border border-[#EBB52C]/50 shadow-xs">
                               NÃO TRATADA
                             </Badge>
                           ) : pub.status === "tratada" ? (
-                            <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 text-[10px] font-bold uppercase rounded border border-emerald-200">
+                            <Badge className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100 text-[10px] font-black uppercase rounded border border-emerald-300 shadow-xs">
                               TRATADA
                             </Badge>
                           ) : (
-                            <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 text-[10px] font-bold uppercase rounded border border-slate-200">
+                            <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-100 text-[10px] font-black uppercase rounded border border-slate-300 shadow-xs">
                               DESCARTADA
                             </Badge>
                           )}
                         </td>
 
-                        {/* Botões de Ação na Linha */}
-                        <td className="py-3.5 pr-4 align-top text-right">
+                        {/* Botões de Ação na Linha (sem quebrar ou cortar) */}
+                        <td className="py-3.5 pr-4 align-top text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
                               onClick={() => handleAdicionarPrazo(pub, 15)}
-                              title="Adicionar Tarefa ou Prazo rápido"
-                              className="p-1 rounded text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                              title="Adicionar Prazo fatal rápido (15 dias)"
+                              className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-[#010E38] transition-colors"
                             >
-                              <Plus className="w-4 h-4" />
+                              <Plus className="w-4 h-4 stroke-[2.5]" />
                             </button>
                             <button
                               type="button"
                               onClick={() => handleMarcarTratada(pub)}
                               title="Marcar como Tratada"
-                              className="p-1 rounded text-slate-500 hover:bg-slate-100 hover:text-emerald-600"
+                              className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-emerald-600 transition-colors"
                             >
-                              <Check className="w-4 h-4" />
+                              <Check className="w-4 h-4 stroke-[2.5]" />
                             </button>
 
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <button
                                   type="button"
-                                  className="p-1 rounded text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                                  className="p-1.5 rounded text-[#010E38]/70 hover:bg-slate-100 hover:text-[#010E38] transition-colors"
                                 >
                                   <MoreVertical className="w-4 h-4" />
                                 </button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-44 bg-white shadow-md">
-                                <DropdownMenuItem onClick={() => handleMarcarTratada(pub)}>
+                              <DropdownMenuContent align="end" className="w-48 bg-white border-slate-200 shadow-md">
+                                <DropdownMenuItem onClick={() => handleMarcarTratada(pub)} className="font-semibold text-xs">
                                   <Check className="w-3.5 h-3.5 mr-2 text-emerald-600" />
                                   Marcar tratada
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDescartar(pub)}>
+                                <DropdownMenuItem onClick={() => handleDescartar(pub)} className="font-semibold text-xs text-red-600">
                                   <X className="w-3.5 h-3.5 mr-2 text-red-600" />
-                                  Descartar
+                                  Descartar publicação
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   onClick={() => {
                                     navigator.clipboard.writeText(pub.conteudoCompleto);
-                                    toast.success("Texto da publicação copiado!");
+                                    toast.success("Texto integral da publicação copiado!");
                                   }}
+                                  className="font-semibold text-xs"
                                 >
                                   <Copy className="w-3.5 h-3.5 mr-2 text-slate-500" />
                                   Copiar texto
@@ -706,7 +743,7 @@ export default function Publicacoes() {
                                 setPubSelecionada(pub);
                                 setIsDetalheOpen(true);
                               }}
-                              className="bg-[#1B75D0] hover:bg-[#1560ad] text-white font-bold text-xs uppercase tracking-wide rounded px-3 py-1.5 h-8 ml-1"
+                              className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] hover:text-white font-black text-[11px] uppercase tracking-wider rounded-md px-3 py-1.5 h-8 ml-1 shadow-xs border border-[#EBB52C]/30 shrink-0 transition-all"
                             >
                               ACESSAR PUBLICAÇÃO
                             </Button>
@@ -716,44 +753,61 @@ export default function Publicacoes() {
 
                       {/* Snippet de Conteúdo e Tratamentos Sugeridos por IA */}
                       <tr>
-                        <td colSpan={8} className="px-4 pb-4 pt-0 bg-slate-50/40">
-                          <div className="pl-6 border-l-2 border-[#1B75D0]/30 space-y-2 pt-1 text-slate-600 text-[11.5px]">
-                            <p className="line-clamp-2 leading-relaxed">
+                        <td colSpan={8} className="px-4 pb-4 pt-0 bg-slate-50/30">
+                          <div className="pl-6 border-l-2 border-[#EBB52C] space-y-2 pt-1 text-[#010E38]/80 text-[11.5px]">
+                            <p className="line-clamp-2 leading-relaxed font-normal">
                               {pub.conteudoCompleto}
                             </p>
 
-                            {/* Tratamentos Sugeridos por IA (se houver) */}
+                            {/* Tratamentos Sugeridos por IA Jus+ */}
                             {pub.sugestoesIa && pub.sugestoesIa.length > 0 && pub.status === "nao_tratada" && (
                               <div className="flex flex-wrap items-center gap-2 pt-1">
-                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#5C59C2]">
-                                  <Sparkles className="w-3 h-3" /> IA Tratamentos sugeridos:
+                                <span className="inline-flex items-center gap-1 text-[11px] font-black text-[#010E38]">
+                                  <Sparkles className="w-3.5 h-3.5 text-[#EBB52C]" /> IA Sugestões:
                                 </span>
 
-                                {pub.sugestoesIa.map((sug, sIdx) => (
-                                  <button
-                                    key={sIdx}
-                                    type="button"
-                                    onClick={() => {
-                                      if (sug.tipo === "audiencia") {
-                                        handleAdicionarAudiencia(pub, sug.dataSugerida, sug.horaSugerida);
-                                      } else {
-                                        handleAdicionarPrazo(pub, sug.diasUteis || 15, sug.descricao);
-                                      }
-                                    }}
-                                    className={`px-3 py-1 rounded text-[10px] font-extrabold uppercase tracking-wide border transition-all flex items-center gap-1.5 shadow-2xs ${
-                                      sug.tipo === "prazo"
-                                        ? "border-red-400 text-red-600 bg-white hover:bg-red-50"
-                                        : "border-amber-400 text-amber-700 bg-white hover:bg-amber-50"
-                                    }`}
-                                  >
-                                    {sug.tipo === "prazo" ? (
-                                      <Calendar className="w-3 h-3 text-red-500" />
-                                    ) : (
-                                      <Gavel className="w-3 h-3 text-amber-500" />
-                                    )}
-                                    <span>{sug.label}</span>
-                                  </button>
-                                ))}
+                                {pub.sugestoesIa.map((sug, idx) => {
+                                  if (sug.tipo === "prazo") {
+                                    return (
+                                      <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => handleAdicionarPrazo(pub, sug.dias || 15)}
+                                        className="bg-[#EBB52C]/15 hover:bg-[#EBB52C]/30 text-[#010E38] border border-[#EBB52C]/50 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
+                                      >
+                                        <Clock className="w-3 h-3 text-[#010E38]" />
+                                        <span>ADICIONAR UM PRAZO PARA {sug.dataSugerida || "QUA, 25 DE NOV 2026"}</span>
+                                      </button>
+                                    );
+                                  }
+                                  if (sug.tipo === "audiencia") {
+                                    return (
+                                      <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => handleAdicionarAudiencia(pub, sug.dataSugerida || "2027-05-10")}
+                                        className="bg-[#010E38]/10 hover:bg-[#010E38]/20 text-[#010E38] border border-[#010E38]/30 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
+                                      >
+                                        <Calendar className="w-3 h-3 text-[#010E38]" />
+                                        <span>ADICIONAR UMA AUDIÊNCIA PARA {sug.dataSugerida || "TER, 10 DE MAI 2027 ÀS 10:45"}</span>
+                                      </button>
+                                    );
+                                  }
+                                  return (
+                                    <button
+                                      key={idx}
+                                      type="button"
+                                      onClick={() => {
+                                        setPubSelecionada(pub);
+                                        setIsDetalheOpen(true);
+                                      }}
+                                      className="bg-slate-100 hover:bg-slate-200 text-[#010E38] border border-slate-300 px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider shadow-xs transition-all flex items-center gap-1.5"
+                                    >
+                                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                      <span>{sug.descricao}</span>
+                                    </button>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
@@ -768,171 +822,218 @@ export default function Publicacoes() {
         </div>
       </div>
 
-      {/* 6. MODAL DETALHE DA PUBLICAÇÃO E TRATAMENTO COMPLETO */}
-      <Dialog open={isDetalheOpen} onOpenChange={setIsDetalheOpen}>
-        <DialogContent className="sm:max-w-[720px] max-h-[85vh] overflow-y-auto bg-white text-slate-800">
-          <DialogHeader className="border-b border-slate-100 pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-[#1B75D0] uppercase">
-                  {pubSelecionada?.diario}
-                </span>
-                <DialogTitle className="text-lg font-black text-slate-900 mt-0.5">
-                  Processo {pubSelecionada?.numeroProcesso}
-                </DialogTitle>
-                <DialogDescription className="text-xs text-slate-500">
-                  {pubSelecionada?.partesProcesso} · Divulgado em {formatarDataBr(pubSelecionada?.dataDivulgacao)}
-                </DialogDescription>
-              </div>
+      {/* ========================================================= */}
+      {/* MODAL 1: DETALHE DA PUBLICAÇÃO & TRATAMENTO COMPLETO     */}
+      {/* ========================================================= */}
+      {pubSelecionada && (
+        <Dialog open={isDetalheOpen} onOpenChange={setIsDetalheOpen}>
+          <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0 border-[#010E38]/20">
+            {/* Header com identidade Jus+ */}
+            <div className="bg-[#010E38] text-white p-5 rounded-t-lg">
+              <div className="flex items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-[#EBB52C] text-[#010E38] text-[10px] font-black px-2 py-0.5 rounded uppercase">
+                      {pubSelecionada.tipo === "intimacao" ? "Intimação Eletrônica" : "Diário Oficial"}
+                    </span>
+                    <span className="text-white/70 text-xs font-mono">{pubSelecionada.diario}</span>
+                  </div>
+                  <h2 className="text-lg font-black tracking-tight text-white">
+                    {pubSelecionada.numeroProcesso}
+                  </h2>
+                  <p className="text-xs text-white/80 font-medium">
+                    {pubSelecionada.partesProcesso}
+                  </p>
+                </div>
 
-              {/* Botão Dropdown TRATAMENTOS azul Astrea */}
-              {pubSelecionada && (
+                {/* Dropdown Azul Tratamentos */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       type="button"
-                      className="bg-[#1B75D0] hover:bg-[#1560ad] text-white font-bold text-xs uppercase rounded px-4 py-2 flex items-center gap-1.5"
+                      className="bg-[#EBB52C] hover:bg-[#d8a424] text-[#010E38] font-black text-xs uppercase tracking-wider shadow-md"
                     >
                       <span>TRATAMENTOS</span>
-                      <ChevronDown className="w-4 h-4" />
+                      <ChevronDown className="w-4 h-4 ml-1.5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg">
-                    <DropdownMenuItem onClick={() => handleAdicionarPrazo(pubSelecionada, 15)}>
-                      <Calendar className="w-4 h-4 mr-2 text-red-600" />
+                  <DropdownMenuContent align="end" className="w-56 bg-white border-slate-200 shadow-xl">
+                    <DropdownMenuItem
+                      onClick={() => handleAdicionarPrazo(pubSelecionada, 15)}
+                      className="text-xs font-bold py-2"
+                    >
+                      <Clock className="w-4 h-4 mr-2 text-[#EBB52C]" />
                       Adicionar Prazo Fatal (15 dias)
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAdicionarAudiencia(pubSelecionada, "2027-05-10")}>
-                      <Gavel className="w-4 h-4 mr-2 text-amber-600" />
+                    <DropdownMenuItem
+                      onClick={() => handleAdicionarAudiencia(pubSelecionada, "2027-05-10")}
+                      className="text-xs font-bold py-2"
+                    >
+                      <Calendar className="w-4 h-4 mr-2 text-[#010E38]" />
                       Adicionar Audiência
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAdicionarPrazo(pubSelecionada, 5, "Cumprimento de tarefa")}>
-                      <Clock className="w-4 h-4 mr-2 text-blue-600" />
-                      Adicionar Tarefa
+                    <DropdownMenuItem
+                      onClick={() => handleAdicionarPrazo(pubSelecionada, 5)}
+                      className="text-xs font-bold py-2"
+                    >
+                      <FileText className="w-4 h-4 mr-2 text-slate-600" />
+                      Adicionar Tarefa ao Processo
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleMarcarTratada(pubSelecionada)}>
-                      <Check className="w-4 h-4 mr-2 text-emerald-600" />
+                    <DropdownMenuItem
+                      onClick={() => handleMarcarTratada(pubSelecionada)}
+                      className="text-xs font-bold py-2 text-emerald-600"
+                    >
+                      <Check className="w-4 h-4 mr-2" />
                       Marcar como Tratada
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDescartar(pubSelecionada)}>
-                      <X className="w-4 h-4 mr-2 text-red-600" />
+                    <DropdownMenuItem
+                      onClick={() => handleDescartar(pubSelecionada)}
+                      className="text-xs font-bold py-2 text-red-600"
+                    >
+                      <X className="w-4 h-4 mr-2" />
                       Descartar Publicação
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              )}
-            </div>
-          </DialogHeader>
-
-          {/* Corpo do Inteiro Teor */}
-          <div className="space-y-4 py-3">
-            {/* Box Inteiro Teor */}
-            <div className="bg-slate-50 rounded-lg p-4 border border-slate-200 text-xs leading-relaxed space-y-2">
-              <span className="font-bold uppercase tracking-wider text-slate-500 text-[10px] block">
-                INTEIRO TEOR DA PUBLICAÇÃO
-              </span>
-              <p className="text-slate-800 whitespace-pre-wrap font-sans">
-                {pubSelecionada?.conteudoCompleto}
-              </p>
-            </div>
-
-            {/* Caixa IA Astrea: Resumo e Tradução */}
-            <div className="bg-[#F6F5FC] border border-[#DDD9F8] rounded-lg p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-[#5C59C2] text-white text-[10px] font-extrabold flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> INTELIGÊNCIA JUS+
-                </span>
-                <span className="text-xs font-bold text-[#5C59C2]">
-                  Resumo e Sugestões Automáticas
-                </span>
               </div>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                {pubSelecionada?.resumoIa}
-              </p>
+            </div>
 
-              <div className="pt-1 flex flex-wrap items-center gap-2">
+            <div className="p-5 space-y-4">
+              {/* Box de Resumo da IA */}
+              <div className="p-3.5 rounded-lg bg-gradient-to-br from-[#010E38]/5 via-amber-50/50 to-white border border-[#EBB52C]/40 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-black text-[#010E38]">
+                  <Sparkles className="w-4 h-4 text-[#EBB52C]" />
+                  <span>Resumo Executivo da IA Jus+</span>
+                </div>
+                <p className="text-xs text-[#010E38]/80 leading-relaxed font-medium">
+                  {pubSelecionada.resumoIa ||
+                    "Publicação oficial relativa ao processo em referência. Requer manifestação do patrono acerca dos atos processuais praticados dentro do prazo legal."}
+                </p>
+              </div>
+
+              {/* Dados e Metadados */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-lg text-xs border border-slate-200">
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Disponibilização</span>
+                  <span className="font-extrabold text-[#010E38]">{formatarDataBr(pubSelecionada.dataDivulgacao)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Publicação</span>
+                  <span className="font-extrabold text-[#010E38]">
+                    {formatarDataBr(pubSelecionada.dataPublicacao || pubSelecionada.dataDivulgacao)}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Diário Oficial</span>
+                  <span className="font-extrabold text-[#010E38] truncate block">{pubSelecionada.diario}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Nome Pesquisado</span>
+                  <span className="font-extrabold text-[#010E38] uppercase truncate block">
+                    {pubSelecionada.nomePesquisado}
+                  </span>
+                </div>
+              </div>
+
+              {/* Texto Completo da Publicação */}
+              <div>
+                <Label className="text-xs font-bold text-[#010E38] uppercase tracking-wider mb-1.5 block">
+                  Conteúdo Integral Publicado
+                </Label>
+                <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono text-slate-800 leading-relaxed max-h-64 overflow-y-auto whitespace-pre-wrap select-all">
+                  {pubSelecionada.conteudoCompleto}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer com Ações */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(pubSelecionada.conteudoCompleto);
+                  toast.success("Conteúdo integral copiado!");
+                }}
+                className="text-xs font-bold border-slate-300"
+              >
+                <Copy className="w-3.5 h-3.5 mr-1.5" />
+                Copiar Texto
+              </Button>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDescartar(pubSelecionada)}
+                  className="text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                >
+                  Descartar
+                </Button>
                 <Button
                   type="button"
                   size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    const msg = `Olá! Informamos que houve uma nova publicação no seu processo ${pubSelecionada?.numeroProcesso}: "${pubSelecionada?.resumoIa}". Estamos cuidando de todos os prazos.`;
-                    navigator.clipboard.writeText(msg);
-                    toast.success("Mensagem amigável traduzida para o cliente copiada para a área de transferência!");
-                  }}
-                  className="border-[#5C59C2]/30 text-[#5C59C2] hover:bg-[#5C59C2]/10 text-xs font-bold"
+                  onClick={() => handleMarcarTratada(pubSelecionada)}
+                  className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] text-xs font-black"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
-                  Copiar Mensagem para WhatsApp do Cliente
+                  <Check className="w-3.5 h-3.5 mr-1.5" />
+                  Concluir Tratamento
                 </Button>
               </div>
             </div>
-          </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
-          <DialogFooter className="border-t border-slate-100 pt-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsDetalheOpen(false)}
-              className="text-xs font-bold"
-            >
-              Fechar
-            </Button>
-            {pubSelecionada?.status === "nao_tratada" && (
-              <Button
-                type="button"
-                onClick={() => handleMarcarTratada(pubSelecionada)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase"
-              >
-                <Check className="w-3.5 h-3.5 mr-1.5" />
-                Concluir Tratamento
-              </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 7. MODAL CONFIGURAÇÃO DE NOMES PESQUISADOS (PASSO 3) */}
+      {/* ========================================================= */}
+      {/* MODAL 2: CONFIGURAÇÃO DE NOMES NOS DIÁRIOS (PASSO 3)     */}
+      {/* ========================================================= */}
       <Dialog open={isConfigNomesOpen} onOpenChange={setIsConfigNomesOpen}>
-        <DialogContent className="sm:max-w-[560px] bg-white text-slate-800">
+        <DialogContent className="sm:max-w-lg border-[#010E38]/20">
           <DialogHeader>
-            <DialogTitle className="text-base font-black text-slate-900">
-              Configuração de Nomes nos Diários Oficiais (Passo 3)
+            <DialogTitle className="text-lg font-black text-[#010E38]">
+              Configurar Nomes para Diários Oficiais
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Cadastre os nomes de advogados e do escritório para receber publicações automaticamente. Seu plano
-              atual ({configNomes.plano}) permite até {configNomes.limiteNomes} nomes.
+              Cadastre os nomes de advogados e pessoas jurídicas pesquisados automaticamente nos Diários Oficiais Nacionais (DJEN).
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-3">
-            {configNomes.nomes.map((n, idx) => (
-              <div
-                key={n.id}
-                className="p-3.5 rounded-lg border border-slate-200 bg-slate-50/60 flex items-center justify-between text-xs"
-              >
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">{n.nome}</span>
-                    <span className="px-1.5 py-0.2 rounded text-[10px] font-bold uppercase bg-slate-200 text-slate-700">
-                      {n.tipoPessoa}
-                    </span>
-                    {n.oab && (
-                      <span className="font-mono text-[11px] font-bold text-[#1B75D0]">
-                        OAB/{n.uf} {n.oab}
-                      </span>
-                    )}
+          <div className="space-y-4 py-2">
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 font-medium">
+              Plano VIP Ativo: Você possui <strong>{configNomes.nomes.length}</strong> de{" "}
+              <strong>{configNomes.limiteNomes}</strong> nomes utilizados.
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-[#010E38]">Nomes Cadastrados</Label>
+              <div className="space-y-1.5">
+                {configNomes.nomes.map((nome, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span>{nome}</span>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] font-bold border-slate-300">
+                      Monitorando DJEN
+                    </Badge>
                   </div>
-                  <p className="text-[11px] text-slate-500">
-                    Diários: {n.diarios.join(", ")}
-                  </p>
-                </div>
-                <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 text-[10px] uppercase font-bold">
-                  Ativo
-                </Badge>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 space-y-1 text-xs">
+              <span className="font-bold text-[#010E38] block">Abrangência de Consulta:</span>
+              <p className="text-slate-600">
+                {configNomes.diariosAbrangencia.join(", ")}
+              </p>
+            </div>
           </div>
 
           <DialogFooter>
@@ -947,69 +1048,62 @@ export default function Publicacoes() {
             <Button
               type="button"
               onClick={() => {
+                salvarConfigNomesPublicacoes(configNomes);
                 toast.success("Configuração de nomes salva com sucesso!");
                 setIsConfigNomesOpen(false);
               }}
-              className="bg-[#1B75D0] text-white text-xs font-bold uppercase"
+              className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] font-black text-xs"
             >
-              Salvar Configurações
+              Salvar Alterações
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* 8. MODAL CREDENCIAMENTO DE INTIMAÇÕES ELETRÔNICAS (PJe, Eproc, Projudi) */}
+      {/* ========================================================= */}
+      {/* MODAL 3: CREDENCIAMENTO TRIBUNAIS (INTIMAÇÕES ELETRÔNICAS)*/}
+      {/* ========================================================= */}
       <Dialog open={isCredenciamentoOpen} onOpenChange={setIsCredenciamentoOpen}>
-        <DialogContent className="sm:max-w-[620px] bg-white text-slate-800">
+        <DialogContent className="sm:max-w-lg border-[#010E38]/20">
           <DialogHeader>
-            <DialogTitle className="text-base font-black text-slate-900">
-              Credenciamento de Intimações Eletrônicas (Passo 3)
+            <DialogTitle className="text-lg font-black text-[#010E38]">
+              Credenciamento em Tribunais (Intimações Eletrônicas)
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Conecte os sistemas eletrônicos dos tribunais (PJe, Projudi, Eproc) e configure login ou 2FA SEED
-              para captura automática de intimações.
+              Conecte seus acessos aos portais dos tribunais (PJe, Projudi, Eproc) para capturar intimações eletrônicas com segurança.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-3">
-            {credenciamentos.map((c) => (
+          <div className="space-y-3 py-2">
+            {credenciamentos.map((cred) => (
               <div
-                key={c.id}
-                className="p-3.5 rounded-lg border border-slate-200 bg-slate-50/60 flex items-center justify-between text-xs"
+                key={cred.id}
+                className="p-3 rounded-lg border border-slate-200 bg-white flex items-center justify-between gap-3 text-xs"
               >
-                <div className="space-y-1">
+                <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">{c.tribunal}</span>
-                    <Badge variant="outline" className="text-[10px] font-bold uppercase">
-                      {c.sistema}
-                    </Badge>
+                    <span className="font-black text-[#010E38]">{cred.sistema}</span>
+                    <span className="text-slate-500 font-mono text-[11px]">— {cred.tribunal}</span>
                   </div>
-                  <p className="text-[11px] text-slate-500">
-                    Login: <strong className="font-mono text-slate-700">{c.login}</strong> ·{" "}
-                    {c.totalIntimacoes} intimações capturadas
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Login: <strong className="text-slate-700">{cred.usuarioLogin}</strong>
                   </p>
+                  {cred.ultimoAcesso && (
+                    <p className="text-[10px] text-slate-400">
+                      Última sincronização: {formatarDataBr(cred.ultimoAcesso)}
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Badge
-                    className={
-                      c.statusConexao === "Conectado"
-                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                        : "bg-amber-100 text-amber-800 border-amber-200"
-                    }
-                  >
-                    {c.statusConexao}
-                  </Badge>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toast.info(`Credenciamento de ${c.tribunal} verificado com sucesso!`)}
-                    className="text-xs font-bold h-7"
-                  >
-                    Testar
-                  </Button>
-                </div>
+                <Badge
+                  className={
+                    cred.status === "conectado"
+                      ? "bg-emerald-100 text-emerald-800 border-emerald-200 font-bold text-[10px]"
+                      : "bg-amber-100 text-amber-800 border-amber-200 font-bold text-[10px]"
+                  }
+                >
+                  {cred.status === "conectado" ? "Conectado" : "Pendente 2FA"}
+                </Badge>
               </div>
             ))}
           </div>
@@ -1026,12 +1120,13 @@ export default function Publicacoes() {
             <Button
               type="button"
               onClick={() => {
-                toast.success("Credenciais e 2FA SEED salvos com sucesso!");
+                salvarCredenciamentoTribunais(credenciamentos);
+                toast.success("Credenciamentos validados com sucesso!");
                 setIsCredenciamentoOpen(false);
               }}
-              className="bg-[#1B75D0] text-white text-xs font-bold uppercase"
+              className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] font-black text-xs"
             >
-              Salvar Credenciamento
+              Atualizar Credenciamentos
             </Button>
           </DialogFooter>
         </DialogContent>

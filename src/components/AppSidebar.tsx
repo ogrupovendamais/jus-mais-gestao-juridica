@@ -265,16 +265,16 @@ export function AppSidebar() {
           </SidebarGroup>
 
           {/* CARD DE ONBOARDING PASSO 3: PUBLICAÇÕES & INTIMAÇÕES ELETRÔNICAS */}
-          <div className="mx-1 mt-4 p-2.5 rounded-lg bg-[#0F224D] border border-blue-400/25 text-white text-xs shadow-sm">
+          <div className="mx-1 mt-4 mb-2 p-2.5 rounded-lg bg-[#0F224D] border border-[#EBB52C]/30 text-white text-xs shadow-md">
             <Link to="/publicacoes" className="block group">
               <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-[11px] text-blue-200 group-hover:text-white flex items-center gap-1.5">
+                <span className="font-bold text-[11px] text-[#EBB52C] group-hover:underline flex items-center gap-1.5">
                   <Newspaper className="w-3.5 h-3.5 text-[#EBB52C]" />
                   Passo 3: Publicações
                 </span>
-                <span className="text-[10px] text-blue-300 font-semibold">1 de 4</span>
+                <span className="text-[10px] text-white/80 font-bold">1 de 4</span>
               </div>
-              <div className="w-full bg-white/15 h-1 rounded-full mb-2 overflow-hidden">
+              <div className="w-full bg-white/15 h-1.5 rounded-full mb-2 overflow-hidden">
                 <div className="bg-[#EBB52C] h-full w-1/4 rounded-full" />
               </div>
             </Link>
@@ -285,10 +285,10 @@ export function AppSidebar() {
                 className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/90 transition-colors"
               >
                 <div className="flex items-center gap-1.5 truncate">
-                  <FileText className="w-3 h-3 text-blue-300 shrink-0" />
+                  <FileText className="w-3 h-3 text-[#EBB52C] shrink-0" />
                   <span className="truncate">Trate uma publicação</span>
                 </div>
-                <span className="text-[9px] text-[#EBB52C] font-bold">26</span>
+                <span className="bg-[#EBB52C] text-[#010E38] text-[9px] font-black px-1 rounded">26</span>
               </Link>
 
               <Link
@@ -296,7 +296,7 @@ export function AppSidebar() {
                 className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/70 transition-colors"
               >
                 <div className="flex items-center gap-1.5 truncate">
-                  <span className="w-3 h-3 flex items-center justify-center text-[10px] text-blue-300 font-bold">▾</span>
+                  <span className="w-3 h-3 flex items-center justify-center text-[10px] text-[#EBB52C] font-bold">▾</span>
                   <span className="truncate">Filtre as publicações</span>
                 </div>
               </Link>
@@ -306,7 +306,7 @@ export function AppSidebar() {
                 className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/70 transition-colors"
               >
                 <div className="flex items-center gap-1.5 truncate">
-                  <span className="w-3 h-3 flex items-center justify-center text-[10px] text-blue-300 font-bold">💻</span>
+                  <span className="w-3 h-3 flex items-center justify-center text-[10px] text-[#EBB52C] font-bold">💻</span>
                   <span className="truncate">Cadastre intimações</span>
                 </div>
               </Link>
