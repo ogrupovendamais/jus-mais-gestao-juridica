@@ -62,6 +62,7 @@ import { ModalSaidaAstrea } from "@/components/financeiro/ModalSaidaAstrea";
 import { ModalTransferenciaAstrea } from "@/components/financeiro/ModalTransferenciaAstrea";
 import { AbaFaturasAstrea } from "@/components/financeiro/AbaFaturasAstrea";
 import { AbaFluxoCaixaAstrea } from "@/components/financeiro/AbaFluxoCaixaAstrea";
+import { AbaConfiguracoesAstrea } from "@/components/financeiro/AbaConfiguracoesAstrea";
 import { useSubmitUnico } from "@/hooks/useSubmitUnico";
 import { dataDeIso, vencimentoMensal } from "@/lib/diasUteis";
 
@@ -122,6 +123,7 @@ const Financeiro = () => {
     useState<Lancamento | null>(null);
   const [subAbaFinanceiro, setSubAbaFinanceiro] = useState<"lancamentos" | "faturas" | "fluxo" | "config">("lancamentos");
   const [subAbaFaturas, setSubAbaFaturas] = useState<"a_faturar" | "emitidas">("a_faturar");
+  const [subAbaConfig, setSubAbaConfig] = useState<"categorias" | "centros_custo" | "contas">("categorias");
   const [openModalHonorario, setOpenModalHonorario] = useState(false);
   const [openModalEntrada, setOpenModalEntrada] = useState(false);
   const [openModalSaida, setOpenModalSaida] = useState(false);
@@ -1327,17 +1329,57 @@ const Financeiro = () => {
           >
             Fluxo de caixa
           </button>
-          <button
-            type="button"
-            onClick={() => setSubAbaFinanceiro("config")}
-            className={`pb-2 border-b-2 transition-all ${
-              subAbaFinanceiro === "config"
-                ? "border-[#EBB52C] text-[#010E38] font-black"
-                : "border-transparent text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            Configurações
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setSubAbaFinanceiro("config")}
+                className={`pb-2 border-b-2 transition-all flex items-center gap-1 ${
+                  subAbaFinanceiro === "config"
+                    ? "border-[#EBB52C] text-[#010E38] font-black"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <span>Configurações</span>
+                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-44 bg-white border border-slate-200 shadow-md p-1 text-xs">
+              <DropdownMenuItem
+                onClick={() => {
+                  setSubAbaFinanceiro("config");
+                  setSubAbaConfig("categorias");
+                }}
+                className={`cursor-pointer py-2 px-3 font-semibold rounded ${
+                  subAbaFinanceiro === "config" && subAbaConfig === "categorias" ? "bg-slate-100 text-[#010E38]" : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                Categorias
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSubAbaFinanceiro("config");
+                  setSubAbaConfig("centros_custo");
+                }}
+                className={`cursor-pointer py-2 px-3 font-semibold rounded ${
+                  subAbaFinanceiro === "config" && subAbaConfig === "centros_custo" ? "bg-slate-100 text-[#010E38]" : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                Centros de custo
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSubAbaFinanceiro("config");
+                  setSubAbaConfig("contas");
+                }}
+                className={`cursor-pointer py-2 px-3 font-semibold rounded ${
+                  subAbaFinanceiro === "config" && subAbaConfig === "contas" ? "bg-slate-100 text-[#010E38]" : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                Contas
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -1657,37 +1699,12 @@ const Financeiro = () => {
         <AbaFluxoCaixaAstrea lancamentos={lancamentos} />
       )}
 
-      {/* 5. CONTEÚDO DA ABA: CONFIGURAÇÕES */}
+      {/* 5. CONTEÚDO DA ABA: CONFIGURAÇÕES (OFICIAL ASTREA - PRINTS 1 A 5) */}
       {subAbaFinanceiro === "config" && (
-        <div className="bg-white rounded-lg border border-slate-200/80 p-6 shadow-sm space-y-6">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-base sm:text-lg font-bold text-[#010E38]">Configurações Financeiras</h2>
-            <p className="text-xs text-slate-500">Gerencie contas bancárias, categorias e centros de custo.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="border border-slate-200 rounded-lg p-4 space-y-2">
-              <h3 className="font-bold text-slate-800 text-sm">Contas Bancárias</h3>
-              <p className="text-slate-500">Conta padrão, Banco do Brasil, Santander, Caixa e NuBank PJ.</p>
-              <Button variant="outline" size="sm" onClick={() => toast.info("Configuração de contas")} className="w-full text-xs">
-                Gerenciar Contas
-              </Button>
-            </div>
-            <div className="border border-slate-200 rounded-lg p-4 space-y-2">
-              <h3 className="font-bold text-slate-800 text-sm">Categorias</h3>
-              <p className="text-slate-500">Honorários, Consultoria, Custas, Aluguel e Salários.</p>
-              <Button variant="outline" size="sm" onClick={() => toast.info("Configuração de categorias")} className="w-full text-xs">
-                Gerenciar Categorias
-              </Button>
-            </div>
-            <div className="border border-slate-200 rounded-lg p-4 space-y-2">
-              <h3 className="font-bold text-slate-800 text-sm">Centros de Custo</h3>
-              <p className="text-slate-500">Geral, Trabalhista, Cível, Previdenciário e Empresarial.</p>
-              <Button variant="outline" size="sm" onClick={() => toast.info("Configuração de centros de custo")} className="w-full text-xs">
-                Gerenciar Centros
-              </Button>
-            </div>
-          </div>
-        </div>
+        <AbaConfiguracoesAstrea
+          subAbaConfig={subAbaConfig}
+          onMudarSubAba={setSubAbaConfig}
+        />
       )}
 
       {/* FOOTER OFICIAL JUS+ GESTÃO JURÍDICA */}
