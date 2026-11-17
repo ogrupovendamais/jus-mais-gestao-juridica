@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,30 +44,22 @@ import {
   FilePlus,
   FileX,
   MoreHorizontal,
-  Calendar,
-  User,
   Download,
-  HardDrive,
   FolderPlus,
   Folder as FolderIcon,
-  File as FileIcon,
   ChevronRight,
   ChevronDown,
   Home,
-  Upload,
   FileText,
-  Eye,
   X,
   Search,
   Link as LinkIcon,
   ExternalLink,
   ArrowLeft,
-  Paperclip,
-  Check,
+  UploadCloud,
 } from "lucide-react";
 import { NovaPastaDialog } from "@/components/documentos/NovaPastaDialog";
 import { DeleteDocumentoDialog } from "@/components/documentos/DeleteDocumentoDialog";
-import { ModelosManagerDialog } from "@/components/documentos/ModelosManagerDialog";
 import { toast } from "sonner";
 import { nomeArquivoSeguro } from "@/lib/utils";
 import { DocumentoViewer } from "@/components/documentos/DocumentoViewer";
@@ -127,7 +118,6 @@ export default function Documentos() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [documentoToDelete, setDocumentoToDelete] = useState<Documento | null>(null);
   const [clientes, setClientes] = useState<{ id: string; nome: string }[]>([]);
-  const [processosLista, setProcessosLista] = useState<{ id: string; numero: string; cliente: string }[]>([]);
 
   // Modos de visão: "inicio" | "novo_documento" | "novo_link" | "novo_padrao"
   const [visao, setVisao] = useState<"inicio" | "novo_documento" | "novo_link" | "novo_padrao">("inicio");
@@ -187,15 +177,6 @@ export default function Documentos() {
 
       const clientesData = (clientesRes.data || []) as { id: string; nome: string }[];
       setClientes(clientesData);
-
-      // Simulação de processos para o autocomplete com dados reais ou mockados
-      setProcessosLista([
-        { id: "1", numero: "4050831-25.2026.8.26.0114", cliente: "Wagner Aparecido Alves" },
-        { id: "2", numero: "0002141-50.2026.8.26.0270", cliente: "M.H.A.A." },
-        { id: "3", numero: "1000417-91.2026.8.26.0270", cliente: "E.J.F." },
-        { id: "4", numero: "4001448-32.2025.8.26.0270", cliente: "Raissa Scheidt Do Valle" },
-        { id: "5", numero: "1001199-69.2024.8.26.0270", cliente: "Normi De Jesus Silva" },
-      ]);
 
       setAllDocumentos(
         (docsRes.data || []).map((d: any) => ({
@@ -300,7 +281,6 @@ export default function Documentos() {
       if (error) throw error;
       toast.success("Documento carregado com sucesso!");
 
-      // Limpar formulário e voltar para lista
       setArquivoUpload(null);
       setDocDescricao("");
       setDocProcesso("");
@@ -544,40 +524,40 @@ export default function Documentos() {
     }
   };
 
-  // Botão Dropdown Centralizado e Reutilizável (Fiel ao Astrea)
+  // Botão Dropdown Centralizado com Identidade Oficial JUS+ (#010E38 & #EBB52C)
   const BotaoAdicionarDocumentoDropdown = ({ className = "" }: { className?: string }) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className={`bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs uppercase px-5 py-2.5 rounded shadow-sm flex items-center justify-center gap-2 transition-all ${className}`}
+          className={`bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-5 py-2.5 rounded-lg shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.99] ${className}`}
         >
           <span>ADICIONAR DOCUMENTO</span>
-          <ChevronDown className="w-3.5 h-3.5 text-white" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 bg-white border border-slate-200 shadow-2xl rounded-xl p-1.5 text-slate-800 z-50">
+      <DropdownMenuContent align="end" className="w-64 bg-white border border-slate-200 shadow-2xl rounded-xl p-1.5 text-[#010E38] z-50">
         <DropdownMenuItem
           onClick={() => setVisao("novo_documento")}
-          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5"
+          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5 text-[#010E38]"
         >
-          <FileText className="w-4 h-4 text-slate-500" />
+          <FileText className="w-4 h-4 text-[#010E38]" />
           <span>Documento</span>
         </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={() => setVisao("novo_link")}
-          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5"
+          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5 text-[#010E38]"
         >
-          <LinkIcon className="w-4 h-4 text-slate-500" />
+          <LinkIcon className="w-4 h-4 text-[#010E38]" />
           <span>Link</span>
         </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={() => setVisao("novo_padrao")}
-          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5"
+          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5 text-[#010E38]"
         >
-          <FilePlus className="w-4 h-4 text-slate-500" />
+          <FilePlus className="w-4 h-4 text-[#010E38]" />
           <span>Documento padrão</span>
         </DropdownMenuItem>
 
@@ -589,7 +569,7 @@ export default function Documentos() {
 
         <DropdownMenuItem
           onClick={() => setIsGoogleDriveModalOpen(true)}
-          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5"
+          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5 text-[#010E38]"
         >
           <GoogleDriveIcon />
           <span>Arquivo do Google Drive</span>
@@ -597,7 +577,7 @@ export default function Documentos() {
 
         <DropdownMenuItem
           onClick={() => setIsGoogleDocsPadraoOpen(true)}
-          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5"
+          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-slate-50 flex items-center gap-2.5 text-[#010E38]"
         >
           <GoogleDocsIcon />
           <span>Documento padrão do Google</span>
@@ -607,29 +587,30 @@ export default function Documentos() {
   );
 
   return (
-    <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-5 overflow-x-hidden">
       {/* ============================================================
           TELA 1: ADICIONAR DOCUMENTO (ARQUIVO LOCAL) - PRINT 1
           ============================================================ */}
       {visao === "novo_documento" && (
-        <div className="bg-white rounded-lg p-6 sm:p-10 max-w-4xl space-y-6">
-          <div className="flex items-center gap-3">
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 max-w-4xl space-y-6">
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
             <button
               type="button"
               onClick={() => setVisao("inicio")}
-              className="text-slate-400 hover:text-slate-700 p-1 rounded transition-colors"
+              className="text-slate-400 hover:text-[#010E38] p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              title="Voltar"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#010E38] tracking-tight">
               Adicionar documento
             </h2>
           </div>
 
-          <div className="space-y-5 pt-2">
-            {/* Documentos* (Área Tracejada) */}
+          <div className="space-y-5">
+            {/* Documentos* (Área Tracejada Responsiva) */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Documentos<span className="text-red-500">*</span>
               </Label>
               <input
@@ -644,27 +625,30 @@ export default function Documentos() {
               />
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-slate-300 hover:border-[#0284c7] rounded-lg py-8 px-4 flex flex-col items-center justify-center cursor-pointer transition-colors bg-white hover:bg-slate-50/50"
+                className="w-full border-2 border-dashed border-slate-300 hover:border-[#010E38] rounded-xl py-6 sm:py-8 px-4 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50/40 hover:bg-[#010E38]/[0.02] text-center"
               >
                 {arquivoUpload ? (
-                  <div className="flex items-center gap-2 text-sm text-slate-800 font-semibold">
-                    <FileText className="w-5 h-5 text-[#0284c7]" />
-                    <span>{arquivoUpload.name}</span>
+                  <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-[#010E38] font-bold">
+                    <FileText className="w-5 h-5 text-[#010E38] shrink-0" />
+                    <span className="break-all">{arquivoUpload.name}</span>
                     <span className="text-xs font-normal text-slate-500">
                       ({formatBytes(arquivoUpload.size)})
                     </span>
                   </div>
                 ) : (
-                  <span className="text-sm font-semibold text-slate-700">
-                    Carregar documento
-                  </span>
+                  <div className="flex flex-col items-center gap-1.5">
+                    <UploadCloud className="w-6 h-6 text-[#010E38]/70 sm:hidden" />
+                    <span className="text-xs sm:text-sm font-bold text-[#010E38]">
+                      Carregar documento
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
 
             {/* Descrição* com contador de 499 */}
             <div className="space-y-1">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Descrição<span className="text-red-500">*</span>
               </Label>
               <Textarea
@@ -673,17 +657,17 @@ export default function Documentos() {
                 maxLength={500}
                 value={docDescricao}
                 onChange={(e) => setDocDescricao(e.target.value)}
-                className="text-sm bg-white border-slate-200 focus:border-[#0284c7] resize-none"
+                className="text-sm bg-white border-slate-200 focus:border-[#010E38] resize-none"
               />
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-400 font-mono">
                 {500 - docDescricao.length}
               </p>
             </div>
 
             {/* Linha 2 Colunas: Processo, caso ou atendimento | Cliente */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5 relative">
-                <Label className="text-xs font-medium text-slate-700">
+                <Label className="text-xs font-semibold text-[#010E38]">
                   Processo, caso ou atendimento
                 </Label>
                 <div className="relative">
@@ -691,14 +675,14 @@ export default function Documentos() {
                     placeholder="Encontre processo, caso ou atendimento"
                     value={docProcesso}
                     onChange={(e) => setDocProcesso(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-1.5 relative">
-                <Label className="text-xs font-medium text-slate-700">
+                <Label className="text-xs font-semibold text-[#010E38]">
                   Cliente
                 </Label>
                 <div className="relative">
@@ -706,7 +690,7 @@ export default function Documentos() {
                     placeholder="Digite o nome do cliente"
                     value={docCliente}
                     onChange={(e) => setDocCliente(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -715,35 +699,35 @@ export default function Documentos() {
 
             {/* Responsável* */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Responsável<span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <Input
                   value={docResponsavel}
                   onChange={(e) => setDocResponsavel(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
               </div>
             </div>
 
-            {/* Rodapé: Cancelar | SALVAR */}
-            <div className="flex items-center justify-end gap-4 pt-6 border-t border-slate-100">
+            {/* Rodapé Responsivo: Cancelar | SALVAR */}
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 pt-6 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setVisao("inicio")}
-                className="text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                className="w-full sm:w-auto text-xs font-bold uppercase text-slate-600 hover:text-[#010E38] py-2.5 px-4 rounded-lg hover:bg-slate-100 transition-colors text-center"
               >
                 Cancelar
               </button>
-              <Button
+              <button
                 type="button"
                 onClick={handleSalvarDocumentoLocal}
-                className="bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs uppercase px-7 py-2.5 rounded shadow-sm"
+                className="w-full sm:w-auto bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-7 py-2.5 rounded-lg shadow-sm transition-all text-center"
               >
                 SALVAR
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -753,37 +737,38 @@ export default function Documentos() {
           TELA 2: ADICIONAR DOCUMENTO (LINK) - PRINT 2
           ============================================================ */}
       {visao === "novo_link" && (
-        <div className="bg-white rounded-lg p-6 sm:p-10 max-w-4xl space-y-6">
-          <div className="flex items-center gap-3">
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 max-w-4xl space-y-6">
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
             <button
               type="button"
               onClick={() => setVisao("inicio")}
-              className="text-slate-400 hover:text-slate-700 p-1 rounded transition-colors"
+              className="text-slate-400 hover:text-[#010E38] p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              title="Voltar"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#010E38] tracking-tight">
               Adicionar documento
             </h2>
           </div>
 
-          <div className="space-y-5 pt-2">
+          <div className="space-y-5">
             {/* Link* */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Link<span className="text-red-500">*</span>
               </Label>
               <Input
                 placeholder="Digite um link"
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
-                className="h-10 text-sm bg-white border-slate-200 focus:border-[#0284c7]"
+                className="h-10 text-sm bg-white border-slate-200 focus:border-[#010E38]"
               />
             </div>
 
             {/* Descrição* com contador de 499 */}
             <div className="space-y-1">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Descrição<span className="text-red-500">*</span>
               </Label>
               <Textarea
@@ -792,17 +777,17 @@ export default function Documentos() {
                 maxLength={500}
                 value={linkDescricao}
                 onChange={(e) => setLinkDescricao(e.target.value)}
-                className="text-sm bg-white border-slate-200 focus:border-[#0284c7] resize-none"
+                className="text-sm bg-white border-slate-200 focus:border-[#010E38] resize-none"
               />
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-400 font-mono">
                 {500 - linkDescricao.length}
               </p>
             </div>
 
             {/* Linha 2 Colunas: Processo, caso ou atendimento | Cliente */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">
+                <Label className="text-xs font-semibold text-[#010E38]">
                   Processo, caso ou atendimento
                 </Label>
                 <div className="relative">
@@ -810,14 +795,14 @@ export default function Documentos() {
                     placeholder="Encontre processo, caso ou atendimento"
                     value={linkProcesso}
                     onChange={(e) => setLinkProcesso(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">
+                <Label className="text-xs font-semibold text-[#010E38]">
                   Cliente
                 </Label>
                 <div className="relative">
@@ -825,7 +810,7 @@ export default function Documentos() {
                     placeholder="Digite o nome do cliente"
                     value={linkCliente}
                     onChange={(e) => setLinkCliente(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -834,35 +819,35 @@ export default function Documentos() {
 
             {/* Responsável* */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Responsável<span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <Input
                   value={linkResponsavel}
                   onChange={(e) => setLinkResponsavel(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
               </div>
             </div>
 
-            {/* Rodapé: Cancelar | SALVAR */}
-            <div className="flex items-center justify-end gap-4 pt-6 border-t border-slate-100">
+            {/* Rodapé Responsivo: Cancelar | SALVAR */}
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 pt-6 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setVisao("inicio")}
-                className="text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                className="w-full sm:w-auto text-xs font-bold uppercase text-slate-600 hover:text-[#010E38] py-2.5 px-4 rounded-lg hover:bg-slate-100 transition-colors text-center"
               >
                 Cancelar
               </button>
-              <Button
+              <button
                 type="button"
                 onClick={handleSalvarLink}
-                className="bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs uppercase px-7 py-2.5 rounded shadow-sm"
+                className="w-full sm:w-auto bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-7 py-2.5 rounded-lg shadow-sm transition-all text-center"
               >
                 SALVAR
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -872,28 +857,29 @@ export default function Documentos() {
           TELA 3 E 4: ADICIONAR DOCUMENTO PADRÃO - PRINTS 3 E 4
           ============================================================ */}
       {visao === "novo_padrao" && (
-        <div className="bg-white rounded-lg p-6 sm:p-10 max-w-4xl space-y-6">
-          <div className="flex items-center gap-3">
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 max-w-4xl space-y-6">
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
             <button
               type="button"
               onClick={() => setVisao("inicio")}
-              className="text-slate-400 hover:text-slate-700 p-1 rounded transition-colors"
+              className="text-slate-400 hover:text-[#010E38] p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              title="Voltar"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#010E38] tracking-tight">
               Adicionar documento padrão
             </h2>
           </div>
 
-          <div className="space-y-5 pt-2">
+          <div className="space-y-5">
             {/* Documento* (Select com modelos) */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Documento<span className="text-red-500">*</span>
               </Label>
               <Select value={padraoModelo} onValueChange={setPadraoModelo}>
-                <SelectTrigger className="h-10 text-sm bg-white border-slate-200">
+                <SelectTrigger className="h-10 text-sm bg-white border-slate-200 focus:border-[#010E38]">
                   <SelectValue placeholder="Selecione um modelo" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 shadow-md">
@@ -909,24 +895,24 @@ export default function Documentos() {
             </div>
 
             {/* Linha 2 Colunas: Processo, caso ou atendimento | Cliente* */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">
+                <Label className="text-xs font-semibold text-[#010E38]">
                   Processo, caso ou atendimento
                 </Label>
                 <div className="relative">
                   <Input
-                    placeholder="Encontre um processo, caso ou atendimen"
+                    placeholder="Encontre um processo, caso ou atendimento"
                     value={padraoProcesso}
                     onChange={(e) => setPadraoProcesso(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">
+                <Label className="text-xs font-semibold text-[#010E38]">
                   Cliente<span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
@@ -934,7 +920,7 @@ export default function Documentos() {
                     placeholder="Digite o nome do cliente"
                     value={padraoCliente}
                     onChange={(e) => setPadraoCliente(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -943,7 +929,7 @@ export default function Documentos() {
 
             {/* Título* */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Título<span className="text-red-500">*</span>
               </Label>
               <div className="relative">
@@ -951,7 +937,7 @@ export default function Documentos() {
                   placeholder="Digite um título"
                   value={padraoTitulo}
                   onChange={(e) => setPadraoTitulo(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
               </div>
@@ -959,97 +945,105 @@ export default function Documentos() {
 
             {/* Responsável* */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">
+              <Label className="text-xs font-semibold text-[#010E38]">
                 Responsável<span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <Input
                   value={padraoResponsavel}
                   onChange={(e) => setPadraoResponsavel(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#0284c7]"
+                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
               </div>
             </div>
 
-            {/* Rodapé: CANCELAR | CONTINUAR */}
-            <div className="flex items-center justify-end gap-4 pt-6 border-t border-slate-100">
+            {/* Rodapé Responsivo: CANCELAR | CONTINUAR */}
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 pt-6 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setVisao("inicio")}
-                className="text-xs font-bold uppercase text-slate-600 hover:text-slate-900 transition-colors"
+                className="w-full sm:w-auto text-xs font-bold uppercase text-slate-600 hover:text-[#010E38] py-2.5 px-4 rounded-lg hover:bg-slate-100 transition-colors text-center"
               >
                 CANCELAR
               </button>
-              <Button
+              <button
                 type="button"
                 onClick={handleContinuarPadrao}
-                className="bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs uppercase px-7 py-2.5 rounded shadow-sm"
+                className="w-full sm:w-auto bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-7 py-2.5 rounded-lg shadow-sm transition-all text-center"
               >
                 CONTINUAR
-              </Button>
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {/* ============================================================
-          TELA PRINCIPAL: ONBOARDING OU TABELA DE DOCUMENTOS
+          TELA PRINCIPAL: ONBOARDING OU TABELA/CARDS DE DOCUMENTOS
           ============================================================ */}
       {visao === "inicio" && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Documentos
-            </h1>
+        <div className="space-y-5">
+          {/* Topo Responsivo */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-6 rounded-xl border border-slate-200/80 shadow-sm">
+            <div>
+              <span className="inline-block text-[10px] font-extrabold uppercase tracking-widest bg-[#EBB52C] text-[#010E38] px-2.5 py-0.5 rounded mb-1.5">
+                GESTÃO ELETRÔNICA DE ARQUIVOS
+              </span>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#010E38] tracking-tight">
+                Documentos
+              </h1>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Central de documentos, modelos jurídicos e integração Google Drive.
+              </p>
+            </div>
 
             {allDocumentos.length > 0 && (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
+              <div className="flex flex-col xs:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto pt-1 sm:pt-0">
+                <button
+                  type="button"
                   onClick={() => setIsNovaPastaOpen(true)}
-                  className="h-10 text-xs font-bold uppercase border-slate-300 text-slate-700 hover:bg-slate-50"
+                  className="bg-white hover:bg-slate-50 text-[#010E38] border border-slate-300 font-bold text-xs uppercase px-4 py-2.5 rounded-lg shadow-sm flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  <FolderPlus className="w-4 h-4 mr-1.5 text-amber-500" />
+                  <FolderPlus className="w-4 h-4 text-[#EBB52C] shrink-0" />
                   <span>Nova Pasta</span>
-                </Button>
-                <BotaoAdicionarDocumentoDropdown />
+                </button>
+                <BotaoAdicionarDocumentoDropdown className="w-full sm:w-auto" />
               </div>
             )}
           </div>
 
           {allDocumentos.length === 0 && !searchTerm.trim() ? (
-            <div className="min-h-[580px] flex flex-col items-center justify-center text-center px-4 py-12 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
-              {/* Ilustração Oficial Astrea */}
-              <div className="relative mb-6 max-w-sm w-full flex items-center justify-center">
+            <div className="min-h-[480px] sm:min-h-[540px] flex flex-col items-center justify-center text-center px-4 sm:px-6 py-10 sm:py-14 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+              {/* Ilustração Oficial com Paleta JUS+ Navy & Gold */}
+              <div className="relative mb-6 max-w-xs sm:max-w-sm w-full flex items-center justify-center">
                 <svg
-                  className="w-64 h-44 drop-shadow-sm"
+                  className="w-52 sm:w-64 h-36 sm:h-44 drop-shadow-sm"
                   viewBox="0 0 320 200"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <rect x="20" y="150" width="280" height="4" rx="2" fill="#E2E8F0" />
-                  <rect x="235" y="105" width="45" height="45" rx="3" fill="#F1F5F9" stroke="#CBD5E1" strokeWidth="2" />
-                  <rect x="242" y="117" width="31" height="4" rx="1" fill="#94A3B8" />
-                  <rect x="242" y="132" width="31" height="4" rx="1" fill="#94A3B8" />
-                  <rect x="45" y="125" width="55" height="25" rx="2" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
-                  <path d="M40 150H105L100 152H45L40 150Z" fill="#64748B" />
-                  <rect x="52" y="130" width="41" height="15" rx="1" fill="#38BDF8" fillOpacity="0.3" />
-                  <circle cx="160" cy="50" r="28" fill="#F0F9FF" />
-                  <rect x="148" y="36" width="24" height="30" rx="2" fill="#38BDF8" />
-                  <path d="M153 43H167M153 49H167M153 55H163" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="188" cy="88" r="14" fill="#0F172A" />
-                  <path d="M188 84C183 84 179 88 179 93C179 98 183 100 188 100C193 100 197 97 197 93C197 88 193 84 188 84Z" fill="#1E293B" />
-                  <circle cx="190" cy="94" r="8" fill="#B45309" />
-                  <path d="M170 120C170 110 178 106 190 106C202 106 210 110 210 120V150H170V120Z" fill="#93C5FD" />
-                  <path d="M174 125L155 136M206 125L215 138" stroke="#93C5FD" strokeWidth="5" strokeLinecap="round" />
-                  <rect x="210" y="130" width="16" height="20" rx="1" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="1.5" />
-                  <line x1="213" y1="135" x2="223" y2="135" stroke="#94A3B8" strokeWidth="1" />
-                  <line x1="213" y1="139" x2="223" y2="139" stroke="#94A3B8" strokeWidth="1" />
+                  <rect x="20" y="150" width="280" height="4" rx="2" fill="#CBD5E1" />
+                  <rect x="235" y="105" width="45" height="45" rx="3" fill="#F8FAFC" stroke="#94A3B8" strokeWidth="2" />
+                  <rect x="242" y="117" width="31" height="4" rx="1" fill="#010E38" />
+                  <rect x="242" y="132" width="31" height="4" rx="1" fill="#EBB52C" />
+                  <rect x="45" y="125" width="55" height="25" rx="2" fill="#010E38" stroke="#010E38" strokeWidth="1.5" />
+                  <path d="M40 150H105L100 152H45L40 150Z" fill="#475569" />
+                  <rect x="52" y="130" width="41" height="15" rx="1" fill="#EBB52C" fillOpacity="0.25" />
+                  <circle cx="160" cy="50" r="28" fill="#010E38" fillOpacity="0.06" />
+                  <rect x="148" y="36" width="24" height="30" rx="2" fill="#010E38" />
+                  <path d="M153 43H167M153 49H167M153 55H163" stroke="#EBB52C" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="188" cy="88" r="14" fill="#010E38" />
+                  <circle cx="190" cy="94" r="8" fill="#D97706" />
+                  <path d="M170 120C170 110 178 106 190 106C202 106 210 110 210 120V150H170V120Z" fill="#010E38" />
+                  <path d="M174 125L155 136M206 125L215 138" stroke="#010E38" strokeWidth="5" strokeLinecap="round" />
+                  <rect x="210" y="130" width="16" height="20" rx="1" fill="#FFFFFF" stroke="#EBB52C" strokeWidth="1.5" />
+                  <line x1="213" y1="135" x2="223" y2="135" stroke="#010E38" strokeWidth="1" />
+                  <line x1="213" y1="139" x2="223" y2="139" stroke="#010E38" strokeWidth="1" />
                 </svg>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight max-w-lg">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#010E38] tracking-tight max-w-lg">
                 Crie, padronize e gerencie seus documentos
               </h2>
 
@@ -1057,25 +1051,26 @@ export default function Documentos() {
                 Carregue diferentes tipos de arquivos, crie seus próprios modelos de documentos e encontre tudo rapidamente usando os filtros de busca.
               </p>
 
-              <div className="mt-6 flex flex-col items-center gap-3">
-                <BotaoAdicionarDocumentoDropdown className="px-7 py-3 text-sm" />
+              <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-xs">
+                <BotaoAdicionarDocumentoDropdown className="w-full sm:w-auto px-7 py-3 text-xs sm:text-sm" />
 
                 <button
                   type="button"
                   onClick={() => toast.info("Você pode carregar arquivos locais, conectar pastas do Google Drive ou usar minutas automáticas.")}
-                  className="text-xs text-[#0284c7] hover:underline hover:text-[#0369a1] font-medium pt-1"
+                  className="text-xs text-[#010E38] hover:underline font-semibold pt-1 flex items-center gap-1"
                 >
-                  Saiba mais sobre documentos
+                  <span>Saiba mais sobre documentos</span>
                 </button>
               </div>
             </div>
           ) : (
-            <Card className="border border-slate-200/80 shadow-sm overflow-hidden">
-              <CardHeader className="p-4 sm:p-5 bg-slate-50/50 border-b border-slate-100">
+            <Card className="border border-slate-200/80 shadow-sm overflow-hidden rounded-xl bg-white">
+              <CardHeader className="p-4 sm:p-5 bg-slate-50/60 border-b border-slate-100 space-y-3">
+                {/* Breadcrumb Responsivo */}
                 <div className="flex items-center space-x-1 overflow-x-auto whitespace-nowrap pb-1 w-full min-w-0">
                   {breadcrumbs.map((crumb, index) => (
                     <div key={crumb.id || 'root'} className="flex items-center text-xs font-semibold text-slate-600">
-                      {index > 0 && <ChevronRight className="h-3.5 w-3.5 text-slate-400 mx-1" />}
+                      {index > 0 && <ChevronRight className="h-3.5 w-3.5 text-slate-400 mx-1 shrink-0" />}
                       <button
                         onClick={() => {
                           setSearchTerm("");
@@ -1083,21 +1078,22 @@ export default function Documentos() {
                         }}
                         className="hover:underline hover:text-[#010E38] flex items-center gap-1"
                       >
-                        {crumb.id === null ? <Home className="h-3.5 w-3.5" /> : null}
+                        {crumb.id === null ? <Home className="h-3.5 w-3.5 text-[#010E38]" /> : null}
                         <span>{crumb.name}</span>
                       </button>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2 pt-2">
-                  <div className="relative flex-1 max-w-md">
+                {/* Busca Responsiva */}
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1 max-w-full sm:max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                     <Input
                       placeholder="Pesquisar pasta ou documento..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="h-9 pl-9 pr-8 text-xs bg-white border-slate-200 focus:border-[#0284c7]"
+                      className="h-9 pl-9 pr-8 text-xs bg-white border-slate-200 focus:border-[#010E38]"
                     />
                     {searchTerm && (
                       <button
@@ -1113,109 +1109,212 @@ export default function Documentos() {
               </CardHeader>
 
               <CardContent className="p-0">
-                <Table>
-                  <TableHeader className="bg-slate-50/70 border-b border-slate-200">
-                    <TableRow className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      <TableHead className="py-3 px-4 text-left">NOME</TableHead>
-                      <TableHead className="py-3 px-4 text-left">RELACIONADO A</TableHead>
-                      <TableHead className="py-3 px-4 text-center w-32">ORIGEM / TIPO</TableHead>
-                      <TableHead className="py-3 px-4 text-center w-32">TAMANHO</TableHead>
-                      <TableHead className="py-3 px-4 text-center w-32">DATA</TableHead>
-                      <TableHead className="py-3 px-4 text-center w-12"></TableHead>
-                    </TableRow>
-                  </TableHeader>
+                {/* VISÃO DESKTOP E TABLET (TABELA) */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-[#010E38]/[0.03] border-b border-slate-200">
+                      <TableRow className="text-[11px] font-bold text-[#010E38] uppercase tracking-wider">
+                        <TableHead className="py-3 px-4 text-left">NOME</TableHead>
+                        <TableHead className="py-3 px-4 text-left">RELACIONADO A</TableHead>
+                        <TableHead className="py-3 px-4 text-center w-36">ORIGEM / TIPO</TableHead>
+                        <TableHead className="py-3 px-4 text-center w-28">TAMANHO</TableHead>
+                        <TableHead className="py-3 px-4 text-center w-28">DATA</TableHead>
+                        <TableHead className="py-3 px-4 text-center w-12"></TableHead>
+                      </TableRow>
+                    </TableHeader>
 
-                  <TableBody className="divide-y divide-slate-100 text-xs">
-                    {currentFolderFiles.length > 0 ? (
-                      currentFolderFiles.map((doc) => (
-                        <TableRow
-                          key={doc.id}
-                          className="hover:bg-slate-50/70 transition-colors cursor-pointer"
-                          onClick={() => abrir(doc)}
-                        >
-                          <TableCell className="py-3 px-4 font-semibold text-slate-900">
-                            <div className="flex items-center gap-2.5">
-                              {doc.isFolder ? (
-                                <FolderIcon className="w-4 h-4 text-amber-500 fill-amber-500/20 shrink-0" />
-                              ) : doc.googleDriveLink ? (
-                                <GoogleDriveIcon />
-                              ) : (
-                                <FileText className="w-4 h-4 text-blue-500 shrink-0" />
-                              )}
-                              <span className="hover:underline">{doc.name}</span>
-                            </div>
-                          </TableCell>
-
-                          <TableCell className="py-3 px-4 text-slate-600">
-                            {doc.relatedTo}
-                          </TableCell>
-
-                          <TableCell className="py-3 px-4 text-center">
-                            {doc.isFolder ? (
-                              <Badge variant="outline" className="text-[10px] text-amber-700 bg-amber-50 border-amber-200 font-bold">PASTA</Badge>
-                            ) : doc.googleDriveLink ? (
-                              <Badge variant="outline" className="text-[10px] text-blue-700 bg-blue-50 border-blue-200 font-bold flex items-center gap-1 justify-center">
-                                <GoogleDriveIcon />
-                                <span>DRIVE</span>
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-[10px] text-slate-600 bg-slate-50 border-slate-200 font-bold">ARQUIVO</Badge>
-                            )}
-                          </TableCell>
-
-                          <TableCell className="py-3 px-4 text-center text-slate-500">
-                            {doc.isFolder ? "-" : formatBytes(doc.size || 0)}
-                          </TableCell>
-
-                          <TableCell className="py-3 px-4 text-center text-slate-500">
-                            {doc.createdAt.toLocaleDateString("pt-BR")}
-                          </TableCell>
-
-                          <TableCell className="py-3 px-4 text-center" onClick={(e) => e.stopPropagation()}>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button
-                                  type="button"
-                                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded hover:bg-slate-100 transition-colors"
-                                >
-                                  <MoreHorizontal className="w-4 h-4" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48 bg-white border border-slate-200 shadow-xl rounded-lg py-1">
-                                {!doc.isFolder && (
-                                  <DropdownMenuItem
-                                    onClick={() => handleDownload(doc)}
-                                    className="text-xs py-2 px-3 cursor-pointer text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                                  >
-                                    {doc.googleDriveLink ? <ExternalLink className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-                                    <span>{doc.googleDriveLink ? "Abrir no Google Drive" : "Baixar arquivo"}</span>
-                                  </DropdownMenuItem>
+                    <TableBody className="divide-y divide-slate-100 text-xs">
+                      {currentFolderFiles.length > 0 ? (
+                        currentFolderFiles.map((doc) => (
+                          <TableRow
+                            key={doc.id}
+                            className="hover:bg-slate-50/80 transition-colors cursor-pointer"
+                            onClick={() => abrir(doc)}
+                          >
+                            <TableCell className="py-3.5 px-4 font-semibold text-[#010E38]">
+                              <div className="flex items-center gap-2.5">
+                                {doc.isFolder ? (
+                                  <FolderIcon className="w-4 h-4 text-[#EBB52C] fill-[#EBB52C]/30 shrink-0" />
+                                ) : doc.googleDriveLink ? (
+                                  <GoogleDriveIcon />
+                                ) : (
+                                  <FileText className="w-4 h-4 text-[#010E38] shrink-0" />
                                 )}
-                                <DropdownMenuSeparator className="my-1 bg-slate-100" />
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setDocumentoToDelete(doc);
-                                    setIsDeleteDialogOpen(true);
-                                  }}
-                                  className="text-xs py-2 px-3 cursor-pointer text-red-600 hover:bg-red-50 font-medium flex items-center gap-2"
-                                >
-                                  <FileX className="w-3.5 h-3.5" />
-                                  <span>Excluir</span>
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                                <span className="hover:underline truncate max-w-xs lg:max-w-md">{doc.name}</span>
+                              </div>
+                            </TableCell>
+
+                            <TableCell className="py-3.5 px-4 text-slate-600">
+                              {doc.relatedTo}
+                            </TableCell>
+
+                            <TableCell className="py-3.5 px-4 text-center">
+                              {doc.isFolder ? (
+                                <Badge className="text-[10px] bg-[#EBB52C]/20 text-[#010E38] border border-[#EBB52C]/50 font-bold">
+                                  PASTA
+                                </Badge>
+                              ) : doc.googleDriveLink ? (
+                                <Badge variant="outline" className="text-[10px] text-[#010E38] bg-slate-50 border-slate-200 font-bold inline-flex items-center gap-1">
+                                  <GoogleDriveIcon />
+                                  <span>DRIVE / LINK</span>
+                                </Badge>
+                              ) : (
+                                <Badge className="text-[10px] bg-[#010E38] text-[#EBB52C] font-bold">
+                                  ARQUIVO
+                                </Badge>
+                              )}
+                            </TableCell>
+
+                            <TableCell className="py-3.5 px-4 text-center text-slate-500 font-mono text-[11px]">
+                              {doc.isFolder ? "-" : formatBytes(doc.size || 0)}
+                            </TableCell>
+
+                            <TableCell className="py-3.5 px-4 text-center text-slate-500 font-mono text-[11px]">
+                              {doc.createdAt.toLocaleDateString("pt-BR")}
+                            </TableCell>
+
+                            <TableCell className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button
+                                    type="button"
+                                    className="text-slate-400 hover:text-[#010E38] p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                                  >
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48 bg-white border border-slate-200 shadow-xl rounded-lg py-1">
+                                  {!doc.isFolder && (
+                                    <DropdownMenuItem
+                                      onClick={() => handleDownload(doc)}
+                                      className="text-xs py-2 px-3 cursor-pointer text-[#010E38] hover:bg-slate-50 flex items-center gap-2 font-medium"
+                                    >
+                                      {doc.googleDriveLink ? <ExternalLink className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+                                      <span>{doc.googleDriveLink ? "Abrir Link / Drive" : "Baixar arquivo"}</span>
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuSeparator className="my-1 bg-slate-100" />
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setDocumentoToDelete(doc);
+                                      setIsDeleteDialogOpen(true);
+                                    }}
+                                    className="text-xs py-2 px-3 cursor-pointer text-red-600 hover:bg-red-50 font-medium flex items-center gap-2"
+                                  >
+                                    <FileX className="w-3.5 h-3.5" />
+                                    <span>Excluir</span>
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={6} className="py-8 text-center text-slate-400">
+                            Nenhum documento encontrado nesta pasta.
                           </TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="py-8 text-center text-slate-400">
-                          Nenhum documento encontrado nesta pasta.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* VISÃO MOBILE (CARDS RESPONSIVOS) */}
+                <div className="md:hidden divide-y divide-slate-100">
+                  {currentFolderFiles.length > 0 ? (
+                    currentFolderFiles.map((doc) => (
+                      <div
+                        key={doc.id}
+                        onClick={() => abrir(doc)}
+                        className="p-4 hover:bg-slate-50/80 active:bg-slate-100 transition-colors flex items-start justify-between gap-3 cursor-pointer"
+                      >
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          <div className="w-9 h-9 rounded-lg bg-[#010E38]/5 flex items-center justify-center shrink-0 mt-0.5">
+                            {doc.isFolder ? (
+                              <FolderIcon className="w-5 h-5 text-[#EBB52C] fill-[#EBB52C]/30" />
+                            ) : doc.googleDriveLink ? (
+                              <GoogleDriveIcon />
+                            ) : (
+                              <FileText className="w-5 h-5 text-[#010E38]" />
+                            )}
+                          </div>
+
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <p className="text-xs font-bold text-[#010E38] break-words leading-snug">
+                              {doc.name}
+                            </p>
+                            <p className="text-[11px] text-slate-500 truncate">
+                              Cliente: <span className="font-medium text-slate-700">{doc.relatedTo}</span>
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                              {doc.isFolder ? (
+                                <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-[#EBB52C]/20 text-[#010E38]">
+                                  PASTA
+                                </span>
+                              ) : doc.googleDriveLink ? (
+                                <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                  DRIVE / LINK
+                                </span>
+                              ) : (
+                                <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-[#010E38] text-[#EBB52C]">
+                                  ARQUIVO
+                                </span>
+                              )}
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                {doc.createdAt.toLocaleDateString("pt-BR")}
+                              </span>
+                              {!doc.isFolder && doc.size ? (
+                                <span className="text-[10px] text-slate-400 font-mono">
+                                  · {formatBytes(doc.size)}
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                className="text-slate-400 hover:text-[#010E38] p-1.5 rounded-lg hover:bg-slate-100"
+                              >
+                                <MoreHorizontal className="w-4 h-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 bg-white border border-slate-200 shadow-xl rounded-lg py-1">
+                              {!doc.isFolder && (
+                                <DropdownMenuItem
+                                  onClick={() => handleDownload(doc)}
+                                  className="text-xs py-2 px-3 cursor-pointer text-[#010E38] flex items-center gap-2 font-medium"
+                                >
+                                  {doc.googleDriveLink ? <ExternalLink className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+                                  <span>{doc.googleDriveLink ? "Abrir Link / Drive" : "Baixar arquivo"}</span>
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator className="my-1 bg-slate-100" />
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setDocumentoToDelete(doc);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+                                className="text-xs py-2 px-3 cursor-pointer text-red-600 font-medium flex items-center gap-2"
+                              >
+                                <FileX className="w-3.5 h-3.5" />
+                                <span>Excluir</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-8 text-center text-xs text-slate-400">
+                      Nenhum documento encontrado nesta pasta.
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -1226,9 +1325,9 @@ export default function Documentos() {
           MODAIS ADICIONAIS: GOOGLE DRIVE & GOOGLE DOCS
           ============================================================ */}
       <Dialog open={isGoogleDriveModalOpen} onOpenChange={setIsGoogleDriveModalOpen}>
-        <DialogContent className="max-w-md bg-white p-6 rounded-xl border border-slate-200 shadow-2xl text-slate-900">
+        <DialogContent className="w-[95vw] max-w-md bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-2xl text-[#010E38]">
           <DialogHeader className="border-b border-slate-100 pb-3">
-            <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <DialogTitle className="text-base sm:text-lg font-bold text-[#010E38] flex items-center gap-2">
               <GoogleDriveIcon />
               <span>Vincular Arquivo do Google Drive</span>
             </DialogTitle>
@@ -1239,22 +1338,22 @@ export default function Documentos() {
 
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">Nome do arquivo no Google Drive*</Label>
+              <Label className="text-xs font-semibold text-[#010E38]">Nome do arquivo no Google Drive*</Label>
               <Input
                 placeholder="Ex: Petição Inicial, Laudo Pericial, Pasta de Provas"
                 value={googleDriveNome}
                 onChange={(e) => setGoogleDriveNome(e.target.value)}
-                className="text-xs bg-white border-slate-200"
+                className="text-xs bg-white border-slate-200 focus:border-[#010E38]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">Link de Compartilhamento do Google Drive*</Label>
+              <Label className="text-xs font-semibold text-[#010E38]">Link de Compartilhamento do Google Drive*</Label>
               <Input
                 placeholder="https://drive.google.com/file/d/..."
                 value={googleDriveUrl}
                 onChange={(e) => setGoogleDriveUrl(e.target.value)}
-                className="text-xs bg-white border-slate-200"
+                className="text-xs bg-white border-slate-200 focus:border-[#010E38]"
               />
               <p className="text-[11px] text-slate-400">
                 Dica: No Google Drive, clique com botão direito no arquivo &gt; <strong>Compartilhar</strong> &gt; <strong>Copiar link</strong>.
@@ -1262,7 +1361,7 @@ export default function Documentos() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">Cliente relacionado</Label>
+              <Label className="text-xs font-semibold text-[#010E38]">Cliente relacionado</Label>
               <Select value={googleDriveClienteId} onValueChange={setGoogleDriveClienteId}>
                 <SelectTrigger className="text-xs bg-white border-slate-200">
                   <SelectValue placeholder="Selecione um cliente (opcional)" />
@@ -1277,30 +1376,30 @@ export default function Documentos() {
               </Select>
             </div>
 
-            <DialogFooter className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setIsGoogleDriveModalOpen(false)}
-                className="text-xs font-bold uppercase text-slate-500 hover:text-slate-800 px-3 py-2"
+                className="text-xs font-bold uppercase text-slate-500 hover:text-[#010E38] px-3 py-2 text-center"
               >
                 Cancelar
               </button>
-              <Button
+              <button
                 type="button"
                 onClick={handleSalvarGoogleDrive}
-                className="bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs uppercase px-5 py-2 rounded shadow-sm"
+                className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-5 py-2.5 rounded-lg shadow-sm text-center"
               >
                 VINCULAR DRIVE
-              </Button>
+              </button>
             </DialogFooter>
           </div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isGoogleDocsPadraoOpen} onOpenChange={setIsGoogleDocsPadraoOpen}>
-        <DialogContent className="max-w-md bg-white p-6 rounded-xl border border-slate-200 shadow-2xl text-slate-900">
+        <DialogContent className="w-[95vw] max-w-md bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-2xl text-[#010E38]">
           <DialogHeader className="border-b border-slate-100 pb-3">
-            <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <DialogTitle className="text-base sm:text-lg font-bold text-[#010E38] flex items-center gap-2">
               <GoogleDocsIcon />
               <span>Criar Documento Padrão do Google</span>
             </DialogTitle>
@@ -1311,7 +1410,7 @@ export default function Documentos() {
 
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">Modelo de Minuta Jurídica</Label>
+              <Label className="text-xs font-semibold text-[#010E38]">Modelo de Minuta Jurídica</Label>
               <Select value={googleDocsModelo} onValueChange={setGoogleDocsModelo}>
                 <SelectTrigger className="text-xs bg-white border-slate-200">
                   <SelectValue />
@@ -1327,7 +1426,7 @@ export default function Documentos() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">Cliente</Label>
+              <Label className="text-xs font-semibold text-[#010E38]">Cliente</Label>
               <Select value={googleDocsClienteId} onValueChange={setGoogleDocsClienteId}>
                 <SelectTrigger className="text-xs bg-white border-slate-200">
                   <SelectValue placeholder="Selecione o cliente" />
@@ -1343,31 +1442,31 @@ export default function Documentos() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-700">Título personalizado (opcional)</Label>
+              <Label className="text-xs font-semibold text-[#010E38]">Título personalizado (opcional)</Label>
               <Input
                 placeholder="Ex: Procuração - João da Silva"
                 value={googleDocsTitulo}
                 onChange={(e) => setGoogleDocsTitulo(e.target.value)}
-                className="text-xs bg-white border-slate-200"
+                className="text-xs bg-white border-slate-200 focus:border-[#010E38]"
               />
             </div>
 
-            <DialogFooter className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setIsGoogleDocsPadraoOpen(false)}
-                className="text-xs font-bold uppercase text-slate-500 hover:text-slate-800 px-3 py-2"
+                className="text-xs font-bold uppercase text-slate-500 hover:text-[#010E38] px-3 py-2 text-center"
               >
                 Cancelar
               </button>
-              <Button
+              <button
                 type="button"
                 onClick={handleCriarGoogleDocsPadrao}
-                className="bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs uppercase px-5 py-2 rounded shadow-sm flex items-center gap-1.5"
+                className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-5 py-2.5 rounded-lg shadow-sm flex items-center justify-center gap-1.5"
               >
                 <GoogleDocsIcon />
                 <span>CRIAR NO GOOGLE DOCS</span>
-              </Button>
+              </button>
             </DialogFooter>
           </div>
         </DialogContent>
