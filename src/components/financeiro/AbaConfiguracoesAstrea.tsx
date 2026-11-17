@@ -724,13 +724,13 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
 
           {/* MODO 2: ADICIONAR CONTA OU EDITAR CONTA (PRINTS 1 E 2) */}
           {(visaoContas === "adicionar" || visaoContas === "editar") && (
-            <div className="bg-white rounded-lg border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6 max-w-4xl">
+            <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 space-y-6 w-full text-[#010E38]">
               {/* Título */}
               <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
                 <button
                   type="button"
                   onClick={() => setVisaoContas("lista")}
-                  className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-[#010E38] transition-colors"
                   title="Voltar para a lista de contas"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -742,7 +742,7 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
 
               {/* Radio Group: Conta corrente | Outros */}
               <div className="flex items-center gap-6 pt-1">
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-800 font-medium">
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-[#010E38] font-medium">
                   <input
                     type="radio"
                     name="tipoContaRadio"
@@ -753,7 +753,7 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
                   <span>Conta corrente</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-800 font-medium">
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-[#010E38] font-medium">
                   <input
                     type="radio"
                     name="tipoContaRadio"
@@ -767,21 +767,21 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
 
               {/* Campo Nome* */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-slate-700">
+                <Label className="text-xs font-semibold text-[#010E38]">
                   Nome<span className="text-red-500">*</span>
                 </Label>
                 <Input
                   placeholder="Digite o nome da conta"
                   value={formNome}
                   onChange={(e) => setFormNome(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 focus:border-[#010E38]"
+                  className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38]"
                 />
               </div>
 
               {/* Linha 2 Colunas: Início* | Saldo inicial* */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-700">
+                  <Label className="text-xs font-semibold text-[#010E38]">
                     Início<span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
@@ -790,21 +790,21 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
                       placeholder="07/11/2026"
                       value={formInicio}
                       onChange={(e) => setFormInicio(e.target.value)}
-                      className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                      className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                     />
                     <Calendar className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-700">
+                  <Label className="text-xs font-semibold text-[#010E38]">
                     Saldo inicial<span className="text-red-500">*</span>
                   </Label>
                   <Input
                     placeholder="00,00"
                     value={formSaldoInicial}
                     onChange={(e) => setFormSaldoInicial(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 focus:border-[#010E38]"
+                    className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38]"
                   />
                 </div>
               </div>
@@ -814,7 +814,7 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
                 <div className="space-y-4 pt-2 border-t border-slate-100">
                   {/* Banco* com busca/lookup */}
                   <div className="space-y-1.5 relative">
-                    <Label className="text-xs font-semibold text-slate-700">
+                    <Label className="text-xs font-semibold text-[#010E38]">
                       Banco<span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
@@ -826,7 +826,7 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
                           setSugestoesBancoAbertas(true);
                         }}
                         onFocus={() => setSugestoesBancoAbertas(true)}
-                        className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                        className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                       />
                       <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                     </div>
@@ -861,39 +861,39 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
                   {/* Linha: Agência* | Conta (com dígito)* */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-slate-700">
+                      <Label className="text-xs font-semibold text-[#010E38]">
                         Agência<span className="text-red-500">*</span>
                       </Label>
                       <Input
                         placeholder="Digite o Nº da agência"
                         value={formAgencia}
                         onChange={(e) => setFormAgencia(e.target.value)}
-                        className="h-10 text-sm bg-white border-slate-200 focus:border-[#010E38]"
+                        className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38]"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-slate-700">
+                      <Label className="text-xs font-semibold text-[#010E38]">
                         Conta (com dígito)<span className="text-red-500">*</span>
                       </Label>
                       <Input
                         placeholder="Digite o Nº da conta"
                         value={formContaNumero}
                         onChange={(e) => setFormContaNumero(e.target.value)}
-                        className="h-10 text-sm bg-white border-slate-200 focus:border-[#010E38]"
+                        className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38]"
                       />
                     </div>
                   </div>
 
                   {/* Gerente (busca de contato) */}
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-slate-700">Gerente</Label>
+                    <Label className="text-xs font-semibold text-[#010E38]">Gerente</Label>
                     <div className="relative">
                       <Input
                         placeholder="Encontre o contato"
                         value={formGerente}
                         onChange={(e) => setFormGerente(e.target.value)}
-                        className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                        className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                       />
                       <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                     </div>

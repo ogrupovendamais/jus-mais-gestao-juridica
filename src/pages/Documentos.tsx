@@ -587,12 +587,12 @@ export default function Documentos() {
   );
 
   return (
-    <div className="p-3 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-5 overflow-x-hidden">
+    <div className="p-3 sm:p-6 lg:p-8 w-full space-y-5 overflow-x-hidden">
       {/* ============================================================
           TELA 1: ADICIONAR DOCUMENTO (ARQUIVO LOCAL) - PRINT 1
           ============================================================ */}
       {visao === "novo_documento" && (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 max-w-4xl space-y-6">
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 w-full space-y-6 text-[#010E38]">
           <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
             <button
               type="button"
@@ -657,7 +657,7 @@ export default function Documentos() {
                 maxLength={500}
                 value={docDescricao}
                 onChange={(e) => setDocDescricao(e.target.value)}
-                className="text-sm bg-white border-slate-200 focus:border-[#010E38] resize-none"
+                className="text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38] resize-none"
               />
               <p className="text-[11px] text-slate-400 font-mono">
                 {500 - docDescricao.length}
@@ -675,7 +675,7 @@ export default function Documentos() {
                     placeholder="Encontre processo, caso ou atendimento"
                     value={docProcesso}
                     onChange={(e) => setDocProcesso(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                    className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -690,7 +690,7 @@ export default function Documentos() {
                     placeholder="Digite o nome do cliente"
                     value={docCliente}
                     onChange={(e) => setDocCliente(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                    className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -706,7 +706,7 @@ export default function Documentos() {
                 <Input
                   value={docResponsavel}
                   onChange={(e) => setDocResponsavel(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                  className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
               </div>
@@ -737,7 +737,7 @@ export default function Documentos() {
           TELA 2: ADICIONAR DOCUMENTO (LINK) - PRINT 2
           ============================================================ */}
       {visao === "novo_link" && (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 max-w-4xl space-y-6">
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 w-full space-y-6 text-[#010E38]">
           <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
             <button
               type="button"
@@ -762,7 +762,7 @@ export default function Documentos() {
                 placeholder="Digite um link"
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
-                className="h-10 text-sm bg-white border-slate-200 focus:border-[#010E38]"
+                className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38]"
               />
             </div>
 
@@ -777,7 +777,7 @@ export default function Documentos() {
                 maxLength={500}
                 value={linkDescricao}
                 onChange={(e) => setLinkDescricao(e.target.value)}
-                className="text-sm bg-white border-slate-200 focus:border-[#010E38] resize-none"
+                className="text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38] resize-none"
               />
               <p className="text-[11px] text-slate-400 font-mono">
                 {500 - linkDescricao.length}
@@ -795,7 +795,7 @@ export default function Documentos() {
                     placeholder="Encontre processo, caso ou atendimento"
                     value={linkProcesso}
                     onChange={(e) => setLinkProcesso(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                    className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -810,7 +810,7 @@ export default function Documentos() {
                     placeholder="Digite o nome do cliente"
                     value={linkCliente}
                     onChange={(e) => setLinkCliente(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                    className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -826,7 +826,7 @@ export default function Documentos() {
                 <Input
                   value={linkResponsavel}
                   onChange={(e) => setLinkResponsavel(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                  className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
               </div>
@@ -857,7 +857,7 @@ export default function Documentos() {
           TELA 3 E 4: ADICIONAR DOCUMENTO PADRÃO - PRINTS 3 E 4
           ============================================================ */}
       {visao === "novo_padrao" && (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 max-w-4xl space-y-6">
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 md:p-8 lg:p-10 w-full space-y-6 text-[#010E38]">
           <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
             <button
               type="button"
@@ -879,10 +879,10 @@ export default function Documentos() {
                 Documento<span className="text-red-500">*</span>
               </Label>
               <Select value={padraoModelo} onValueChange={setPadraoModelo}>
-                <SelectTrigger className="h-10 text-sm bg-white border-slate-200 focus:border-[#010E38]">
+                <SelectTrigger className="h-10 text-sm bg-white text-[#010E38] border-slate-200 focus:border-[#010E38]">
                   <SelectValue placeholder="Selecione um modelo" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-slate-200 shadow-md">
+                <SelectContent className="bg-white border-slate-200 shadow-md text-[#010E38]">
                   <SelectItem value="Selecione um modelo">Selecione um modelo</SelectItem>
                   <SelectItem value="Contrato de Honorários PF">Contrato de Honorários PF</SelectItem>
                   <SelectItem value="Contrato de Honorários PJ">Contrato de Honorários PJ</SelectItem>
@@ -905,7 +905,7 @@ export default function Documentos() {
                     placeholder="Encontre um processo, caso ou atendimento"
                     value={padraoProcesso}
                     onChange={(e) => setPadraoProcesso(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                    className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -920,7 +920,7 @@ export default function Documentos() {
                     placeholder="Digite o nome do cliente"
                     value={padraoCliente}
                     onChange={(e) => setPadraoCliente(e.target.value)}
-                    className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                    className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 </div>
@@ -937,7 +937,7 @@ export default function Documentos() {
                   placeholder="Digite um título"
                   value={padraoTitulo}
                   onChange={(e) => setPadraoTitulo(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                  className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
               </div>
@@ -952,7 +952,7 @@ export default function Documentos() {
                 <Input
                   value={padraoResponsavel}
                   onChange={(e) => setPadraoResponsavel(e.target.value)}
-                  className="h-10 text-sm bg-white border-slate-200 pr-10 focus:border-[#010E38]"
+                  className="h-10 text-sm bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 pr-10 focus:border-[#010E38]"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
               </div>
@@ -1093,7 +1093,7 @@ export default function Documentos() {
                       placeholder="Pesquisar pasta ou documento..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="h-9 pl-9 pr-8 text-xs bg-white border-slate-200 focus:border-[#010E38]"
+                      className="h-9 pl-9 pr-8 text-xs bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38]"
                     />
                     {searchTerm && (
                       <button
