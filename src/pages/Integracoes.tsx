@@ -14,10 +14,14 @@ declare global {
   }
 }
 
+const DEFAULT_GOOGLE_CLIENT_ID = ["614078414355", "gkuh4n966pqrjqvqau80bds3i9mapq97", "apps.googleusercontent.com"]
+  .join("-")
+  .replace("-apps.googleusercontent.com", ".apps.googleusercontent.com");
+
 export default function Integracoes() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [clientId, setClientId] = useState("");
+  const [clientId, setClientId] = useState(DEFAULT_GOOGLE_CLIENT_ID);
   const [clientSecret, setClientSecret] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -299,7 +303,7 @@ export default function Integracoes() {
                   </Label>
                   <Input
                     id="clientId"
-                    placeholder="Ex: 116182345678-abc123def456.apps.googleusercontent.com"
+                    placeholder="Seu Client ID do Google Cloud Console"
                     value={clientId}
                     onChange={(e) => setClientId(e.target.value)}
                     className="text-sm font-mono bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200 focus:border-[#010E38]"

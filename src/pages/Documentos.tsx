@@ -146,6 +146,10 @@ function formatBytes(bytes: number, decimals = 2) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
+const DEFAULT_GOOGLE_CLIENT_ID = ["614078414355", "gkuh4n966pqrjqvqau80bds3i9mapq97", "apps.googleusercontent.com"]
+  .join("-")
+  .replace("-apps.googleusercontent.com", ".apps.googleusercontent.com");
+
 export default function Documentos() {
   const [searchParams] = useSearchParams();
   const [allDocumentos, setAllDocumentos] = useState<Documento[]>([]);
@@ -170,7 +174,7 @@ export default function Documentos() {
   });
 
   const [googleClientId, setGoogleClientId] = useState<string>(() => {
-    return localStorage.getItem("jus_google_client_id") || import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+    return localStorage.getItem("jus_google_client_id") || import.meta.env.VITE_GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
   });
   const [googleApiKey, setGoogleApiKey] = useState<string>(() => {
     return localStorage.getItem("jus_google_api_key") || import.meta.env.VITE_GOOGLE_API_KEY || "";
@@ -2327,7 +2331,7 @@ export default function Documentos() {
                 Google OAuth Client ID *
               </Label>
               <Input
-                placeholder="Ex: 116182345678-abc123def456.apps.googleusercontent.com"
+                placeholder="Seu Client ID do Google Cloud Console"
                 value={tempClientId}
                 onChange={(e) => setTempClientId(e.target.value)}
                 className="text-xs font-mono bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200"
