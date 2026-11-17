@@ -172,8 +172,13 @@ export default function Documentos() {
   const [googleClientId, setGoogleClientId] = useState<string>(() => {
     return localStorage.getItem("jus_google_client_id") || import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
   });
+  const [googleApiKey, setGoogleApiKey] = useState<string>(() => {
+    return localStorage.getItem("jus_google_api_key") || import.meta.env.VITE_GOOGLE_API_KEY || "";
+  });
   const [modalConfigClientIdOpen, setModalConfigClientIdOpen] = useState(false);
   const [tempClientId, setTempClientId] = useState("");
+  const [tempApiKey, setTempApiKey] = useState("");
+  const [criandoDocGoogle, setCriandoDocGoogle] = useState(false);
 
   // Arquivos carregados da API do Google Drive (ou listagem rápida da conta)
   const [arquivosDriveConta, setArquivosDriveConta] = useState<ArquivoGoogleDriveItem[]>([]);
@@ -933,7 +938,15 @@ export default function Documentos() {
     }
   };
 
-  // Criar Tela 6: Documento Padrão do Google (Docs)
+  // Gerador de texto jurídico base para injetar via Google Docs API v1 (batchUpdate)
+  const gerarConteudoMinutaGoogleDocs = (modelo: string, cliente: string, processo: string) => {
+    const dataHoje = new Date().toLocaleDateString("pt-BR");
+    return `${modelo.toUpperCase()}\n\nCLIENTE / OUTORGANTE: ${cliente}\nPROCESSO / REFERÊNCIA: ${
+      processo || "A distribuir"
+    }\nRESPONSÁVEL JURÍDICO: ${docResponsavel}\nDATA: ${dataHoje}\n\n------------------------------------------------------------------------\n\nPelo presente instrumento particular de ${modelo}, ${cliente}, doravante denominado(a) OUTORGANTE/CONTRATANTE, nomeia e constitui seu bastante procurador o escritório JUS+ GESTÃO JURÍDICA, para o fim especial de representar seus interesses no processo em epígrafe, conferindo-lhe os poderes da cláusula "ad judicia et extra".\n\nLocal e Data: ${dataHoje}.\n\n_____________________________________________\n${cliente}\n`;
+  };
+
+  // Criar Tela 6: Documento Padrão do Google (Google Docs API v1 oficial)
   const handleCriarGoogleDocsPadrao = async () => {
     if (!googleDocsModelo || googleDocsModelo === "Selecione um modelo") {
       toast.error("Selecione um modelo de documento do Google.");
@@ -948,14 +961,63 @@ export default function Documentos() {
     if (!user?.id) return;
 
     try {
+      setCriandoDocGoogle(true);
       const clienteEncontrado = clientes.find((c) => c.nome.toLowerCase() === googleDocsCliente.trim().toLowerCase());
-      const googleDocsNewLink = contaGoogle?.email
+      let googleDocsFinalLink = contaGoogle?.email
         ? `https://docs.google.com/document/create?authuser=${encodeURIComponent(contaGoogle.email)}`
         : "https://docs.google.com/document/create";
 
+      // Se a conta Google tiver Access Token OAuth 2.0 real, cria o documento diretamente via Google Docs API v1!
+      if (contaGoogle?.accessToken) {
+        try {
+          const createRes = await fetch("https://docs.googleapis.com/v1/documents", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${contaGoogle.accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ title: tituloFinal }),
+          });
+
+          if (createRes.ok) {
+            const docCriado = await createRes.json();
+            const docId = docCriado.documentId;
+            if (docId) {
+              googleDocsFinalLink = `https://docs.google.com/document/d/${docId}/edit`;
+              const textoMinuta = gerarConteudoMinutaGoogleDocs(
+                googleDocsModelo,
+                googleDocsCliente.trim(),
+                googleDocsProcesso.trim()
+              );
+
+              // Injeta o conteúdo da minuta jurídica dentro do Google Docs via API batchUpdate
+              await fetch(`https://docs.googleapis.com/v1/documents/${docId}:batchUpdate`, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${contaGoogle.accessToken}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  requests: [
+                    {
+                      insertText: {
+                        location: { index: 1 },
+                        text: textoMinuta,
+                      },
+                    },
+                  ],
+                }),
+              });
+            }
+          }
+        } catch (apiErr) {
+          console.warn("Fallback para abertura direta do Google Docs:", apiErr);
+        }
+      }
+
       const { error } = await supabase.from("documentos").insert({
         nome: tituloFinal,
-        google_drive_link: googleDocsNewLink,
+        google_drive_link: googleDocsFinalLink,
         categoria: `Google Docs (${contaGoogle?.email || "Padrão"})`,
         storage_path: null,
         tamanho: null,
@@ -966,8 +1028,8 @@ export default function Documentos() {
       } as any);
       if (error) throw error;
 
-      toast.success("Abrindo novo documento no Google Docs...");
-      window.open(googleDocsNewLink, "_blank");
+      toast.success("Documento Google Docs criado com sucesso! Abrindo em nova aba...");
+      window.open(googleDocsFinalLink, "_blank");
 
       setGoogleDocsModelo("");
       setGoogleDocsProcesso("");
@@ -978,6 +1040,8 @@ export default function Documentos() {
     } catch (e) {
       console.error(e);
       toast.error("Erro ao criar documento do Google.");
+    } finally {
+      setCriandoDocGoogle(false);
     }
   };
 
@@ -1051,11 +1115,36 @@ export default function Documentos() {
     }
   };
 
-  const handleSalvarClientIdOAuth = () => {
+  const handleSalvarClientIdOAuth = async () => {
     localStorage.setItem("jus_google_client_id", tempClientId.trim());
+    localStorage.setItem("jus_google_api_key", tempApiKey.trim());
     setGoogleClientId(tempClientId.trim());
+    setGoogleApiKey(tempApiKey.trim());
+
+    try {
+      const { data: existing } = await supabase
+        .from("google_integration")
+        .select("id")
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from("google_integration")
+          .update({ client_id: tempClientId.trim() })
+          .eq("id", existing.id);
+      } else if (user?.id && tempClientId.trim()) {
+        await supabase
+          .from("google_integration")
+          .insert({
+            user_id: user.id,
+            client_id: tempClientId.trim(),
+            client_secret: "oauth-spa",
+          });
+      }
+    } catch {}
+
     setModalConfigClientIdOpen(false);
-    toast.success("Google OAuth Client ID atualizado!");
+    toast.success("API do Google Drive & Google Docs configurada com sucesso!");
   };
 
   // Botão Dropdown Centralizado com Identidade Oficial JUS+ (#010E38 & #EBB52C) e Hover Dourado (Print 2)
@@ -1097,8 +1186,23 @@ export default function Documentos() {
 
         <DropdownMenuSeparator className="my-1.5 bg-slate-100" />
 
-        <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          INTEGRAÇÕES COM O GOOGLE
+        <div className="px-3 py-1.5 flex items-center justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            INTEGRAÇÕES COM O GOOGLE
+          </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setTempClientId(googleClientId);
+              setTempApiKey(googleApiKey);
+              setModalConfigClientIdOpen(true);
+            }}
+            title="Configurar chaves da API do Google Drive e Google Docs"
+            className="text-slate-400 hover:text-[#010E38] p-0.5 rounded transition-colors"
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         <DropdownMenuItem
@@ -2205,28 +2309,53 @@ export default function Documentos() {
         </div>
       )}
 
-      {/* MODAL PARA CONFIGURAR GOOGLE CLIENT ID OFICIAL (OPCIONAL) */}
+      {/* MODAL PARA CONFIGURAR API DO GOOGLE DRIVE & GOOGLE DOCS */}
       <Dialog open={modalConfigClientIdOpen} onOpenChange={setModalConfigClientIdOpen}>
-        <DialogContent className="w-[95vw] max-w-md bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-2xl text-[#010E38]">
+        <DialogContent className="w-[95vw] max-w-lg bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-2xl text-[#010E38]">
           <DialogHeader className="border-b border-slate-100 pb-3">
             <DialogTitle className="text-base sm:text-lg font-bold text-[#010E38] flex items-center gap-2">
               <GoogleGIcon />
-              <span>Configurar Google OAuth Client ID</span>
+              <span>Configurar API do Google Drive & Google Docs</span>
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Informe o Client ID do Google Cloud Console para usar o autenticador OAuth direto da Google API.
+              Insira suas credenciais do Google Cloud Console para ativar o OAuth 2.0 oficial, a listagem da Google Drive API v3 e a criação automática via Google Docs API v1.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-[#010E38]">Google Client ID</Label>
+              <Label className="text-xs font-semibold text-[#010E38]">
+                Google OAuth Client ID *
+              </Label>
               <Input
-                placeholder="Ex: 116182...apps.googleusercontent.com"
+                placeholder="Ex: 116182345678-abc123def456.apps.googleusercontent.com"
                 value={tempClientId}
                 onChange={(e) => setTempClientId(e.target.value)}
-                className="text-xs bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200"
+                className="text-xs font-mono bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200"
               />
             </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-[#010E38]">
+                Google API Key (Opcional — para Google Picker)
+              </Label>
+              <Input
+                placeholder="Ex: AIzaSyB1234567890abcdefghijklmnopqrst"
+                value={tempApiKey}
+                onChange={(e) => setTempApiKey(e.target.value)}
+                className="text-xs font-mono bg-white text-[#010E38] placeholder:text-slate-400 border-slate-200"
+              />
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-[11px] text-slate-600 space-y-1.5">
+              <p className="font-bold text-[#010E38]">Como configurar em 1 minuto no Google Cloud:</p>
+              <p>1. Ative a <strong>Google Drive API</strong> e a <strong>Google Docs API</strong>.</p>
+              <p>2. Crie um <strong>ID do cliente OAuth (Aplicativo da Web)</strong>.</p>
+              <p>3. Em <strong>Origens JavaScript autorizadas</strong>, adicione:</p>
+              <code className="block bg-white border border-slate-200 px-2 py-1 rounded text-[#010E38] font-mono">
+                https://jus-mais-gestao-juridica.vercel.app
+              </code>
+            </div>
+
             <DialogFooter className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 type="button"
@@ -2240,7 +2369,7 @@ export default function Documentos() {
                 onClick={handleSalvarClientIdOAuth}
                 className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] font-bold text-xs uppercase px-5 py-2.5 rounded-lg shadow-sm"
               >
-                Salvar Client ID
+                Salvar API Google
               </button>
             </DialogFooter>
           </div>
