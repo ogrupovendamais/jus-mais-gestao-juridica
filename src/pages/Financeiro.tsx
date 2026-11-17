@@ -61,6 +61,7 @@ import { ModalEntradaAstrea } from "@/components/financeiro/ModalEntradaAstrea";
 import { ModalSaidaAstrea } from "@/components/financeiro/ModalSaidaAstrea";
 import { ModalTransferenciaAstrea } from "@/components/financeiro/ModalTransferenciaAstrea";
 import { AbaFaturasAstrea } from "@/components/financeiro/AbaFaturasAstrea";
+import { AbaFluxoCaixaAstrea } from "@/components/financeiro/AbaFluxoCaixaAstrea";
 import { useSubmitUnico } from "@/hooks/useSubmitUnico";
 import { dataDeIso, vencimentoMensal } from "@/lib/diasUteis";
 
@@ -1651,28 +1652,9 @@ const Financeiro = () => {
         />
       )}
 
-      {/* 4. CONTEÚDO DA ABA: FLUXO DE CAIXA */}
+      {/* 4. CONTEÚDO DA ABA: FLUXO DE CAIXA (OFICIAL ASTREA - SCREENSHOT) */}
       {subAbaFinanceiro === "fluxo" && (
-        <div className="bg-white rounded-lg border border-slate-200/80 p-6 shadow-sm space-y-4">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-base sm:text-lg font-bold text-[#010E38]">Projeção e Fluxo de Caixa</h2>
-            <p className="text-xs text-slate-500">Entradas, saídas e saldo previsto para os próximos 30, 60 e 90 dias.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-100 space-y-1">
-              <span className="text-xs font-semibold text-emerald-800">Entradas Previstas</span>
-              <p className="text-xl font-bold text-emerald-700">{formatBRL(totalAReceber)}</p>
-            </div>
-            <div className="p-4 rounded-lg bg-rose-50 border border-rose-100 space-y-1">
-              <span className="text-xs font-semibold text-rose-800">Saídas / Despesas</span>
-              <p className="text-xl font-bold text-rose-700">R$ 0,00</p>
-            </div>
-            <div className="p-4 rounded-lg bg-blue-50 border border-blue-100 space-y-1">
-              <span className="text-xs font-semibold text-blue-800">Saldo Líquido Projetado</span>
-              <p className="text-xl font-bold text-blue-700">{formatBRL(totalAReceber)}</p>
-            </div>
-          </div>
-        </div>
+        <AbaFluxoCaixaAstrea lancamentos={lancamentos} />
       )}
 
       {/* 5. CONTEÚDO DA ABA: CONFIGURAÇÕES */}
