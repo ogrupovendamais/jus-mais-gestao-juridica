@@ -241,30 +241,96 @@ export default function Documentos() {
       document.body.appendChild(script);
     }
 
-    // Tenta buscar client_id salvo na tabela google_integration do Supabase
+    // Tenta buscar client_id e token salvos na tabela google_integration do Supabase
     supabase
       .from("google_integration")
-      .select("client_id")
+      .select("client_id, access_token")
       .maybeSingle()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (data?.client_id) {
           setGoogleClientId(data.client_id);
           localStorage.setItem("jus_google_client_id", data.client_id);
+        }
+        if (data?.access_token && !contaGoogle) {
+          try {
+            const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+              headers: { Authorization: `Bearer ${data.access_token}` },
+            });
+            if (userRes.ok) {
+              const profile = await userRes.json();
+              const conta: ContaGoogleConectada = {
+                nome: profile.name || "Conta Google",
+                email: profile.email || "usuario@gmail.com",
+                iniciais: (profile.name || "G").substring(0, 1).toUpperCase(),
+                cor: "#010E38",
+                accessToken: data.access_token,
+              };
+              setContaGoogle(conta);
+              localStorage.setItem("jus_conta_google_ativa", JSON.stringify(conta));
+            }
+          } catch {}
         }
       })
       .catch(() => {});
   }, []);
 
+  const salvarContaGoogle = async (conta: ContaGoogleConectada) => {
+    setContaGoogle(conta);
+    localStorage.setItem("jus_conta_google_ativa", JSON.stringify(conta));
+    try {
+      const { data: existing } = await supabase
+        .from("google_integration")
+        .select("id")
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from("google_integration")
+          .update({
+            access_token: conta.accessToken || null,
+          })
+          .eq("id", existing.id);
+      } else if (user?.id) {
+        await supabase.from("google_integration").insert({
+          user_id: user.id,
+          client_id: googleClientId,
+          client_secret: "oauth-spa",
+          access_token: conta.accessToken || null,
+        });
+      }
+    } catch (e) {
+      console.warn("Aviso ao persistir conta Google no Supabase:", e);
+    }
+  };
+
+  const handleDesconectarGoogle = async () => {
+    setContaGoogle(null);
+    localStorage.removeItem("jus_conta_google_ativa");
+    setArquivosDriveConta([]);
+    try {
+      const { data: existing } = await supabase
+        .from("google_integration")
+        .select("id")
+        .maybeSingle();
+      if (existing) {
+        await supabase
+          .from("google_integration")
+          .update({ access_token: null })
+          .eq("id", existing.id);
+      }
+    } catch {}
+    toast.success("Conta Google desconectada.");
+  };
+
   // Ouvir mensagem de retorno da janela Popup do Seletor de Contas Google
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+    const handleMessage = async (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (event.data?.type === "JUS_GOOGLE_ACCOUNT_SELECTED") {
         const conta: ContaGoogleConectada = event.data.account;
         const destino: "drive" | "docs" = event.data.target || "drive";
 
-        setContaGoogle(conta);
-        localStorage.setItem("jus_conta_google_ativa", JSON.stringify(conta));
+        await salvarContaGoogle(conta);
         toast.success(`Conectado à conta Google: ${conta.email}`);
 
         // Carrega arquivos simulados ou reais da conta conectada
@@ -283,7 +349,7 @@ export default function Documentos() {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [googleClientId]);
+  }, [googleClientId, user]);
 
   const carregarArquivosDoDrive = async (conta: ContaGoogleConectada) => {
     setCarregandoDrive(true);
@@ -345,8 +411,25 @@ export default function Documentos() {
     }
   };
 
+  const handleAbrirGoogleDrive = () => {
+    if (contaGoogle) {
+      setVisao("novo_google_drive");
+      carregarArquivosDoDrive(contaGoogle);
+    } else {
+      abrirPopupLoginGoogle("drive");
+    }
+  };
+
+  const handleAbrirGoogleDocs = () => {
+    if (contaGoogle) {
+      setVisao("novo_google_docs");
+    } else {
+      abrirPopupLoginGoogle("docs");
+    }
+  };
+
   // Função que abre o Popup "Fazer login nas Contas do Google" (idêntico ao Print 1!)
-  const abrirPopupLoginGoogle = (destino: "drive" | "docs") => {
+  const abrirPopupLoginGoogle = (destino: "drive" | "docs", forcarTroca: boolean = false) => {
     // 1. Se tiver Google Client ID configurado e o script oficial GSI carregado, usa o OAuth 2.0 Popup oficial do Google
     if (googleClientId && window.google?.accounts?.oauth2) {
       try {
@@ -355,7 +438,7 @@ export default function Documentos() {
           // Escopos Não-Confidenciais (Non-sensitive): não exibem o alerta "O Google não verificou este app"
           scope:
             "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
-          prompt: "select_account",
+          prompt: forcarTroca ? "select_account" : "",
           callback: async (response: any) => {
             if (response?.access_token) {
               try {
@@ -367,12 +450,11 @@ export default function Documentos() {
                   nome: profile.name || "Conta Google",
                   email: profile.email || "usuario@gmail.com",
                   iniciais: (profile.name || "G").substring(0, 1).toUpperCase(),
-                  cor: "#1a73e8",
+                  cor: "#010E38",
                   accessToken: response.access_token,
                 };
-                setContaGoogle(novaConta);
-                localStorage.setItem("jus_conta_google_ativa", JSON.stringify(novaConta));
-                toast.success(`Autenticado com sucesso: ${novaConta.email}`);
+                await salvarContaGoogle(novaConta);
+                toast.success(`Google conectado com sucesso: ${novaConta.email}`);
                 carregarArquivosDoDrive(novaConta);
                 setVisao(destino === "drive" ? "novo_google_drive" : "novo_google_docs");
               } catch {
@@ -381,7 +463,7 @@ export default function Documentos() {
             }
           },
         });
-        tokenClient.requestAccessToken();
+        tokenClient.requestAccessToken(forcarTroca ? { prompt: "select_account" } : undefined);
         return;
       } catch (err) {
         console.warn("Fallback para janela popup Google Account Chooser:", err);
@@ -1205,19 +1287,33 @@ export default function Documentos() {
         </div>
 
         <DropdownMenuItem
-          onClick={() => abrirPopupLoginGoogle("drive")}
-          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-[#EBB52C] focus:bg-[#EBB52C] hover:text-[#010E38] focus:text-[#010E38] flex items-center gap-2.5 text-[#010E38] transition-colors"
+          onClick={handleAbrirGoogleDrive}
+          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-[#EBB52C] focus:bg-[#EBB52C] hover:text-[#010E38] focus:text-[#010E38] flex items-center justify-between text-[#010E38] transition-colors"
         >
-          <GoogleDriveIcon />
-          <span>Arquivo do Google Drive</span>
+          <div className="flex items-center gap-2.5">
+            <GoogleDriveIcon />
+            <span>Arquivo do Google Drive</span>
+          </div>
+          {contaGoogle && (
+            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300">
+              Conectado
+            </span>
+          )}
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          onClick={() => abrirPopupLoginGoogle("docs")}
-          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-[#EBB52C] focus:bg-[#EBB52C] hover:text-[#010E38] focus:text-[#010E38] flex items-center gap-2.5 text-[#010E38] transition-colors"
+          onClick={handleAbrirGoogleDocs}
+          className="text-xs font-semibold py-2.5 px-3 cursor-pointer rounded-lg hover:bg-[#EBB52C] focus:bg-[#EBB52C] hover:text-[#010E38] focus:text-[#010E38] flex items-center justify-between text-[#010E38] transition-colors"
         >
-          <GoogleDocsIcon />
-          <span>Documento padrão do Google</span>
+          <div className="flex items-center gap-2.5">
+            <GoogleDocsIcon />
+            <span>Documento padrão do Google</span>
+          </div>
+          {contaGoogle && (
+            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300">
+              Conectado
+            </span>
+          )}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -1631,8 +1727,8 @@ export default function Documentos() {
             </div>
 
             {/* Barra da Conta Google Conectada */}
-            {contaGoogle && (
-              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 self-start sm:self-auto">
+            {contaGoogle ? (
+              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 self-start sm:self-auto shadow-sm">
                 <div className="w-8 h-8 rounded-full bg-[#010E38] text-[#EBB52C] flex items-center justify-center font-bold text-xs shrink-0">
                   {contaGoogle.iniciais || "G"}
                 </div>
@@ -1649,12 +1745,28 @@ export default function Documentos() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => abrirPopupLoginGoogle("drive")}
+                  onClick={() => abrirPopupLoginGoogle("drive", true)}
                   className="text-[11px] font-bold text-[#010E38] hover:underline ml-2 px-2 py-1 rounded hover:bg-slate-200/60 transition-colors"
                 >
                   Trocar conta
                 </button>
+                <button
+                  type="button"
+                  onClick={handleDesconectarGoogle}
+                  className="text-[11px] font-bold text-red-600 hover:underline px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                >
+                  Desconectar
+                </button>
               </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => abrirPopupLoginGoogle("drive")}
+                className="bg-[#010E38] text-[#EBB52C] border border-[#EBB52C]/40 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-[#021B66] transition-colors shadow-sm self-start sm:self-auto"
+              >
+                <GoogleGIcon />
+                <span>Conectar Conta Google</span>
+              </button>
             )}
           </div>
 
@@ -1842,8 +1954,8 @@ export default function Documentos() {
               </div>
             </div>
 
-            {contaGoogle && (
-              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 self-start sm:self-auto">
+            {contaGoogle ? (
+              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 self-start sm:self-auto shadow-sm">
                 <div className="w-8 h-8 rounded-full bg-[#010E38] text-[#EBB52C] flex items-center justify-center font-bold text-xs shrink-0">
                   {contaGoogle.iniciais || "G"}
                 </div>
@@ -1860,12 +1972,28 @@ export default function Documentos() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => abrirPopupLoginGoogle("docs")}
+                  onClick={() => abrirPopupLoginGoogle("docs", true)}
                   className="text-[11px] font-bold text-[#010E38] hover:underline ml-2 px-2 py-1 rounded hover:bg-slate-200/60 transition-colors"
                 >
                   Trocar conta
                 </button>
+                <button
+                  type="button"
+                  onClick={handleDesconectarGoogle}
+                  className="text-[11px] font-bold text-red-600 hover:underline px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                >
+                  Desconectar
+                </button>
               </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => abrirPopupLoginGoogle("docs")}
+                className="bg-[#010E38] text-[#EBB52C] border border-[#EBB52C]/40 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-[#021B66] transition-colors shadow-sm self-start sm:self-auto"
+              >
+                <GoogleDocsIcon />
+                <span>Conectar Conta Google</span>
+              </button>
             )}
           </div>
 
@@ -1974,15 +2102,38 @@ export default function Documentos() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto pt-1 sm:pt-0">
-              {contaGoogle && (
-                <div
+              {contaGoogle ? (
+                <div className="flex items-center gap-1.5">
+                  <div
+                    onClick={() => abrirPopupLoginGoogle("drive", true)}
+                    title="Conta Google Conectada. Clique para trocar de conta."
+                    className="cursor-pointer bg-emerald-50 hover:bg-emerald-100/70 border border-emerald-200 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs text-emerald-800 transition-colors shadow-sm"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <GoogleGIcon />
+                    <span className="font-semibold truncate max-w-[150px]">{contaGoogle.email}</span>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
+                      Conectado
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleDesconectarGoogle}
+                    title="Desconectar conta Google"
+                    className="text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
                   onClick={() => abrirPopupLoginGoogle("drive")}
-                  title="Clique para trocar de conta Google"
-                  className="cursor-pointer bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 flex items-center gap-2 text-xs text-[#010E38]"
+                  className="bg-white hover:bg-slate-50 text-[#010E38] border border-slate-200 rounded-lg px-3 py-2 flex items-center gap-1.5 text-xs font-semibold shadow-sm transition-colors"
                 >
                   <GoogleGIcon />
-                  <span className="font-semibold truncate max-w-[150px]">{contaGoogle.email}</span>
-                </div>
+                  <span>Conectar Google</span>
+                </button>
               )}
 
               {allDocumentos.length > 0 && (
@@ -2042,14 +2193,21 @@ export default function Documentos() {
               <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-xs">
                 <BotaoAdicionarDocumentoDropdown className="w-full sm:w-auto px-7 py-3 text-xs sm:text-sm" />
 
-                <button
-                  type="button"
-                  onClick={() => abrirPopupLoginGoogle("drive")}
-                  className="text-xs text-[#010E38] hover:underline font-semibold pt-1 flex items-center gap-1.5"
-                >
-                  <GoogleGIcon />
-                  <span>Conectar conta Google Drive</span>
-                </button>
+                {contaGoogle ? (
+                  <div className="flex items-center gap-2 text-xs text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>Conectado como <strong>{contaGoogle.email}</strong></span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => abrirPopupLoginGoogle("drive")}
+                    className="text-xs text-[#010E38] hover:underline font-semibold pt-1 flex items-center gap-1.5"
+                  >
+                    <GoogleGIcon />
+                    <span>Conectar conta Google Drive</span>
+                  </button>
+                )}
               </div>
             </div>
           ) : (

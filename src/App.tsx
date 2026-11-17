@@ -26,6 +26,8 @@ import Mensagens from "./pages/Mensagens";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
+import Privacidade from "./pages/Privacidade";
+import Termos from "./pages/Termos";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -98,6 +100,8 @@ const App = () => {
                 <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/verify" element={<Auth />} />
+                <Route path="/privacidade" element={<Privacidade />} />
+                <Route path="/termos" element={<Termos />} />
                 <Route path="/*" element={
                   <ProtectedRoute>
                     <SidebarProvider>
