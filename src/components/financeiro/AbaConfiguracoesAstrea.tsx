@@ -912,23 +912,22 @@ export const AbaConfiguracoesAstrea: React.FC<AbaConfiguracoesAstreaProps> = ({
                 </button>
 
                 {visaoContas === "adicionar" && tipoContaForm === "corrente" && (
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
                     onClick={() => handleSalvarConta(true)}
-                    className="border-[#010E38] text-[#010E38] hover:bg-[#010E38]/5 font-bold text-xs uppercase px-5 py-2.5 rounded shadow-sm transition-all"
+                    className="bg-white hover:bg-slate-100 text-[#010E38] border-2 border-[#010E38] font-bold text-xs uppercase px-5 py-2.5 rounded shadow-sm transition-all"
                   >
                     SALVAR E INICIAR O CREDENCIAMENTO
-                  </Button>
+                  </button>
                 )}
 
-                <Button
+                <button
                   type="button"
                   onClick={() => handleSalvarConta(false)}
                   className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs uppercase px-6 py-2.5 rounded shadow-sm transition-all"
                 >
                   SALVAR
-                </Button>
+                </button>
               </div>
             </div>
           )}
