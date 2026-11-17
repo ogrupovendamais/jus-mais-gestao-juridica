@@ -352,8 +352,9 @@ export default function Documentos() {
       try {
         const tokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: googleClientId,
+          // Escopos Não-Confidenciais (Non-sensitive): não exibem o alerta "O Google não verificou este app"
           scope:
-            "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
           prompt: "select_account",
           callback: async (response: any) => {
             if (response?.access_token) {
@@ -971,47 +972,41 @@ export default function Documentos() {
         ? `https://docs.google.com/document/create?authuser=${encodeURIComponent(contaGoogle.email)}`
         : "https://docs.google.com/document/create";
 
-      // Se a conta Google tiver Access Token OAuth 2.0 real, cria o documento diretamente via Google Docs API v1!
+      // Se a conta Google tiver Access Token OAuth 2.0 real, cria o Google Docs já preenchido usando o escopo não-sensível drive.file!
       if (contaGoogle?.accessToken) {
         try {
-          const createRes = await fetch("https://docs.googleapis.com/v1/documents", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${contaGoogle.accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ title: tituloFinal }),
-          });
+          const textoMinuta = gerarConteudoMinutaGoogleDocs(
+            googleDocsModelo,
+            googleDocsCliente.trim(),
+            googleDocsProcesso.trim()
+          );
 
-          if (createRes.ok) {
-            const docCriado = await createRes.json();
-            const docId = docCriado.documentId;
-            if (docId) {
-              googleDocsFinalLink = `https://docs.google.com/document/d/${docId}/edit`;
-              const textoMinuta = gerarConteudoMinutaGoogleDocs(
-                googleDocsModelo,
-                googleDocsCliente.trim(),
-                googleDocsProcesso.trim()
-              );
+          const metadata = {
+            name: tituloFinal,
+            mimeType: "application/vnd.google-apps.document",
+          };
 
-              // Injeta o conteúdo da minuta jurídica dentro do Google Docs via API batchUpdate
-              await fetch(`https://docs.googleapis.com/v1/documents/${docId}:batchUpdate`, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${contaGoogle.accessToken}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  requests: [
-                    {
-                      insertText: {
-                        location: { index: 1 },
-                        text: textoMinuta,
-                      },
-                    },
-                  ],
-                }),
-              });
+          const form = new FormData();
+          form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
+          form.append("file", new Blob([textoMinuta], { type: "text/plain;charset=UTF-8" }));
+
+          const uploadRes = await fetch(
+            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${contaGoogle.accessToken}`,
+              },
+              body: form,
+            }
+          );
+
+          if (uploadRes.ok) {
+            const docCriado = await uploadRes.json();
+            if (docCriado.webViewLink) {
+              googleDocsFinalLink = docCriado.webViewLink;
+            } else if (docCriado.id) {
+              googleDocsFinalLink = `https://docs.google.com/document/d/${docCriado.id}/edit`;
             }
           }
         } catch (apiErr) {
