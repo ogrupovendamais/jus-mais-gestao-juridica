@@ -321,7 +321,7 @@ const Configuracoes: React.FC = () => {
                 Assinatura & Limites do Escritório
               </h3>
               <p className="text-xs text-slate-300">
-                Usuários Ilimitados • 750 Processos Monitorados • WhatsApp Integrado • Ciclo Anual
+                Usuários e Processos Ilimitados • Google Drive & Docs • Workflows • Ciclo Anual
               </p>
             </div>
           </div>

@@ -1,31 +1,18 @@
 import { useState } from "react";
 import { 
   Check, 
-  Sparkles, 
   ShieldCheck, 
-  CreditCard, 
-  Zap, 
-  Users, 
-  Scale, 
   MessageSquare, 
-  FileText, 
-  HelpCircle,
-  ExternalLink,
-  ChevronRight
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 
 export default function Planos() {
   const [isAnual, setIsAnual] = useState(true);
 
-  // Plano simulado ativo no escritório
-  const planoAtivoId = "escritorio";
-
   const handleContratar = (nomePlano: string, valor: string) => {
-    toast.success(`Redirecionando para contratação do plano ${nomePlano} (${valor})...`);
+    toast.success(`Redirecionando para atendimento do plano ${nomePlano} (${valor})...`);
     window.open("https://chat.whatsapp.com/LrVwonFNCaY5B924nmpmT2", "_blank");
   };
 
@@ -47,7 +34,7 @@ export default function Planos() {
             Meu Plano & Assinatura
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Acompanhe o consumo da sua banca, altere seu ciclo de cobrança ou faça upgrade de recursos.
+            Acompanhe os recursos liberados para a sua banca, altere seu ciclo de cobrança ou solicite personalizações.
           </p>
         </div>
 
@@ -56,7 +43,7 @@ export default function Planos() {
           variant="outline"
           className="bg-white hover:bg-slate-50 text-[#010E38] border-slate-300 font-bold text-xs gap-2 self-start sm:self-auto"
         >
-          <MessageSquare className="w-4 h-4 text-emerald-600" />
+          <MessageSquare className="w-4 h-4 text-[#010E38]" />
           <span>Falar com Gerente de Contas</span>
         </Button>
       </div>
@@ -80,44 +67,44 @@ export default function Planos() {
             <div className="pt-2">
               <span className="text-xs bg-emerald-950/80 text-emerald-300 font-bold px-3 py-1.5 rounded-lg border border-emerald-500/30 inline-flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Usuários Ilimitados Liberados
+                Usuários e Processos Ilimitados
               </span>
             </div>
           </div>
 
-          {/* Barras de Consumo */}
+          {/* Barras de Recursos Ativos */}
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 lg:pt-0 border-t lg:border-t-0 lg:border-l border-white/10 lg:pl-6">
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-medium">Processos c/ Push</span>
-                <span className="text-[#EBB52C] font-mono font-bold">14 / 750</span>
+                <span className="text-slate-300 font-medium">Processos & Clientes</span>
+                <span className="text-emerald-400 font-mono font-bold">Ilimitado</span>
               </div>
               <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                <div className="bg-[#EBB52C] h-full rounded-full" style={{ width: "2%" }} />
+                <div className="bg-emerald-400 h-full rounded-full" style={{ width: "100%" }} />
               </div>
-              <p className="text-[10px] text-slate-400">736 processos disponíveis</p>
+              <p className="text-[10px] text-slate-400">Sincronização CNJ por OAB ativa</p>
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-300 font-medium">Usuários na Equipe</span>
-                <span className="text-emerald-400 font-mono font-bold">2 / Ilimitado</span>
+                <span className="text-emerald-400 font-mono font-bold">Ilimitado</span>
               </div>
               <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                 <div className="bg-emerald-400 h-full rounded-full" style={{ width: "100%" }} />
               </div>
-              <p className="text-[10px] text-slate-400">Cadastre quantos sócios quiser</p>
+              <p className="text-[10px] text-slate-400">Sócios, advogados e parceiros</p>
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-medium">Termos OAB/DJEN</span>
-                <span className="text-[#EBB52C] font-mono font-bold">1 / 5</span>
+                <span className="text-slate-300 font-medium">Módulos do ERP</span>
+                <span className="text-[#EBB52C] font-mono font-bold">100% Liberados</span>
               </div>
               <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                <div className="bg-[#EBB52C] h-full rounded-full" style={{ width: "20%" }} />
+                <div className="bg-[#EBB52C] h-full rounded-full" style={{ width: "100%" }} />
               </div>
-              <p className="text-[10px] text-slate-400">4 termos OAB disponíveis</p>
+              <p className="text-[10px] text-slate-400">Google Drive/Docs, Workflows e BI</p>
             </div>
           </div>
         </div>
@@ -127,10 +114,10 @@ export default function Planos() {
       <div className="space-y-6 pt-4">
         <div className="text-center space-y-2 max-w-xl mx-auto">
           <h3 className="text-xl sm:text-2xl font-bold text-[#010E38]">
-            Compare e mude seu plano quando quiser
+            Compare os planos e entregáveis do sistema
           </h3>
           <p className="text-xs sm:text-sm text-slate-500">
-            Ajuste os limites do seu escritório conforme sua banca cresce.
+            Todos os módulos abaixo estão integrados nativamente na plataforma.
           </p>
 
           {/* Alternador Mensal / Anual */}
@@ -188,7 +175,7 @@ export default function Planos() {
               <div>
                 <h4 className="text-xl font-bold text-[#010E38]">JUS+ Start</h4>
                 <p className="text-xs text-slate-500 mt-1">
-                  Para advogados autônomos em início de carreira com foco em prazos.
+                  Para advogados autônomos organizarem processos, prazos, clientes e peças no Word.
                 </p>
               </div>
 
@@ -211,23 +198,35 @@ export default function Planos() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>60 Processos</strong> monitorados</span>
+                  <span><strong>Processos e Clientes 100% ilimitados</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>1 Termo OAB/DJEN</strong></span>
+                  <span><strong>Sincronização pela OAB</strong> (Base Oficial CNJ)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span>Processos e clientes ilimitados</span>
+                  <span>Quadro Visual Kanban de Tarefas e Prazos</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span>Calculadora de Prazos CPC e CLT</span>
+                  <span>Calculadora de Prazos CPC Art. 219 e CLT</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span>Geração de Peças no Word (.docx)</span>
+                  <span>Pauta de Audiências e Agenda Integrada</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <span>Geração de Procuração e Contratos no Word (.docx)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <span>Fichas de Atendimento (10 Ramos do Direito)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <span>Gestão de Documentos (GED) por Pastas</span>
                 </li>
               </ul>
             </div>
@@ -237,7 +236,7 @@ export default function Planos() {
               variant="outline"
               className="w-full mt-6 bg-white hover:bg-slate-50 text-[#010E38] border-slate-300 font-bold text-xs"
             >
-              Downgrade para Start
+              Alterar para Start
             </Button>
           </div>
 
@@ -254,7 +253,7 @@ export default function Planos() {
               <div>
                 <h4 className="text-xl font-bold text-[#010E38]">JUS+ Essencial</h4>
                 <p className="text-xs text-slate-500 mt-1">
-                  Para quem tem estagiário e precisa de financeiro e boletos com Pix.
+                  Para quem conta com estagiário ou assistente e precisa de publicações, Google Drive e financeiro completo.
                 </p>
               </div>
 
@@ -273,31 +272,35 @@ export default function Planos() {
               <ul className="space-y-2 text-xs text-slate-600">
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>Até 3 Usuários</strong> inclusos</span>
+                  <span><strong>Tudo incluso no Plano Start</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>250 Processos</strong> monitorados</span>
+                  <span><strong>Até 3 Usuários</strong> inclusos na equipe</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>2 Termos OAB/DJEN</strong></span>
+                  <span><strong>Painel de Publicações e Intimações</strong> (OAB/DJEN)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>Financeiro por processo</strong> e honorários</span>
+                  <span><strong>Integração Oficial Google Drive & Google Docs</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>Boletos e Pix com régua automática</strong></span>
+                  <span><strong>Gestão Financeira Completa</strong> (Receitas e Despesas)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>Portal do Cliente</strong> com acesso seguro</span>
+                  <span><strong>Controle de Honorários</strong> por Processo e Cliente</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span>50 créditos mensais de IA jurídica</span>
+                  <span>Contas Bancárias, Plano de Contas e Centros de Custo</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <span>Modelos de Mensagens Padronizadas para Clientes</span>
                 </li>
               </ul>
             </div>
@@ -307,7 +310,7 @@ export default function Planos() {
               variant="outline"
               className="w-full mt-6 bg-[#010E38] hover:bg-[#021B66] text-white font-bold text-xs"
             >
-              Mudar para Essencial
+              Alterar para Essencial
             </Button>
           </div>
 
@@ -328,7 +331,7 @@ export default function Planos() {
               <div>
                 <h4 className="text-xl font-bold text-white">JUS+ Escritório</h4>
                 <p className="text-xs text-slate-300 mt-1">
-                  Software jurídico completo com WhatsApp integrado e sem cobrança por usuário.
+                  O ERP jurídico completo com usuários ilimitados, workflows, permissões e divisão de comissões.
                 </p>
               </div>
 
@@ -347,31 +350,35 @@ export default function Planos() {
               <ul className="space-y-2 text-xs text-slate-200">
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
+                  <span><strong>Tudo incluso no Plano Essencial</strong></span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
                   <span><strong>USUÁRIOS ILIMITADOS</strong> (Sem cobrança extra)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
-                  <span><strong>750 Processos</strong> monitorados</span>
+                  <span><strong>Workflows e Esteiras de Tarefas</strong> por Fase Processual</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
-                  <span><strong>5 Termos OAB/DJEN</strong></span>
+                  <span><strong>Controle de Permissões</strong> (Sócios, Advogados e Parceiros)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
-                  <span><strong>WhatsApp Integrado</strong> ao sistema</span>
+                  <span><strong>Cálculo e Divisão de Comissões</strong> de Associados</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
-                  <span><strong>Workflows automáticos</strong> de prazos</span>
+                  <span><strong>Relatórios Gerenciais</strong> e Indicadores da Banca</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
-                  <span><strong>Controle de permissões</strong> (Sócios e Estágio)</span>
+                  <span><strong>Backup Completo dos Dados</strong> do Escritório</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
-                  <span>200 créditos de IA jurídica/mês</span>
+                  <span>Suporte Técnico Prioritário</span>
                 </li>
               </ul>
             </div>
@@ -387,74 +394,65 @@ export default function Planos() {
         </div>
       </div>
 
-      {/* Seção de Add-ons & Expansão de Recursos */}
+      {/* Seção de Serviços Adicionais Reais */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-6">
         <div>
           <h3 className="text-lg font-bold text-[#010E38]">
-            Precisa expandir os recursos da sua banca?
+            Serviços Exclusivos & Personalização para sua Banca
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Adicione pacotes avulsos a qualquer momento sem precisar mudar de plano.
+            Opções sob medida para escritórios que buscam identidade visual própria ou implantação assistida.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-2">
-            <span className="text-xs font-bold text-[#010E38] block">+100 Processos</span>
-            <p className="text-[11px] text-slate-500">Monitoramento adicional de processos com alertas push.</p>
+            <span className="text-xs font-bold text-[#010E38] block">Marca Própria (White Label)</span>
+            <p className="text-[11px] text-slate-500">
+              Sistema com o logotipo oficial, cores institucionais e domínio exclusivo do seu escritório.
+            </p>
             <div className="pt-2 flex items-center justify-between">
-              <span className="text-sm font-extrabold text-[#010E38]">R$ 49/mês</span>
+              <span className="text-xs font-extrabold text-[#010E38]">Sob consulta</span>
               <button
                 type="button"
-                onClick={() => handleContratar("+100 Processos", "R$ 49/mês")}
+                onClick={() => handleContratar("Marca Própria (White Label)", "Sob consulta")}
                 className="text-xs font-bold text-[#010E38] hover:underline"
               >
-                Adicionar
+                Solicitar
               </button>
             </div>
           </div>
 
           <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-2">
-            <span className="text-xs font-bold text-[#010E38] block">+1 Termo OAB/DJEN</span>
-            <p className="text-[11px] text-slate-500">Captura automática diária em Diários Oficiais.</p>
+            <span className="text-xs font-bold text-[#010E38] block">Migração Assistida de Dados</span>
+            <p className="text-[11px] text-slate-500">
+              Importação de planilhas de clientes e processos acompanhada pela nossa equipe técnica.
+            </p>
             <div className="pt-2 flex items-center justify-between">
-              <span className="text-sm font-extrabold text-[#010E38]">R$ 29/mês</span>
+              <span className="text-xs font-extrabold text-emerald-700">Incluso no Anual</span>
               <button
                 type="button"
-                onClick={() => handleContratar("+1 Termo OAB", "R$ 29/mês")}
+                onClick={() => handleContratar("Migração Assistida", "Incluso no Anual")}
                 className="text-xs font-bold text-[#010E38] hover:underline"
               >
-                Adicionar
+                Agendar
               </button>
             </div>
           </div>
 
           <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-2">
-            <span className="text-xs font-bold text-[#010E38] block">+100 Créditos IA</span>
-            <p className="text-[11px] text-slate-500">Para resumos, tradução aos clientes e minutas.</p>
+            <span className="text-xs font-bold text-[#010E38] block">Treinamento da Equipe</span>
+            <p className="text-[11px] text-slate-500">
+              Onboarding prático para sócios, advogados associados e equipe administrativa.
+            </p>
             <div className="pt-2 flex items-center justify-between">
-              <span className="text-sm font-extrabold text-[#010E38]">R$ 39/mês</span>
+              <span className="text-xs font-extrabold text-[#010E38]">Sob consulta</span>
               <button
                 type="button"
-                onClick={() => handleContratar("+100 Créditos IA", "R$ 39/mês")}
+                onClick={() => handleContratar("Treinamento da Equipe", "Sob consulta")}
                 className="text-xs font-bold text-[#010E38] hover:underline"
               >
-                Adicionar
-              </button>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-2">
-            <span className="text-xs font-bold text-[#010E38] block">+1 WhatsApp Conectado</span>
-            <p className="text-[11px] text-slate-500">Número corporativo adicional integrado ao ERP.</p>
-            <div className="pt-2 flex items-center justify-between">
-              <span className="text-sm font-extrabold text-[#010E38]">R$ 59/mês</span>
-              <button
-                type="button"
-                onClick={() => handleContratar("+1 WhatsApp", "R$ 59/mês")}
-                className="text-xs font-bold text-[#010E38] hover:underline"
-              >
-                Adicionar
+                Solicitar
               </button>
             </div>
           </div>
