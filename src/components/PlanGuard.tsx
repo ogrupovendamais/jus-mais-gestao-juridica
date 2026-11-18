@@ -147,7 +147,7 @@ export const PlanGuard: React.FC<PlanGuardProps> = ({
                       : "bg-white text-slate-600 border-slate-200 hover:border-[#010E38]"
                   }`}
                 >
-                  {PLANS_CONFIG[pId].nome.replace("JUS+ ", "")}
+                  {PLANS_CONFIG[pId].nome.replace("JURI+ TECH ", "").replace("JUS+ ", "")}
                 </button>
               ))}
             </div>

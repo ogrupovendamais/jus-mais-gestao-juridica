@@ -8,12 +8,12 @@ export default function Privacidade() {
       <header className="bg-[#010E38] text-white py-6 px-4 sm:px-8 border-b-4 border-[#EBB52C]">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#EBB52C] text-[#010E38] flex items-center justify-center font-black text-xl">
-              J+
+            <div className="w-11 h-11 rounded-xl bg-[#010E38] border border-[#EBB52C]/40 flex items-center justify-center p-1">
+              <img src="/logo-emblema.png" alt="JURI+ TECH" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                JUS+ Gestão Jurídica
+                JURI+ TECH — Sistema ERP para Advogados
               </h1>
               <p className="text-xs text-slate-300">
                 Política de Privacidade & Proteção de Dados

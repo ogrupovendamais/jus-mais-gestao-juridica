@@ -262,7 +262,7 @@ export default function Planos() {
 
               <div>
                 <h4 className={`text-xl font-bold ${plan === "start" ? "text-white" : "text-[#010E38]"}`}>
-                  JUS+ Start
+                  JURI+ TECH Start
                 </h4>
                 <p className={`text-xs mt-1 ${plan === "start" ? "text-slate-300" : "text-slate-500"}`}>
                   Para advogados autônomos organizarem processos, prazos, clientes e peças no Word.
@@ -372,7 +372,7 @@ export default function Planos() {
 
               <div>
                 <h4 className={`text-xl font-bold ${plan === "essencial" ? "text-white" : "text-[#010E38]"}`}>
-                  JUS+ Essencial
+                  JURI+ TECH Essencial
                 </h4>
                 <p className={`text-xs mt-1 ${plan === "essencial" ? "text-slate-300" : "text-slate-500"}`}>
                   Para quem conta com estagiário ou assistente e precisa de publicações, Google Drive e financeiro completo.
@@ -469,7 +469,7 @@ export default function Planos() {
 
               <div>
                 <h4 className={`text-xl font-bold ${plan === "escritorio" ? "text-white" : "text-[#010E38]"}`}>
-                  JUS+ Escritório
+                  JURI+ TECH Escritório
                 </h4>
                 <p className={`text-xs mt-1 ${plan === "escritorio" ? "text-slate-300" : "text-slate-500"}`}>
                   O ERP jurídico completo com usuários ilimitados, workflows, permissões e divisão de comissões.

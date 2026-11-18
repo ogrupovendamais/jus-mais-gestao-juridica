@@ -268,7 +268,7 @@ const Auth = () => {
       } else {
         toast({
           title: "Login realizado!",
-          description: "Bem-vindo ao Jus+ (JusMais).",
+          description: "Bem-vindo ao JURI+ TECH.",
         });
         navigate("/");
       }
@@ -288,23 +288,22 @@ const Auth = () => {
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
         {/* Coluna Institucional — 05 : Sistema Tipográfico & 02 : Paleta Imutável */}
         <div className="hidden lg:flex lg:col-span-7 flex-col justify-between pr-8 space-y-8 text-[#F1F4F9]">
-          <div className="space-y-4">
-            <span className="inline-block bg-[#EBB52C] text-[#010E38] text-[11px] font-extrabold uppercase tracking-[0.2em] px-3 py-1 rounded">
-              VENDA+ TECH · JUSMAIS
-            </span>
-            <p className="font-display text-6xl font-black text-[#EBB52C] tracking-[-1px] uppercase leading-none">
-              JUS+
-            </p>
+          <div className="space-y-5">
+            <img
+              src="/logo-completo.png"
+              alt="JURI+ TECH — Sistema ERP para Advogados"
+              className="h-28 w-auto object-contain"
+            />
             <h1 className="text-4xl font-extrabold text-white leading-tight tracking-tight">
-              Infraestrutura
+              Sistema ERP
               <br />
-              Comercial Jurídica
+              para Advogados
             </h1>
             <h2 className="text-xl font-bold text-[#EBB52C]">
               Seu escritório merece crescer
             </h2>
             <p className="text-sm font-normal text-[#F1F4F9]/80 leading-relaxed max-w-lg">
-              Escritórios de advocacia que crescem consistentemente não dependem de talento ou sorte. Dependem de infraestrutura: CRM, automação, dados e processo. A Venda+ Tech construiu isso do zero para a advocacia brasileira.
+              Escritórios de advocacia que crescem consistentemente não dependem de talento ou sorte. Dependem de infraestrutura: CRM, automação, dados e processo. A JURI+ TECH construiu isso do zero para a advocacia brasileira.
             </p>
           </div>
 
@@ -323,14 +322,14 @@ const Auth = () => {
         {/* Card de Autenticação */}
         <Card className="lg:col-span-5 w-full max-w-md mx-auto border border-white/15 bg-[#F1F4F9] text-[#010E38] shadow-2xl">
           <CardHeader className="text-center pb-2">
-            <div className="mx-auto w-14 h-14 rounded-xl bg-[#010E38] flex items-center justify-center mb-3 shadow-md">
-              <img src="/logo-emblema.png" alt="Jus+" className="w-9 h-9 object-contain" />
+            <div className="mx-auto w-16 h-16 rounded-xl bg-[#010E38] border border-[#EBB52C]/40 flex items-center justify-center mb-3 shadow-md p-2">
+              <img src="/logo-emblema.png" alt="JURI+ TECH" className="w-full h-full object-contain" />
             </div>
             <CardTitle className="font-display text-2xl font-black text-[#010E38] tracking-[-0.5px] uppercase">
-              JUS+
+              JURI+ TECH
             </CardTitle>
             <CardDescription className="text-[#010E38]/70 font-semibold text-xs uppercase tracking-wider mt-1">
-              Infraestrutura Comercial Jurídica
+              Sistema ERP para Advogados
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
@@ -548,7 +547,7 @@ const Auth = () => {
             <section className="space-y-2">
               <h3 className="font-bold text-foreground text-base">1. Aceite dos Termos</h3>
               <p>
-                Ao acessar e utilizar a plataforma <strong>Jus+ (JusMais)</strong>, você expressa seu consentimento e aceita cumprir integralmente as condições descritas nestes Termos de Uso.
+                Ao acessar e utilizar a plataforma <strong>JURI+ TECH — Sistema ERP para Advogados</strong>, você expressa seu consentimento e aceita cumprir integralmente as condições descritas nestes Termos de Uso.
               </p>
             </section>
 
@@ -562,7 +561,7 @@ const Auth = () => {
             <section className="space-y-2">
               <h3 className="font-bold text-foreground text-base">3. Propriedade Intelectual</h3>
               <p>
-                O design, código-fonte, banco de dados, logotipos e toda a estrutura lógica do sistema <strong>Jus+ (JusMais)</strong> são propriedades exclusivas da <strong>Venda+ Tech</strong>.
+                O design, código-fonte, banco de dados, logotipos e toda a estrutura lógica do sistema <strong>JURI+ TECH</strong> são propriedades exclusivas da <strong>JURI+ TECH</strong>.
               </p>
             </section>
           </div>

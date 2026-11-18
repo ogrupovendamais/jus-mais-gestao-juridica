@@ -35,7 +35,7 @@ export interface PlanDetails {
 export const PLANS_CONFIG: Record<PlanId, PlanDetails> = {
   start: {
     id: "start",
-    nome: "JUS+ Start",
+    nome: "JURI+ TECH Start",
     subtitulo: "Advogado Autônomo Iniciante",
     precoAnual: 77,
     precoMensal: 97,
@@ -44,7 +44,7 @@ export const PLANS_CONFIG: Record<PlanId, PlanDetails> = {
   },
   essencial: {
     id: "essencial",
-    nome: "JUS+ Essencial",
+    nome: "JURI+ TECH Essencial",
     subtitulo: "Advogado Autônomo Estruturado",
     precoAnual: 149,
     precoMensal: 187,
@@ -53,7 +53,7 @@ export const PLANS_CONFIG: Record<PlanId, PlanDetails> = {
   },
   escritorio: {
     id: "escritorio",
-    nome: "JUS+ Escritório",
+    nome: "JURI+ TECH Escritório",
     subtitulo: "Pequenos e Médios Escritórios",
     precoAnual: 277,
     precoMensal: 347,
