@@ -27,7 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Trash2, Key, Eye, EyeOff, Scale, Sparkles, CheckCircle2, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { PlusCircle, Trash2, Key, Eye, EyeOff, Scale, Sparkles, CheckCircle2, Loader2, CreditCard, ChevronRight } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -301,6 +302,41 @@ const Configuracoes: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       <h1 className="text-2xl sm:text-3xl font-bold mb-4">Configurações</h1>
+
+      {/* Card do Plano & Assinatura */}
+      <Card className="border-2 border-[#EBB52C]/40 bg-gradient-to-r from-[#010E38] to-[#0F224D] text-white shadow-md">
+        <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-[#EBB52C] text-[#010E38] flex items-center justify-center font-bold shrink-0 shadow-sm">
+              <CreditCard className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#EBB52C] text-[#010E38] px-2 py-0.5 rounded">
+                  PLANO ATIVO
+                </span>
+                <span className="text-xs text-emerald-400 font-bold">● JUS+ Escritório</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mt-1">
+                Assinatura & Limites do Escritório
+              </h3>
+              <p className="text-xs text-slate-300">
+                Usuários Ilimitados • 750 Processos Monitorados • WhatsApp Integrado • Ciclo Anual
+              </p>
+            </div>
+          </div>
+
+          <Button
+            asChild
+            className="bg-[#EBB52C] hover:bg-[#d9a320] text-[#010E38] font-bold text-xs shadow-md whitespace-nowrap self-stretch sm:self-auto"
+          >
+            <Link to="/planos" className="flex items-center justify-center gap-2">
+              <span>Gerenciar Assinatura & Planos</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Backup: só Gestão Administrativa */}
       {(role === "master" || role === "desenvolvedor") && <BackupCard />}

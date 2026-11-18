@@ -19,6 +19,7 @@ import {
   MessageCircle,
   Newspaper,
   CheckCircle2,
+  CreditCard,
 } from "lucide-react";
 import {
   Sidebar,
@@ -339,6 +340,13 @@ export function AppSidebar() {
             <HelpCircle className="w-4 h-4 mr-2 text-[#EBB52C] group-hover/btn:text-[#010E38] transition-colors" />
             Suporte Técnico
           </Button>
+
+          <SidebarMenuButton asChild className={navClass("/planos")}>
+            <Link to="/planos" className="flex items-center gap-3 w-full">
+              <CreditCard className="w-4 h-4 text-[#EBB52C]" />
+              <span>Meu Plano & Assinatura</span>
+            </Link>
+          </SidebarMenuButton>
 
           <SidebarMenuButton asChild className={navClass("/configuracoes")}>
             <Link to="/configuracoes" className="flex items-center gap-3 w-full">

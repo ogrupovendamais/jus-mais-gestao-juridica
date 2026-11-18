@@ -34,6 +34,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Mapa from "./pages/Mapa";
 
 import Configuracoes from "./pages/Configuracoes";
+import Planos from "./pages/Planos";
 import Agenda from "./pages/Agenda";
 import Equipe from "./pages/Equipe";
 import Integracoes from "./pages/Integracoes";
@@ -130,6 +131,7 @@ const App = () => {
                               <Route path="/relatorios" element={<Relatorios />} />
                               <Route path="/mensagens" element={<Mensagens />} />
                               <Route path="/configuracoes" element={<Configuracoes />} />
+                              <Route path="/planos" element={<Planos />} />
                               <Route path="/integracoes" element={<Integracoes />} />
                               <Route path="/mapa" element={
                                 <DeveloperRoute>
