@@ -12,7 +12,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { UserPlus, Edit, Trash2, Mail, Phone, MapPin, Calendar, Briefcase, UserCheck, Search, Shield, ShieldAlert, Key, Clipboard, Check, RefreshCw } from 'lucide-react';
+import { usePlan } from '@/hooks/usePlan';
+import { Link } from 'react-router-dom';
+import { UserPlus, Edit, Trash2, Mail, Phone, MapPin, Calendar, Briefcase, UserCheck, Search, Shield, ShieldAlert, Key, Clipboard, Check, RefreshCw, Lock, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -48,6 +50,7 @@ interface MembroEquipe {
 
 export default function Equipe() {
   const { user, role } = useAuth();
+  const { plan, planInfo, maxUsers } = usePlan();
   const [membros, setMembros] = useState<MembroEquipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -113,8 +116,19 @@ export default function Equipe() {
     }
   }, [user, role, loadConvites, loadPlataformaUsers]);
 
+  const totalUsuariosContabilizados = Math.max(1, membros.length, plataformaUsers.length);
+  const limiteUsuariosAtingido = plan !== 'escritorio' && totalUsuariosContabilizados >= maxUsers;
+
   const handleCreateInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (limiteUsuariosAtingido) {
+      toast({
+        title: `Limite do ${planInfo.nome} atingido (${maxUsers} usuário${maxUsers > 1 ? 's' : ''})`,
+        description: 'Faça upgrade para o Plano Escritório para liberar usuários ilimitados.',
+        variant: 'destructive'
+      });
+      return;
+    }
     if (!inviteData.nome || !inviteData.email) {
       toast({
         title: 'Erro',
@@ -296,6 +310,15 @@ export default function Equipe() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!editingMembro && limiteUsuariosAtingido) {
+      toast({
+        title: `Limite do ${planInfo.nome} atingido (${maxUsers} usuário${maxUsers > 1 ? 's' : ''})`,
+        description: 'Faça upgrade de plano para cadastrar mais membros na equipe.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
     if (!formData.nome || !formData.email || !formData.cargo || !formData.departamento) {
       toast({
@@ -630,6 +653,57 @@ export default function Equipe() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Barra de Capacidade de Usuários do Plano Ativo */}
+      <div className={`rounded-xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+        limiteUsuariosAtingido
+          ? 'bg-amber-50 border-amber-300 text-[#010E38]'
+          : 'bg-[#010E38] border-[#EBB52C]/40 text-white'
+      }`}>
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 font-bold ${
+            limiteUsuariosAtingido ? 'bg-[#010E38] text-[#EBB52C]' : 'bg-[#EBB52C] text-[#010E38]'
+          }`}>
+            {limiteUsuariosAtingido ? <Lock className="w-5 h-5" /> : <UserCheck className="w-5 h-5" />}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-extrabold uppercase tracking-wider">
+                {planInfo.nome}
+              </span>
+              <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                limiteUsuariosAtingido
+                  ? 'bg-red-100 text-red-700 border border-red-200'
+                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
+              }`}>
+                {plan === 'escritorio'
+                  ? 'Usuários Ilimitados'
+                  : `${Math.min(totalUsuariosContabilizados, maxUsers)} / ${maxUsers} usuário(s) utilizado(s)`}
+              </span>
+            </div>
+            <p className={`text-xs mt-0.5 ${limiteUsuariosAtingido ? 'text-slate-600' : 'text-slate-300'}`}>
+              {limiteUsuariosAtingido
+                ? `Seu plano atual permite até ${maxUsers} usuário(s). Para cadastrar mais membros ou liberar controle completo de permissões, faça upgrade.`
+                : plan === 'escritorio'
+                ? 'Você possui usuários ilimitados e controle completo de níveis de permissão liberados.'
+                : `Você ainda pode cadastrar mais ${Math.max(0, maxUsers - totalUsuariosContabilizados)} usuário(s) no ${planInfo.nome}.`}
+            </p>
+          </div>
+        </div>
+
+        {plan !== 'escritorio' && (
+          <Button
+            asChild
+            size="sm"
+            className="bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 font-bold text-xs whitespace-nowrap"
+          >
+            <Link to="/planos" className="flex items-center gap-1.5">
+              <span>Liberar Usuários Ilimitados</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </Button>
+        )}
+      </div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -639,6 +713,14 @@ export default function Equipe() {
 
         {activeTab === 'membros' && (
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if (open && !editingMembro && limiteUsuariosAtingido) {
+              toast({
+                title: `Limite de ${maxUsers} usuário(s) atingido no ${planInfo.nome}`,
+                description: 'Faça upgrade para adicionar novos membros à sua equipe.',
+                variant: 'destructive'
+              });
+              return;
+            }
             setIsDialogOpen(open);
             if (!open) {
               setEditingMembro(null);
@@ -646,9 +728,9 @@ export default function Equipe() {
             }
           }}>
             <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Adicionar Membro
+              <Button className={limiteUsuariosAtingido ? 'opacity-80' : ''}>
+                {limiteUsuariosAtingido ? <Lock className="w-4 h-4 mr-2 text-[#EBB52C]" /> : <UserPlus className="w-4 h-4 mr-2" />}
+                {limiteUsuariosAtingido ? `Limite Atingido (${maxUsers}/${maxUsers})` : 'Adicionar Membro'}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

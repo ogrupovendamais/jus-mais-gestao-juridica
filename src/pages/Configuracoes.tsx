@@ -28,10 +28,11 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
-import { PlusCircle, Trash2, Key, Eye, EyeOff, Scale, Sparkles, CheckCircle2, Loader2, CreditCard, ChevronRight } from "lucide-react";
+import { PlusCircle, Trash2, Key, Eye, EyeOff, Scale, Sparkles, CheckCircle2, Loader2, CreditCard, ChevronRight, Lock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlan } from "@/hooks/usePlan";
 import { BackupCard } from "@/components/configuracoes/BackupCard";
 import {
   UFS_BRASIL,
@@ -50,6 +51,7 @@ type Template = {
 
 const Configuracoes: React.FC = () => {
   const { role, user } = useAuth();
+  const { planInfo, canAccessModule } = usePlan();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -315,13 +317,13 @@ const Configuracoes: React.FC = () => {
                 <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#EBB52C] text-[#010E38] px-2 py-0.5 rounded">
                   PLANO ATIVO
                 </span>
-                <span className="text-xs text-emerald-400 font-bold">● JUS+ Escritório</span>
+                <span className="text-xs text-emerald-400 font-bold">● {planInfo.nome}</span>
               </div>
               <h3 className="text-lg font-bold text-white mt-1">
                 Assinatura & Limites do Escritório
               </h3>
               <p className="text-xs text-slate-300">
-                Usuários e Processos Ilimitados • Google Drive & Docs • Workflows • Ciclo Anual
+                {planInfo.maxUsuariosLabel} • Processos e Clientes Ilimitados • {planInfo.subtitulo}
               </p>
             </div>
           </div>
@@ -338,8 +340,33 @@ const Configuracoes: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Backup: só Gestão Administrativa */}
-      {(role === "master" || role === "desenvolvedor") && <BackupCard />}
+      {/* Backup: só Gestão Administrativa e Plano Escritório */}
+      {(role === "master" || role === "desenvolvedor") && (
+        canAccessModule("backup") ? (
+          <BackupCard />
+        ) : (
+          <Card className="border border-slate-200 bg-slate-50/70">
+            <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#010E38] text-[#EBB52C] flex items-center justify-center shrink-0">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm sm:text-base font-bold text-[#010E38]">
+                    Backup Completo dos Dados do Escritório (Bloqueado no {planInfo.nome})
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    A exportação e restauração completa de backup de segurança é exclusiva do Plano Escritório.
+                  </p>
+                </div>
+              </div>
+              <Button asChild size="sm" className="bg-[#010E38] text-[#EBB52C] hover:bg-[#021B66] font-bold text-xs">
+                <Link to="/planos">Fazer Upgrade</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )
+      )}
 
       {/* Card Perfil do Advogado: OAB + UF (Busca Nativa CNJ) */}
       <Card className="border border-[#010E38]/15 bg-white">

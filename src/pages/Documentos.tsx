@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -60,6 +60,7 @@ import {
   RefreshCw,
   LogOut,
   Settings,
+  Lock,
 } from "lucide-react";
 import { NovaPastaDialog } from "@/components/documentos/NovaPastaDialog";
 import { DeleteDocumentoDialog } from "@/components/documentos/DeleteDocumentoDialog";
@@ -68,6 +69,7 @@ import { nomeArquivoSeguro } from "@/lib/utils";
 import { DocumentoViewer } from "@/components/documentos/DocumentoViewer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlan } from "@/hooks/usePlan";
 
 declare global {
   interface Window {
@@ -152,6 +154,9 @@ const DEFAULT_GOOGLE_CLIENT_ID = ["614078414355", "gkuh4n966pqrjqvqau80bds3i9map
 
 export default function Documentos() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { canAccessModule } = usePlan();
+  const googleLiberadoNoPlano = canAccessModule("google_drive");
   const [allDocumentos, setAllDocumentos] = useState<Documento[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isNovaPastaOpen, setIsNovaPastaOpen] = useState(false);
@@ -412,6 +417,11 @@ export default function Documentos() {
   };
 
   const handleAbrirGoogleDrive = () => {
+    if (!googleLiberadoNoPlano) {
+      toast.error("Integração Google Drive & Docs disponível a partir do Plano Essencial!");
+      navigate("/planos");
+      return;
+    }
     if (contaGoogle) {
       setVisao("novo_google_drive");
       carregarArquivosDoDrive(contaGoogle);
@@ -421,6 +431,11 @@ export default function Documentos() {
   };
 
   const handleAbrirGoogleDocs = () => {
+    if (!googleLiberadoNoPlano) {
+      toast.error("Integração Google Drive & Docs disponível a partir do Plano Essencial!");
+      navigate("/planos");
+      return;
+    }
     if (contaGoogle) {
       setVisao("novo_google_docs");
     } else {
@@ -430,6 +445,11 @@ export default function Documentos() {
 
   // Função que abre o Popup "Fazer login nas Contas do Google" (idêntico ao Print 1!)
   const abrirPopupLoginGoogle = (destino: "drive" | "docs", forcarTroca: boolean = false) => {
+    if (!googleLiberadoNoPlano) {
+      toast.error("Integração Google Drive & Docs disponível a partir do Plano Essencial!");
+      navigate("/planos");
+      return;
+    }
     // 1. Se tiver Google Client ID configurado e o script oficial GSI carregado, usa o OAuth 2.0 Popup oficial do Google
     if (googleClientId && window.google?.accounts?.oauth2) {
       try {
@@ -1294,11 +1314,16 @@ export default function Documentos() {
             <GoogleDriveIcon />
             <span>Arquivo do Google Drive</span>
           </div>
-          {contaGoogle && (
+          {!googleLiberadoNoPlano ? (
+            <span className="text-[10px] font-bold text-[#010E38] bg-[#EBB52C]/40 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+              <Lock className="w-2.5 h-2.5" />
+              Essencial
+            </span>
+          ) : contaGoogle ? (
             <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300">
               Conectado
             </span>
-          )}
+          ) : null}
         </DropdownMenuItem>
 
         <DropdownMenuItem
@@ -1309,11 +1334,16 @@ export default function Documentos() {
             <GoogleDocsIcon />
             <span>Documento padrão do Google</span>
           </div>
-          {contaGoogle && (
+          {!googleLiberadoNoPlano ? (
+            <span className="text-[10px] font-bold text-[#010E38] bg-[#EBB52C]/40 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+              <Lock className="w-2.5 h-2.5" />
+              Essencial
+            </span>
+          ) : contaGoogle ? (
             <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300">
               Conectado
             </span>
-          )}
+          ) : null}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

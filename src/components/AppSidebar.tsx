@@ -20,7 +20,9 @@ import {
   Newspaper,
   CheckCircle2,
   CreditCard,
+  Lock,
 } from "lucide-react";
+import { usePlan } from "@/hooks/usePlan";
 import {
   Sidebar,
   SidebarContent,
@@ -42,6 +44,7 @@ import { SuporteModal } from "@/components/suporte/SuporteModal";
 export function AppSidebar() {
   const location = useLocation();
   const { signOut, user, role, classificacao } = useAuth();
+  const { plan, planInfo, canAccessModule } = usePlan();
   const [isSupportOpen, setIsSupportOpen] = useState(false);
 
   const isParceiro = role === "parceiro";
@@ -127,9 +130,13 @@ export function AppSidebar() {
                         <Newspaper className="w-4 h-4" />
                         <span>Publicações</span>
                       </div>
-                      <span className="bg-[#E53E3E] text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full shadow-xs">
-                        26
-                      </span>
+                      {!canAccessModule("publicacoes") ? (
+                        <Lock className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" />
+                      ) : (
+                        <span className="bg-[#E53E3E] text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full shadow-xs">
+                          26
+                        </span>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -154,9 +161,14 @@ export function AppSidebar() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className={navClass("/workflows")}>
-                    <Link to="/workflows" className="flex items-center gap-3">
-                      <GitBranch className="w-4 h-4" />
-                      <span>Workflows</span>
+                    <Link to="/workflows" className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <GitBranch className="w-4 h-4" />
+                        <span>Workflows</span>
+                      </div>
+                      {!canAccessModule("workflows") && (
+                        <Lock className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" />
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -192,9 +204,14 @@ export function AppSidebar() {
                 {isParceiro && !isFinanceiro && (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild className={navClass("/minha-comissao")}>
-                      <Link to="/minha-comissao" className="flex items-center gap-3">
-                        <Wallet className="w-4 h-4 text-[#EBB52C]" />
-                        <span>Minha Comissão</span>
+                      <Link to="/minha-comissao" className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-3">
+                          <Wallet className="w-4 h-4 text-[#EBB52C]" />
+                          <span>Minha Comissão</span>
+                        </div>
+                        {!canAccessModule("minha_comissao") && (
+                          <Lock className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" />
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -203,9 +220,16 @@ export function AppSidebar() {
                 {!isParceiro && (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild className={navClass("/equipe")}>
-                      <Link to="/equipe" className="flex items-center gap-3">
-                        <UserCheck className="w-4 h-4" />
-                        <span>Equipe</span>
+                      <Link to="/equipe" className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-3">
+                          <UserCheck className="w-4 h-4" />
+                          <span>Equipe</span>
+                        </div>
+                        {plan !== "escritorio" && (
+                          <span className="text-[9px] font-mono font-bold bg-white/10 text-[#EBB52C] px-1.5 py-0.5 rounded">
+                            {plan === "start" ? "Máx 1" : "Máx 3"}
+                          </span>
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -213,9 +237,14 @@ export function AppSidebar() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className={navClass("/financeiro")}>
-                    <Link to="/financeiro" className="flex items-center gap-3">
-                      <DollarSign className="w-4 h-4" />
-                      <span>Financeiro</span>
+                    <Link to="/financeiro" className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <DollarSign className="w-4 h-4" />
+                        <span>Financeiro</span>
+                      </div>
+                      {!canAccessModule("financeiro") && (
+                        <Lock className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" />
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -223,9 +252,14 @@ export function AppSidebar() {
                 {(!isParceiro || isFinanceiro) && (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild className={navClass("/relatorios")}>
-                      <Link to="/relatorios" className="flex items-center gap-3">
-                        <BarChart3 className="w-4 h-4" />
-                        <span>Relatórios</span>
+                      <Link to="/relatorios" className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-3">
+                          <BarChart3 className="w-4 h-4" />
+                          <span>Relatórios</span>
+                        </div>
+                        {!canAccessModule("relatorios") && (
+                          <Lock className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" />
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -233,9 +267,14 @@ export function AppSidebar() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className={navClass("/mensagens")}>
-                    <Link to="/mensagens" className="flex items-center gap-3">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>Mensagens</span>
+                    <Link to="/mensagens" className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <MessageSquare className="w-4 h-4" />
+                        <span>Mensagens</span>
+                      </div>
+                      {!canAccessModule("mensagens") && (
+                        <Lock className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" />
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -342,9 +381,14 @@ export function AppSidebar() {
           </Button>
 
           <SidebarMenuButton asChild className={navClass("/planos")}>
-            <Link to="/planos" className="flex items-center gap-3 w-full">
-              <CreditCard className="w-4 h-4 text-[#EBB52C]" />
-              <span>Meu Plano & Assinatura</span>
+            <Link to="/planos" className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-3">
+                <CreditCard className="w-4 h-4 text-[#EBB52C]" />
+                <span>Meu Plano</span>
+              </div>
+              <span className="text-[9px] font-extrabold uppercase bg-[#EBB52C] text-[#010E38] px-1.5 py-0.5 rounded">
+                {planInfo.nome.replace("JUS+ ", "")}
+              </span>
             </Link>
           </SidebarMenuButton>
 

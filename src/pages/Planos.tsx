@@ -3,13 +3,23 @@ import {
   Check, 
   ShieldCheck, 
   MessageSquare, 
+  Lock,
+  Sparkles,
+  SlidersHorizontal
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { usePlan, PlanId, PLANS_CONFIG } from "@/hooks/usePlan";
 
 export default function Planos() {
   const [isAnual, setIsAnual] = useState(true);
+  const { plan, setPlan, planInfo } = usePlan();
+
+  const handleSelecionarPlano = (novoPlano: PlanId) => {
+    setPlan(novoPlano);
+    toast.success(`Plano ativo alterado para ${PLANS_CONFIG[novoPlano].nome}! As travas do sistema foram atualizadas.`);
+  };
 
   const handleContratar = (nomePlano: string, valor: string) => {
     toast.success(`Redirecionando para atendimento do plano ${nomePlano} (${valor})...`);
@@ -27,14 +37,14 @@ export default function Planos() {
               GERENCIAMENTO DE ASSINATURA
             </span>
             <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800 text-[10px] font-bold">
-              ● ASSINATURA ATIVA
+              ● {planInfo.nome.toUpperCase()} ATIVO
             </Badge>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#010E38] tracking-tight">
             Meu Plano & Assinatura
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Acompanhe os recursos liberados para a sua banca, altere seu ciclo de cobrança ou solicite personalizações.
+            Acompanhe os recursos liberados para a sua banca, teste as travas por plano ou altere sua assinatura.
           </p>
         </div>
 
@@ -48,6 +58,46 @@ export default function Planos() {
         </Button>
       </div>
 
+      {/* Painel de Controle Rápido das Travas por Plano */}
+      <div className="bg-amber-50/90 border-2 border-[#EBB52C] rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#010E38] text-[#EBB52C] flex items-center justify-center shrink-0">
+            <SlidersHorizontal className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-[#010E38]">
+                Controle de Travas por Plano (Ativo Agora: {planInfo.nome})
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Alterne abaixo entre os 3 planos para ativar ou testar os bloqueios de módulos e limites de usuários no sistema em tempo real:
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {(["start", "essencial", "escritorio"] as PlanId[]).map((pId) => {
+            const ativo = plan === pId;
+            return (
+              <button
+                key={pId}
+                type="button"
+                onClick={() => handleSelecionarPlano(pId)}
+                className={`px-3.5 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 border ${
+                  ativo
+                    ? "bg-[#010E38] text-[#EBB52C] border-[#010E38] shadow-md"
+                    : "bg-white text-[#010E38] border-slate-300 hover:border-[#010E38]"
+                }`}
+              >
+                {ativo ? <ShieldCheck className="w-3.5 h-3.5 text-[#EBB52C]" /> : <Lock className="w-3 h-3 text-slate-400" />}
+                <span>{PLANS_CONFIG[pId].nome}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Card do Plano Atual & Consumo */}
       <div className="bg-[#010E38] text-white rounded-2xl p-6 sm:p-8 shadow-md border-2 border-[#EBB52C]/40 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#EBB52C]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
@@ -55,19 +105,19 @@ export default function Planos() {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
           <div className="space-y-2 lg:col-span-1">
             <span className="text-xs font-mono font-bold text-[#EBB52C] uppercase tracking-wider block">
-              PLANO CONTRATADO
+              PLANO ATIVO NO SISTEMA
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
-              JUS+ Escritório
-              <span className="text-base font-normal text-[#EBB52C]">⭐</span>
+              {planInfo.nome}
+              {plan === "escritorio" && <span className="text-base font-normal text-[#EBB52C]">⭐</span>}
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Ciclo Anual • Próxima renovação em <strong>15/12/2026</strong>.
+              {planInfo.subtitulo} • R$ {isAnual ? planInfo.precoAnual : planInfo.precoMensal}/mês
             </p>
             <div className="pt-2">
               <span className="text-xs bg-emerald-950/80 text-emerald-300 font-bold px-3 py-1.5 rounded-lg border border-emerald-500/30 inline-flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Usuários e Processos Ilimitados
+                {planInfo.maxUsuariosLabel}
               </span>
             </div>
           </div>
@@ -87,24 +137,46 @@ export default function Planos() {
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-medium">Usuários na Equipe</span>
-                <span className="text-emerald-400 font-mono font-bold">Ilimitado</span>
+                <span className="text-slate-300 font-medium">Limite de Usuários</span>
+                <span className="text-[#EBB52C] font-mono font-bold">
+                  {plan === "start" ? "1 / 1" : plan === "essencial" ? "Até 3" : "Ilimitado"}
+                </span>
               </div>
               <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                <div className="bg-emerald-400 h-full rounded-full" style={{ width: "100%" }} />
+                <div
+                  className="bg-[#EBB52C] h-full rounded-full"
+                  style={{ width: plan === "start" ? "35%" : plan === "essencial" ? "70%" : "100%" }}
+                />
               </div>
-              <p className="text-[10px] text-slate-400">Sócios, advogados e parceiros</p>
+              <p className="text-[10px] text-slate-400">
+                {plan === "start"
+                  ? "Trava ativa em 1 usuário"
+                  : plan === "essencial"
+                  ? "Trava ativa acima de 3 usuários"
+                  : "Cadastre quantos membros quiser"}
+              </p>
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-medium">Módulos do ERP</span>
-                <span className="text-[#EBB52C] font-mono font-bold">100% Liberados</span>
+                <span className="text-slate-300 font-medium">Módulos Liberados</span>
+                <span className="text-[#EBB52C] font-mono font-bold">
+                  {plan === "start" ? "Essenciais" : plan === "essencial" ? "Intermediários" : "100% Total"}
+                </span>
               </div>
               <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                <div className="bg-[#EBB52C] h-full rounded-full" style={{ width: "100%" }} />
+                <div
+                  className="bg-[#EBB52C] h-full rounded-full"
+                  style={{ width: plan === "start" ? "45%" : plan === "essencial" ? "75%" : "100%" }}
+                />
               </div>
-              <p className="text-[10px] text-slate-400">Google Drive/Docs, Workflows e BI</p>
+              <p className="text-[10px] text-slate-400">
+                {plan === "start"
+                  ? "Financeiro, Drive e Publicações travados"
+                  : plan === "essencial"
+                  ? "Workflows, BI e Comissões travados"
+                  : "Todos os módulos destravados"}
+              </p>
             </div>
           </div>
         </div>
@@ -117,7 +189,7 @@ export default function Planos() {
             Compare os planos e entregáveis do sistema
           </h3>
           <p className="text-xs sm:text-sm text-slate-500">
-            Todos os módulos abaixo estão integrados nativamente na plataforma.
+            Todos os módulos abaixo possuem travas automáticas conforme o plano selecionado.
           </p>
 
           {/* Alternador Mensal / Anual */}
@@ -163,161 +235,228 @@ export default function Planos() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch pt-2">
           
           {/* 1. PLANO START */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-all">
+          <div
+            className={`rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between transition-all relative ${
+              plan === "start"
+                ? "bg-[#010E38] text-white border-2 border-[#EBB52C] shadow-xl"
+                : "bg-white text-[#010E38] border border-slate-200 hover:border-slate-300"
+            }`}
+          >
+            {plan === "start" && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#EBB52C] text-[#010E38] text-[10px] font-black uppercase px-3 py-0.5 rounded-full shadow-sm tracking-wider">
+                ✓ PLANO ATIVO AGORA
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-100 text-[#010E38] px-2.5 py-1 rounded">
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded ${
+                  plan === "start" ? "bg-[#EBB52C]/20 text-[#EBB52C]" : "bg-slate-100 text-[#010E38]"
+                }`}>
                   INICIANTE
                 </span>
-                <span className="text-xs font-semibold text-slate-400">1 Usuário</span>
+                <span className={`text-xs font-semibold ${plan === "start" ? "text-[#EBB52C]" : "text-slate-400"}`}>
+                  1 Usuário
+                </span>
               </div>
 
               <div>
-                <h4 className="text-xl font-bold text-[#010E38]">JUS+ Start</h4>
-                <p className="text-xs text-slate-500 mt-1">
+                <h4 className={`text-xl font-bold ${plan === "start" ? "text-white" : "text-[#010E38]"}`}>
+                  JUS+ Start
+                </h4>
+                <p className={`text-xs mt-1 ${plan === "start" ? "text-slate-300" : "text-slate-500"}`}>
                   Para advogados autônomos organizarem processos, prazos, clientes e peças no Word.
                 </p>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div className={`p-4 rounded-xl border ${
+                plan === "start" ? "bg-[#021B66] border-[#EBB52C]/30" : "bg-slate-50 border-slate-100"
+              }`}>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold text-[#010E38]">
+                  <span className={`text-3xl font-extrabold ${plan === "start" ? "text-[#EBB52C]" : "text-[#010E38]"}`}>
                     {isAnual ? "R$ 77" : "R$ 97"}
                   </span>
-                  <span className="text-xs text-slate-500 font-semibold">/ mês</span>
+                  <span className={`text-xs font-semibold ${plan === "start" ? "text-slate-300" : "text-slate-500"}`}>
+                    / mês
+                  </span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1 font-medium">
+                <p className={`text-[10px] mt-1 font-medium ${plan === "start" ? "text-[#EBB52C]/90" : "text-slate-400"}`}>
                   {isAnual ? "R$ 924 cobrado anualmente (20% OFF)" : "Faturamento mensal sem carência"}
                 </p>
               </div>
 
-              <ul className="space-y-2 text-xs text-slate-600">
+              <ul className={`space-y-2 text-xs ${plan === "start" ? "text-slate-200" : "text-slate-600"}`}>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                  <span><strong>1 Usuário</strong> de acesso</span>
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
+                  <span><strong>1 Usuário</strong> de acesso (Trava acima de 1)</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span><strong>Processos e Clientes 100% ilimitados</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span><strong>Sincronização pela OAB</strong> (Base Oficial CNJ)</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span>Quadro Visual Kanban de Tarefas e Prazos</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span>Calculadora de Prazos CPC Art. 219 e CLT</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span>Pauta de Audiências e Agenda Integrada</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span>Geração de Procuração e Contratos no Word (.docx)</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span>Fichas de Atendimento (10 Ramos do Direito)</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span>Gestão de Documentos (GED) por Pastas</span>
                 </li>
               </ul>
             </div>
 
-            <Button
-              onClick={() => handleContratar("Start", isAnual ? "R$ 77/mês" : "R$ 97/mês")}
-              variant="outline"
-              className="w-full mt-6 bg-white hover:bg-slate-50 text-[#010E38] border-slate-300 font-bold text-xs"
-            >
-              Alterar para Start
-            </Button>
+            <div className="mt-6 space-y-2">
+              {plan === "start" ? (
+                <Button disabled className="w-full bg-emerald-600 text-white font-bold text-xs">
+                  ✓ Plano Ativo no Sistema
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleSelecionarPlano("start")}
+                  variant="outline"
+                  className="w-full bg-white hover:bg-slate-50 text-[#010E38] border-slate-300 font-bold text-xs"
+                >
+                  Ativar Plano Start
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* 2. PLANO ESSENCIAL */}
-          <div className="bg-white rounded-2xl border-2 border-slate-300 p-6 sm:p-7 shadow-sm flex flex-col justify-between hover:border-[#010E38]/50 transition-all">
+          <div
+            className={`rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between transition-all relative ${
+              plan === "essencial"
+                ? "bg-[#010E38] text-white border-2 border-[#EBB52C] shadow-xl"
+                : "bg-white text-[#010E38] border-2 border-slate-300 hover:border-[#010E38]/50"
+            }`}
+          >
+            {plan === "essencial" && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#EBB52C] text-[#010E38] text-[10px] font-black uppercase px-3 py-0.5 rounded-full shadow-sm tracking-wider">
+                ✓ PLANO ATIVO AGORA
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-blue-50 text-blue-800 px-2.5 py-1 rounded border border-blue-200">
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded ${
+                  plan === "essencial"
+                    ? "bg-[#EBB52C]/20 text-[#EBB52C]"
+                    : "bg-blue-50 text-blue-800 border border-blue-200"
+                }`}>
                   ESTRUTURADO
                 </span>
-                <span className="text-xs font-semibold text-slate-500">Até 3 Usuários</span>
+                <span className={`text-xs font-semibold ${plan === "essencial" ? "text-[#EBB52C]" : "text-slate-500"}`}>
+                  Até 3 Usuários
+                </span>
               </div>
 
               <div>
-                <h4 className="text-xl font-bold text-[#010E38]">JUS+ Essencial</h4>
-                <p className="text-xs text-slate-500 mt-1">
+                <h4 className={`text-xl font-bold ${plan === "essencial" ? "text-white" : "text-[#010E38]"}`}>
+                  JUS+ Essencial
+                </h4>
+                <p className={`text-xs mt-1 ${plan === "essencial" ? "text-slate-300" : "text-slate-500"}`}>
                   Para quem conta com estagiário ou assistente e precisa de publicações, Google Drive e financeiro completo.
                 </p>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div className={`p-4 rounded-xl border ${
+                plan === "essencial" ? "bg-[#021B66] border-[#EBB52C]/30" : "bg-slate-50 border-slate-100"
+              }`}>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold text-[#010E38]">
+                  <span className={`text-3xl font-extrabold ${plan === "essencial" ? "text-[#EBB52C]" : "text-[#010E38]"}`}>
                     {isAnual ? "R$ 149" : "R$ 187"}
                   </span>
-                  <span className="text-xs text-slate-500 font-semibold">/ mês</span>
+                  <span className={`text-xs font-semibold ${plan === "essencial" ? "text-slate-300" : "text-slate-500"}`}>
+                    / mês
+                  </span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1 font-medium">
+                <p className={`text-[10px] mt-1 font-medium ${plan === "essencial" ? "text-[#EBB52C]/90" : "text-slate-400"}`}>
                   {isAnual ? "R$ 1.788 cobrado anualmente (20% OFF)" : "Faturamento mensal sem carência"}
                 </p>
               </div>
 
-              <ul className="space-y-2 text-xs text-slate-600">
+              <ul className={`space-y-2 text-xs ${plan === "essencial" ? "text-slate-200" : "text-slate-600"}`}>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span><strong>Tudo incluso no Plano Start</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span><strong>Até 3 Usuários</strong> inclusos na equipe</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span><strong>Painel de Publicações e Intimações</strong> (OAB/DJEN)</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span><strong>Integração Oficial Google Drive & Google Docs</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span><strong>Gestão Financeira Completa</strong> (Receitas e Despesas)</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span><strong>Controle de Honorários</strong> por Processo e Cliente</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span>Contas Bancárias, Plano de Contas e Centros de Custo</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                   <span>Modelos de Mensagens Padronizadas para Clientes</span>
                 </li>
               </ul>
             </div>
 
-            <Button
-              onClick={() => handleContratar("Essencial", isAnual ? "R$ 149/mês" : "R$ 187/mês")}
-              variant="outline"
-              className="w-full mt-6 bg-[#010E38] hover:bg-[#021B66] text-white font-bold text-xs"
-            >
-              Alterar para Essencial
-            </Button>
+            <div className="mt-6 space-y-2">
+              {plan === "essencial" ? (
+                <Button disabled className="w-full bg-emerald-600 text-white font-bold text-xs">
+                  ✓ Plano Ativo no Sistema
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleSelecionarPlano("essencial")}
+                  className="w-full bg-[#010E38] hover:bg-[#021B66] text-white font-bold text-xs"
+                >
+                  Ativar Plano Essencial
+                </Button>
+              )}
+            </div>
           </div>
 
-          {/* 3. PLANO ESCRITÓRIO (PLANO ATUAL) */}
-          <div className="bg-[#010E38] text-white rounded-2xl border-2 border-[#EBB52C] p-6 sm:p-7 shadow-xl flex flex-col justify-between relative">
+          {/* 3. PLANO ESCRITÓRIO */}
+          <div
+            className={`rounded-2xl p-6 sm:p-7 shadow-xl flex flex-col justify-between relative transition-all ${
+              plan === "escritorio"
+                ? "bg-[#010E38] text-white border-2 border-[#EBB52C]"
+                : "bg-white text-[#010E38] border-2 border-[#EBB52C]"
+            }`}
+          >
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#EBB52C] text-[#010E38] text-[10px] font-black uppercase px-3 py-0.5 rounded-full shadow-sm tracking-wider">
-              ⭐ PLANO ATUAL DA SUA BANCA
+              {plan === "escritorio" ? "⭐ PLANO ATIVO DA SUA BANCA" : "⭐ O MAIS ESCOLHIDO"}
             </div>
 
             <div className="space-y-4 pt-1">
@@ -329,25 +468,31 @@ export default function Planos() {
               </div>
 
               <div>
-                <h4 className="text-xl font-bold text-white">JUS+ Escritório</h4>
-                <p className="text-xs text-slate-300 mt-1">
+                <h4 className={`text-xl font-bold ${plan === "escritorio" ? "text-white" : "text-[#010E38]"}`}>
+                  JUS+ Escritório
+                </h4>
+                <p className={`text-xs mt-1 ${plan === "escritorio" ? "text-slate-300" : "text-slate-500"}`}>
                   O ERP jurídico completo com usuários ilimitados, workflows, permissões e divisão de comissões.
                 </p>
               </div>
 
-              <div className="bg-[#021B66] p-4 rounded-xl border border-[#EBB52C]/30">
+              <div className={`p-4 rounded-xl border ${
+                plan === "escritorio" ? "bg-[#021B66] border-[#EBB52C]/30" : "bg-slate-50 border-slate-200"
+              }`}>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold text-[#EBB52C]">
+                  <span className={`text-3xl font-extrabold ${plan === "escritorio" ? "text-[#EBB52C]" : "text-[#010E38]"}`}>
                     {isAnual ? "R$ 277" : "R$ 347"}
                   </span>
-                  <span className="text-xs text-slate-300 font-semibold">/ mês</span>
+                  <span className={`text-xs font-semibold ${plan === "escritorio" ? "text-slate-300" : "text-slate-500"}`}>
+                    / mês
+                  </span>
                 </div>
-                <p className="text-[10px] text-[#EBB52C]/90 mt-1 font-medium">
+                <p className={`text-[10px] mt-1 font-medium ${plan === "escritorio" ? "text-[#EBB52C]/90" : "text-slate-400"}`}>
                   {isAnual ? "R$ 3.324 cobrado anualmente (20% OFF)" : "Faturamento mensal sem carência"}
                 </p>
               </div>
 
-              <ul className="space-y-2 text-xs text-slate-200">
+              <ul className={`space-y-2 text-xs ${plan === "escritorio" ? "text-slate-200" : "text-slate-600"}`}>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-[#EBB52C] shrink-0 stroke-[2.5]" />
                   <span><strong>Tudo incluso no Plano Essencial</strong></span>
@@ -383,12 +528,23 @@ export default function Planos() {
               </ul>
             </div>
 
-            <Button
-              disabled
-              className="w-full mt-6 bg-emerald-600 text-white font-bold text-xs cursor-default hover:bg-emerald-600"
-            >
-              ✓ Seu Plano Atual
-            </Button>
+            <div className="mt-6 space-y-2">
+              {plan === "escritorio" ? (
+                <Button
+                  disabled
+                  className="w-full bg-emerald-600 text-white font-bold text-xs cursor-default hover:bg-emerald-600"
+                >
+                  ✓ Plano Ativo no Sistema
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleSelecionarPlano("escritorio")}
+                  className="w-full bg-[#EBB52C] hover:bg-[#d9a320] text-[#010E38] font-black text-xs"
+                >
+                  Ativar Plano Escritório ⭐
+                </Button>
+              )}
+            </div>
           </div>
 
         </div>

@@ -11,6 +11,7 @@ import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { PlanGuard } from "@/components/PlanGuard";
 import Dashboard from "./pages/Dashboard";
 import Clientes from "./pages/Clientes";
 import Atendimentos from "./pages/Atendimentos";
@@ -120,16 +121,56 @@ const App = () => {
                               <Route path="/clientes" element={<Clientes />} />
                               <Route path="/atendimentos" element={<Atendimentos />} />
                               <Route path="/processos" element={<Processos />} />
-                              <Route path="/publicacoes" element={<Publicacoes />} />
+                              <Route path="/publicacoes" element={
+                                <PlanGuard
+                                  module="publicacoes"
+                                  title="Publicações & Intimações"
+                                  description="O monitoramento e tratamento de publicações eletrônicas por OAB/DJEN está disponível a partir do Plano Essencial."
+                                >
+                                  <Publicacoes />
+                                </PlanGuard>
+                              } />
                               <Route path="/audiencias" element={<Audiencias />} />
                               <Route path="/tarefas" element={<Tarefas />} />
-                              <Route path="/workflows" element={<Workflows />} />
+                              <Route path="/workflows" element={
+                                <PlanGuard
+                                  module="workflows"
+                                  title="Workflows & Esteiras Automáticas"
+                                  description="A automação de esteiras de tarefas por fase processual é um recurso exclusivo do Plano Escritório."
+                                >
+                                  <Workflows />
+                                </PlanGuard>
+                              } />
                               <Route path="/documentos" element={<Documentos />} />
-                              <Route path="/financeiro" element={<Financeiro />} />
+                              <Route path="/financeiro" element={
+                                <PlanGuard
+                                  module="financeiro"
+                                  title="Gestão Financeira Completa"
+                                  description="O controle completo de receitas, despesas, contas bancárias, plano de contas e honorários por processo está disponível a partir do Plano Essencial."
+                                >
+                                  <Financeiro />
+                                </PlanGuard>
+                              } />
                               <Route path="/agenda" element={<Agenda />} />
                               <Route path="/equipe" element={<Equipe />} />
-                              <Route path="/relatorios" element={<Relatorios />} />
-                              <Route path="/mensagens" element={<Mensagens />} />
+                              <Route path="/relatorios" element={
+                                <PlanGuard
+                                  module="relatorios"
+                                  title="Relatórios Gerenciais & Indicadores"
+                                  description="Os relatórios avançados de desempenho, produtividade e indicadores estratégicos da banca são exclusivos do Plano Escritório."
+                                >
+                                  <Relatorios />
+                                </PlanGuard>
+                              } />
+                              <Route path="/mensagens" element={
+                                <PlanGuard
+                                  module="mensagens"
+                                  title="Modelos de Mensagens Padronizadas"
+                                  description="A central de modelos de mensagens padronizadas para atualização de clientes está disponível a partir do Plano Essencial."
+                                >
+                                  <Mensagens />
+                                </PlanGuard>
+                              } />
                               <Route path="/configuracoes" element={<Configuracoes />} />
                               <Route path="/planos" element={<Planos />} />
                               <Route path="/integracoes" element={<Integracoes />} />
@@ -138,7 +179,15 @@ const App = () => {
                                   <Mapa />
                                 </DeveloperRoute>
                               } />
-                              <Route path="/minha-comissao" element={<MinhaComissao />} />
+                              <Route path="/minha-comissao" element={
+                                <PlanGuard
+                                  module="minha_comissao"
+                                  title="Cálculo & Divisão de Comissões"
+                                  description="O painel de cálculo automático de comissões e repasses de advogados associados/parceiros é exclusivo do Plano Escritório."
+                                >
+                                  <MinhaComissao />
+                                </PlanGuard>
+                              } />
                               <Route path="/ajuda" element={<Ajuda />} />
                               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                               <Route path="*" element={<NotFound />} />
