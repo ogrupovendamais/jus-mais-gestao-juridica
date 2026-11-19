@@ -18,7 +18,6 @@ import {
   GitBranch,
   MessageCircle,
   Newspaper,
-  CheckCircle2,
   CreditCard,
   Lock,
 } from "lucide-react";
@@ -304,59 +303,6 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          {/* CARD DE ONBOARDING PASSO 3: PUBLICAÇÕES & INTIMAÇÕES ELETRÔNICAS */}
-          <div className="mx-1 mt-4 mb-2 p-2.5 rounded-lg bg-[#0F224D] border border-[#EBB52C]/30 text-white text-xs shadow-md">
-            <Link to="/publicacoes" className="block group">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-[11px] text-[#EBB52C] group-hover:underline flex items-center gap-1.5">
-                  <Newspaper className="w-3.5 h-3.5 text-[#EBB52C]" />
-                  Passo 3: Publicações
-                </span>
-                <span className="text-[10px] text-white/80 font-bold">1 de 4</span>
-              </div>
-              <div className="w-full bg-white/15 h-1.5 rounded-full mb-2 overflow-hidden">
-                <div className="bg-[#EBB52C] h-full w-1/4 rounded-full" />
-              </div>
-            </Link>
-
-            <div className="space-y-1 text-[10.5px]">
-              <Link
-                to="/publicacoes"
-                className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/90 transition-colors"
-              >
-                <div className="flex items-center gap-1.5 truncate">
-                  <FileText className="w-3 h-3 text-[#EBB52C] shrink-0" />
-                  <span className="truncate">Trate uma publicação</span>
-                </div>
-                <span className="bg-[#EBB52C] text-[#010E38] text-[9px] font-black px-1 rounded">26</span>
-              </Link>
-
-              <Link
-                to="/publicacoes"
-                className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/70 transition-colors"
-              >
-                <div className="flex items-center gap-1.5 truncate">
-                  <span className="w-3 h-3 flex items-center justify-center text-[10px] text-[#EBB52C] font-bold">▾</span>
-                  <span className="truncate">Filtre as publicações</span>
-                </div>
-              </Link>
-
-              <Link
-                to="/publicacoes"
-                className="flex items-center justify-between py-1 px-1.5 rounded hover:bg-white/10 text-white/70 transition-colors"
-              >
-                <div className="flex items-center gap-1.5 truncate">
-                  <span className="w-3 h-3 flex items-center justify-center text-[10px] text-[#EBB52C] font-bold">💻</span>
-                  <span className="truncate">Cadastre intimações</span>
-                </div>
-              </Link>
-
-              <div className="flex items-center gap-1.5 py-0.5 px-1.5 text-emerald-400 font-medium">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
-                <span className="truncate">Defina um nome (Ativo)</span>
-              </div>
-            </div>
-          </div>
         </SidebarContent>
 
         <SidebarFooter className="p-4 space-y-2 border-t border-white/10">
