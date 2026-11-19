@@ -447,10 +447,25 @@ const Relatorios = () => {
             </p>
           </div>
 
-          <TabsList className="grid w-full sm:w-auto grid-cols-3 bg-muted/40 p-1 border border-border/20 rounded-lg shrink-0">
-            <TabsTrigger value="indicadores" className="text-xs sm:text-sm font-semibold">Indicadores</TabsTrigger>
-            <TabsTrigger value="dre" className="text-xs sm:text-sm font-semibold">DRE & Financeiro</TabsTrigger>
-            <TabsTrigger value="parceiros" className="text-xs sm:text-sm font-semibold">Performance Parceiros</TabsTrigger>
+          <TabsList className="grid w-full sm:w-auto grid-cols-3 bg-[#010E38]/5 dark:bg-[#010E38]/60 p-1 border border-[#EBB52C]/30 rounded-lg shrink-0">
+            <TabsTrigger
+              value="indicadores"
+              className="text-xs sm:text-sm font-bold data-[state=active]:bg-[#010E38] data-[state=active]:text-[#EBB52C] dark:data-[state=active]:bg-[#EBB52C] dark:data-[state=active]:text-[#010E38]"
+            >
+              Indicadores
+            </TabsTrigger>
+            <TabsTrigger
+              value="dre"
+              className="text-xs sm:text-sm font-bold data-[state=active]:bg-[#010E38] data-[state=active]:text-[#EBB52C] dark:data-[state=active]:bg-[#EBB52C] dark:data-[state=active]:text-[#010E38]"
+            >
+              DRE & Financeiro
+            </TabsTrigger>
+            <TabsTrigger
+              value="parceiros"
+              className="text-xs sm:text-sm font-bold data-[state=active]:bg-[#010E38] data-[state=active]:text-[#EBB52C] dark:data-[state=active]:bg-[#EBB52C] dark:data-[state=active]:text-[#010E38]"
+            >
+              Performance Parceiros
+            </TabsTrigger>
           </TabsList>
         </div>
 
