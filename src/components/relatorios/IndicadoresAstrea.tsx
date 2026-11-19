@@ -15,7 +15,6 @@ import {
   LineChart as LineChartIcon,
   ChevronDown,
   Table as TableIcon,
-  Search,
   Scale,
   FileText,
   AlertCircle,
@@ -54,7 +53,6 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
   ResponsiveContainer,
@@ -180,9 +178,6 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
 
   // Filtros dos Cards
   const [card1Periodo, setCard1Periodo] = useState<string>("30");
-  const [card1MostrarTabela, setCard1MostrarTabela] = useState(false);
-  const [card1FiltroBusca, setCard1FiltroBusca] = useState("");
-  const [card1FiltroTipo, setCard1FiltroTipo] = useState<"todos" | "com" | "sem">("todos");
 
   const [card2MostrarTabela, setCard2MostrarTabela] = useState(false);
 
@@ -212,9 +207,9 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
       const h = String(d.getHours()).padStart(2, "0");
       const m = String(d.getMinutes()).padStart(2, "0");
       setHoraAtualizacao(`${h}hr${m}`);
-      toast.success("Tabelas do Supabase sincronizadas com sucesso!");
+      toast.success("Indicadores atualizados com sucesso!");
     } catch {
-      toast.error("Erro ao sincronizar dados com o Supabase.");
+      toast.error("Erro ao atualizar indicadores.");
     } finally {
       setTimeout(() => setIsRefreshing(false), 500);
     }
@@ -283,27 +278,6 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
     const sem = processosEnriquecidos.length - com;
     return { comMovimentacao: com, semMovimentacao: sem };
   }, [processosEnriquecidos]);
-
-  // Processos filtrados na Tabela do Card 1
-  const processosTabelaFiltrados = useMemo(() => {
-    return processosEnriquecidos.filter((p) => {
-      const matchTipo =
-        card1FiltroTipo === "todos"
-          ? true
-          : card1FiltroTipo === "com"
-          ? p.temMovimentacao
-          : !p.temMovimentacao;
-
-      const q = card1FiltroBusca.toLowerCase().trim();
-      const matchBusca =
-        !q ||
-        (p.numero || "").toLowerCase().includes(q) ||
-        (p.assunto || "").toLowerCase().includes(q) ||
-        (p.responsavel || "").toLowerCase().includes(q);
-
-      return matchTipo && matchBusca;
-    });
-  }, [processosEnriquecidos, card1FiltroTipo, card1FiltroBusca]);
 
   // ==================== CÁLCULO CARD 2: Histórico 3 Meses ====================
   const historicoTrimestral = useMemo(() => {
@@ -401,41 +375,6 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
   return (
     <TooltipProvider>
       <div className="space-y-6 animate-fade-in font-sans">
-        {/* BANNER INSTITUCIONAL DE STATUS: Identidade Visual JURI+ TECH & Supabase Conectado */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-gradient-to-r from-[#010E38] via-[#0F224D] to-[#010E38] text-white border border-[#EBB52C]/30 shadow-md">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#010E38] border border-[#EBB52C]/40 flex items-center justify-center p-1.5 shrink-0 shadow-inner">
-              <img src="/logo-emblema.png?v=6" alt="JURI+ TECH" className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-display font-black text-sm tracking-wide text-white uppercase">
-                  JURI<span className="text-[#EBB52C]">+</span> TECH
-                </span>
-                <span className="text-[10px] bg-[#EBB52C] text-[#010E38] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider">
-                  Supabase Live
-                </span>
-              </div>
-              <p className="text-xs text-white/75 mt-0.5">
-                Indicadores operacionais alimentados em tempo real pelas tabelas <code className="text-[#EBB52C]">processos</code>, <code className="text-[#EBB52C]">tarefas</code>, <code className="text-[#EBB52C]">audiencias</code> e <code className="text-[#EBB52C]">equipe</code>.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="h-8 text-xs bg-white/10 hover:bg-[#EBB52C] text-white hover:text-[#010E38] border-white/20 font-bold transition-all gap-1.5"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[#EBB52C]" : ""}`} />
-              <span>Sincronizar Supabase</span>
-            </Button>
-          </div>
-        </div>
-
         {/* ==================== LINHA 1: CARD 1 (Movimentação) & CARD 2 (Processos Ativos 3 Meses) ==================== */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* CARD 1: Movimentação de processos e casos do escritório */}
@@ -455,7 +394,7 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                         onClick={() =>
                           abrirModalAjuda(
                             "Movimentação de Processos e Casos",
-                            "Confira a quantidade de processos e casos que possuem ou não movimentações no período selecionado. Processos com movimentação são aqueles que receberam andamentos, intimações ou publicações oficiais recentes registradas no Supabase."
+                            "Confira a quantidade de processos e casos que possuem ou não movimentações no período selecionado. Processos com movimentação são aqueles que receberam andamentos, intimações ou publicações oficiais recentes registradas no sistema."
                           )
                         }
                         className="text-slate-400 hover:text-[#010E38] dark:hover:text-[#EBB52C] transition-colors"
@@ -483,43 +422,25 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                 Confira a quantidade de processos e casos que possuem ou não movimentações no período selecionado.
               </p>
 
-              {/* FILTRAR POR & BOTÃO TABELA SUPABASE */}
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
-                    FILTRAR POR
-                  </span>
-                  <div className="w-48">
-                    <Select value={card1Periodo} onValueChange={setCard1Periodo}>
-                      <SelectTrigger className="h-8 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
-                        <SelectValue placeholder="Selecione o período" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="7">Últimos 7 dias</SelectItem>
-                        <SelectItem value="15">Últimos 15 dias</SelectItem>
-                        <SelectItem value="30">Últimos 30 dias</SelectItem>
-                        <SelectItem value="60">Últimos 60 dias</SelectItem>
-                        <SelectItem value="90">Últimos 90 dias</SelectItem>
-                        <SelectItem value="all">Todo o período</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="self-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCard1MostrarTabela(!card1MostrarTabela)}
-                    className={`h-8 text-xs font-bold gap-1.5 transition-all ${
-                      card1MostrarTabela
-                        ? "bg-[#010E38] text-[#EBB52C] border-[#EBB52C]/50"
-                        : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-[#EBB52C]"
-                    }`}
-                  >
-                    <TableIcon className="w-3.5 h-3.5" />
-                    <span>{card1MostrarTabela ? "Ocultar Tabela" : "Ver Tabela Supabase"}</span>
-                  </Button>
+              {/* FILTRAR POR */}
+              <div className="mt-4">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+                  FILTRAR POR
+                </span>
+                <div className="w-48">
+                  <Select value={card1Periodo} onValueChange={setCard1Periodo}>
+                    <SelectTrigger className="h-8 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                      <SelectValue placeholder="Selecione o período" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="7">Últimos 7 dias</SelectItem>
+                      <SelectItem value="15">Últimos 15 dias</SelectItem>
+                      <SelectItem value="30">Últimos 30 dias</SelectItem>
+                      <SelectItem value="60">Últimos 60 dias</SelectItem>
+                      <SelectItem value="90">Últimos 90 dias</SelectItem>
+                      <SelectItem value="all">Todo o período</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -527,15 +448,7 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
             {/* MÉTRICAS: Com movimentação & Sem movimentação */}
             <div className="mt-6 pt-4 border-t border-slate-100 dark:border-white/10">
               <div className="grid grid-cols-2 gap-4">
-                <div
-                  onClick={() => {
-                    setCard1FiltroTipo(card1FiltroTipo === "com" ? "todos" : "com");
-                    setCard1MostrarTabela(true);
-                  }}
-                  className={`p-2 rounded-lg cursor-pointer transition-colors ${
-                    card1FiltroTipo === "com" ? "bg-[#010E38]/10 dark:bg-white/10 ring-1 ring-[#010E38] dark:ring-[#EBB52C]" : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                  }`}
-                >
+                <div className="p-1">
                   <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1 font-medium flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-[#010E38] dark:bg-[#EBB52C]" />
                     Com movimentação
@@ -544,15 +457,7 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                     {comMovimentacao}
                   </span>
                 </div>
-                <div
-                  onClick={() => {
-                    setCard1FiltroTipo(card1FiltroTipo === "sem" ? "todos" : "sem");
-                    setCard1MostrarTabela(true);
-                  }}
-                  className={`p-2 rounded-lg cursor-pointer transition-colors ${
-                    card1FiltroTipo === "sem" ? "bg-[#010E38]/10 dark:bg-white/10 ring-1 ring-[#010E38] dark:ring-[#EBB52C]" : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                  }`}
-                >
+                <div className="p-1">
                   <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1 font-medium flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-slate-400" />
                     Sem movimentação
@@ -588,77 +493,6 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                   title="Sem movimentação"
                 />
               </div>
-
-              {/* TABELA CONECTADA NO SUPABASE (EXPANSÍVEL) */}
-              {card1MostrarTabela && (
-                <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/10 animate-in fade-in duration-300">
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 mb-3">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#010E38] dark:text-[#EBB52C]">
-                      <Database className="w-3.5 h-3.5 text-[#EBB52C]" />
-                      <span>Tabela Supabase: `processos` ({processosTabelaFiltrados.length} registros)</span>
-                    </div>
-
-                    <div className="relative w-full sm:w-56">
-                      <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
-                      <Input
-                        placeholder="Buscar processo, assunto..."
-                        value={card1FiltroBusca}
-                        onChange={(e) => setCard1FiltroBusca(e.target.value)}
-                        className="h-8 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden max-h-64 overflow-y-auto">
-                    <Table>
-                      <TableHeader className="bg-slate-50 dark:bg-slate-800/80 sticky top-0 z-10">
-                        <TableRow>
-                          <TableHead className="text-[11px] font-bold text-[#010E38] dark:text-[#EBB52C]">Processo / Assunto</TableHead>
-                          <TableHead className="text-[11px] font-bold text-[#010E38] dark:text-[#EBB52C]">Responsável</TableHead>
-                          <TableHead className="text-[11px] font-bold text-center text-[#010E38] dark:text-[#EBB52C]">Movimentação</TableHead>
-                          <TableHead className="text-[11px] font-bold text-right text-[#010E38] dark:text-[#EBB52C]">Atualizado</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {processosTabelaFiltrados.slice(0, 15).map((proc) => (
-                          <TableRow key={proc.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 text-xs">
-                            <TableCell className="py-2">
-                              <div className="font-mono font-bold text-[11px] text-[#010E38] dark:text-slate-200">
-                                {proc.numero}
-                              </div>
-                              <div className="text-[10.5px] text-slate-500 truncate max-w-[180px]">
-                                {proc.assunto}
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-2 text-[11px] text-slate-600 dark:text-slate-300">
-                              {proc.responsavel || "Equipe"}
-                            </TableCell>
-                            <TableCell className="py-2 text-center">
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                  proc.temMovimentacao
-                                    ? "bg-[#010E38] text-[#EBB52C] dark:bg-[#EBB52C] dark:text-[#010E38]"
-                                    : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                                }`}
-                              >
-                                {proc.temMovimentacao ? "Com Movimentação" : "Sem Movimentação"}
-                              </span>
-                            </TableCell>
-                            <TableCell className="py-2 text-right text-[10px] text-slate-500 font-mono">
-                              {format(new Date(proc.dataMovimentacao), "dd/MM/yyyy")}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                  {processosTabelaFiltrados.length > 15 && (
-                    <p className="text-[10px] text-slate-400 text-center mt-2">
-                      Exibindo 15 de {processosTabelaFiltrados.length} processos. Refine a busca para localizar registros específicos.
-                    </p>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
@@ -809,7 +643,7 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                 onClick={() =>
                   abrirModalAjuda(
                     "Como gerar este gráfico?",
-                    "Para gerar este gráfico de produtividade pessoal, basta concluir tarefas, audiências ou prazos que estejam sob sua responsabilidade através dos módulos de Tarefas, Agenda ou Processos conectados ao Supabase."
+                    "Para gerar este gráfico de produtividade pessoal, basta concluir tarefas, audiências ou prazos que estejam sob sua responsabilidade através dos módulos de Tarefas, Agenda ou Processos."
                   )
                 }
                 className="text-xs font-bold text-[#010E38] dark:text-[#EBB52C] hover:underline mt-2.5"
@@ -911,19 +745,19 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                   <SelectContent>
                     <SelectItem value="barras_verticais">Gráfico em barras verticais</SelectItem>
                     <SelectItem value="barras_horizontais">Gráfico em barras horizontais</SelectItem>
-                    <SelectItem value="tabela">Tabela analítica (Supabase)</SelectItem>
+                    <SelectItem value="tabela">Tabela analítica</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
 
-          {/* RENDERIZAÇÃO: TABELA ANALÍTICA SUPABASE OU GRÁFICO OU EMPTY STATE */}
+          {/* RENDERIZAÇÃO: TABELA ANALÍTICA OU GRÁFICO OU EMPTY STATE */}
           {card4TipoGrafico === "tabela" ? (
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/10">
               <div className="flex items-center gap-2 mb-3 text-xs font-bold text-[#010E38] dark:text-[#EBB52C]">
-                <Database className="w-4 h-4 text-[#EBB52C]" />
-                <span>Tabela Supabase: `tarefas` a concluir ({atividadesAConcluir.length} demandas)</span>
+                <TableIcon className="w-4 h-4 text-[#EBB52C]" />
+                <span>Atividades a concluir ({atividadesAConcluir.length} demandas)</span>
               </div>
               <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <Table>
@@ -960,7 +794,7 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                     ) : (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-8 text-slate-500 text-xs">
-                          Nenhuma tarefa a concluir cadastrada na tabela `tarefas` do Supabase.
+                          Nenhuma tarefa a concluir encontrada no período.
                         </TableCell>
                       </TableRow>
                     )}
@@ -987,14 +821,14 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                 Nenhuma atividade a concluir encontrada
               </h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
-                Verifique os filtros selecionados ou acesse a visualização em Tabela Supabase.
+                Verifique os filtros selecionados.
               </p>
               <button
                 type="button"
                 onClick={() =>
                   abrirModalAjuda(
                     "Atividades a Concluir",
-                    "Esta visualização agrupa todas as tarefas e audiências pendentes atribuídas a cada membro da equipe jurídica diretamente da tabela `tarefas` do Supabase para evitar sobrecargas e redistribuir prazos."
+                    "Esta visualização agrupa todas as tarefas e audiências pendentes atribuídas a cada membro da equipe jurídica para evitar sobrecargas e redistribuir prazos."
                   )
                 }
                 className="text-xs font-bold text-[#010E38] dark:text-[#EBB52C] hover:underline mt-2.5"
@@ -1109,19 +943,19 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                   <SelectContent>
                     <SelectItem value="linhas">Gráfico em linhas</SelectItem>
                     <SelectItem value="barras">Gráfico em barras</SelectItem>
-                    <SelectItem value="tabela">Tabela analítica (Supabase)</SelectItem>
+                    <SelectItem value="tabela">Tabela analítica</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
 
-          {/* RENDERIZAÇÃO: TABELA ANALÍTICA SUPABASE OU GRÁFICO OU EMPTY STATE */}
+          {/* RENDERIZAÇÃO: TABELA ANALÍTICA OU GRÁFICO OU EMPTY STATE */}
           {card5TipoGrafico === "tabela" ? (
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/10">
               <div className="flex items-center gap-2 mb-3 text-xs font-bold text-[#010E38] dark:text-[#EBB52C]">
-                <Database className="w-4 h-4 text-[#EBB52C]" />
-                <span>Tabela Supabase: `tarefas` concluídas ({atividadesConcluidasGeral.length} registros)</span>
+                <TableIcon className="w-4 h-4 text-[#EBB52C]" />
+                <span>Atividades concluídas ({atividadesConcluidasGeral.length} registros)</span>
               </div>
               <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <Table>
@@ -1153,7 +987,7 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                     ) : (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-8 text-slate-500 text-xs">
-                          Nenhuma atividade concluída cadastrada na tabela `tarefas` do Supabase.
+                          Nenhuma atividade concluída encontrada no período.
                         </TableCell>
                       </TableRow>
                     )}
@@ -1180,14 +1014,14 @@ export const IndicadoresAstrea: React.FC<IndicadoresAstreaProps> = ({
                 Nenhuma atividade concluída encontrada
               </h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
-                Verifique os filtros selecionados ou visualize a Tabela Supabase.
+                Verifique os filtros selecionados.
               </p>
               <button
                 type="button"
                 onClick={() =>
                   abrirModalAjuda(
                     "Atividades Concluídas",
-                    "Acompanhe a curva de produtividade histórica da banca. O gráfico em linhas e a tabela analítica conectada ao Supabase analisam o ritmo de cumprimento de tarefas e audiências ao longo dos dias e semanas."
+                    "Acompanhe a curva de produtividade histórica da banca. O gráfico e a tabela analítica analisam o ritmo de cumprimento de tarefas e audiências ao longo dos dias e semanas."
                   )
                 }
                 className="text-xs font-bold text-[#010E38] dark:text-[#EBB52C] hover:underline mt-2.5"
