@@ -62,19 +62,16 @@ export function AppSidebar() {
   return (
     <>
       <Sidebar className="border-r border-[#010E38]/20 bg-[#010E38] text-[#F1F4F9]">
-        <SidebarHeader className="px-5 py-5 border-b border-white/10">
-          <div className="flex items-center gap-3">
+        <SidebarHeader className="px-4 py-4 border-b border-white/10">
+          <div className="flex items-center gap-2.5">
             <div className="w-11 h-11 rounded-xl bg-[#010E38] border border-[#EBB52C]/40 flex items-center justify-center shrink-0 shadow-sm p-1">
-              <img src="/logo-emblema.png?v=5" alt="JURI+ TECH" className="w-full h-full object-contain" />
+              <img src="/logo-emblema.png?v=6" alt="JURI+ TECH" className="w-full h-full object-contain" />
             </div>
-            <div className="leading-none">
-              <h2 className="font-display text-lg font-black tracking-tight text-white uppercase">
-                JURI<span className="text-[#EBB52C]">+</span> TECH
-              </h2>
-              <p className="text-[8.5px] text-[#EBB52C] uppercase tracking-[0.14em] font-bold mt-1">
-                Sistema ERP para Advogados
-              </p>
-            </div>
+            <img
+              src="/logo-texto.png?v=6"
+              alt="JURI+ TECH — Sistema ERP para Advogados"
+              className="h-8 max-w-[165px] w-auto object-contain"
+            />
           </div>
         </SidebarHeader>
 
