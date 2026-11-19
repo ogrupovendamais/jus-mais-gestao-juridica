@@ -454,7 +454,7 @@ const Auth = () => {
                       >
                         Termos de Uso e Políticas de Privacidade
                       </button>{" "}
-                      da plataforma Jus+ (JusMais).
+                      da plataforma JURI+ TECH.
                     </Label>
                   </div>
                   <Button

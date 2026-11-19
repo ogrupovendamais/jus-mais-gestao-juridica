@@ -1707,9 +1707,9 @@ const Financeiro = () => {
         />
       )}
 
-      {/* FOOTER OFICIAL JUS+ GESTÃO JURÍDICA */}
+      {/* FOOTER OFICIAL JURI+ TECH */}
       <div className="text-center text-xs text-slate-500 pt-6">
-        © Copyright 2026 - JUS+ Gestão Jurídica · Venda+ Tech - Versão 2.02
+        © Copyright 2026 - JURI+ TECH — Sistema ERP para Advogados - Versão 2.02
       </div>
 
       {/* MODAL HONORÁRIOS ASTREA (SCREENSHOT 2) */}

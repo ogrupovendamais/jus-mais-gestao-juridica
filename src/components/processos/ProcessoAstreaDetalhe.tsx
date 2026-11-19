@@ -1160,16 +1160,16 @@ export const ProcessoAstreaDetalhe: React.FC<ProcessoAstreaDetalheProps> = ({
         </div>
       )}
 
-      {/* FOOTER OFICIAL JUS+ GESTÃO JURÍDICA */}
+      {/* FOOTER OFICIAL JURI+ TECH */}
       <div className="text-center text-xs text-slate-500 pt-6">
-        © Copyright 2026 - JUS+ Gestão Jurídica · Venda+ Tech - Versão 2.02
+        © Copyright 2026 - JURI+ TECH — Sistema ERP para Advogados - Versão 2.02
       </div>
 
-      {/* FLOATING ACTION CHAT BUBBLE (JUS+ BRANDING) */}
+      {/* FLOATING ACTION CHAT BUBBLE (JURI+ TECH BRANDING) */}
       <div className="fixed bottom-5 right-5 z-40">
         <button
           type="button"
-          onClick={() => toast.info("Central de Ajuda e Suporte JUS+ Gestão Jurídica")}
+          onClick={() => toast.info("Central de Ajuda e Suporte JURI+ TECH")}
           className="w-12 h-12 rounded-full bg-[#010E38] hover:bg-[#021B66] text-[#EBB52C] border border-[#EBB52C]/40 flex items-center justify-center shadow-lg transition-transform hover:scale-105"
           title="Fale conosco / Ajuda"
         >

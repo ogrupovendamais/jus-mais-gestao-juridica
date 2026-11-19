@@ -380,7 +380,7 @@ const Configuracoes: React.FC = () => {
                 Registro Profissional (OAB) & Sincronização Automática
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
-                Ao cadastrar sua OAB e Estado, o Jus+ busca nativamente seus processos na base oficial do CNJ.
+                Ao cadastrar sua OAB e Estado, o JURI+ TECH busca nativamente seus processos na base oficial do CNJ.
               </CardDescription>
             </div>
           </div>

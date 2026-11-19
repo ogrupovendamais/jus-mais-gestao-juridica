@@ -675,7 +675,7 @@ export default function Documentos() {
 
   <div class="content">
     <h1>Escolha uma conta</h1>
-    <p class="subtitle">Prosseguir para <strong>JUS+ Gestão Jurídica</strong></p>
+    <p class="subtitle">Prosseguir para <strong>JURI+ TECH</strong></p>
 
     <ul class="account-list">
       <li class="account-item" onclick="selecionarConta('PEDRO LUCAS - VENDA MAIS TECH', '${emailAtual}', 'VM', '#010E38')">
@@ -735,7 +735,7 @@ export default function Documentos() {
   </div>
 
   <div class="footer">
-    <span>Para continuar, o Google compartilhará seu nome, e-mail e arquivos selecionados com o JUS+.</span>
+    <span>Para continuar, o Google compartilhará seu nome, e-mail e arquivos selecionados com o JURI+ TECH.</span>
     <span class="oauth-link" onclick="configurarClientId()">OAuth API</span>
   </div>
 
@@ -1050,7 +1050,7 @@ export default function Documentos() {
     const dataHoje = new Date().toLocaleDateString("pt-BR");
     return `${modelo.toUpperCase()}\n\nCLIENTE / OUTORGANTE: ${cliente}\nPROCESSO / REFERÊNCIA: ${
       processo || "A distribuir"
-    }\nRESPONSÁVEL JURÍDICO: ${docResponsavel}\nDATA: ${dataHoje}\n\n------------------------------------------------------------------------\n\nPelo presente instrumento particular de ${modelo}, ${cliente}, doravante denominado(a) OUTORGANTE/CONTRATANTE, nomeia e constitui seu bastante procurador o escritório JUS+ GESTÃO JURÍDICA, para o fim especial de representar seus interesses no processo em epígrafe, conferindo-lhe os poderes da cláusula "ad judicia et extra".\n\nLocal e Data: ${dataHoje}.\n\n_____________________________________________\n${cliente}\n`;
+    }\nRESPONSÁVEL JURÍDICO: ${docResponsavel}\nDATA: ${dataHoje}\n\n------------------------------------------------------------------------\n\nPelo presente instrumento particular de ${modelo}, ${cliente}, doravante denominado(a) OUTORGANTE/CONTRATANTE, nomeia e constitui seu bastante procurador o escritório JURI+ TECH, para o fim especial de representar seus interesses no processo em epígrafe, conferindo-lhe os poderes da cláusula "ad judicia et extra".\n\nLocal e Data: ${dataHoje}.\n\n_____________________________________________\n${cliente}\n`;
   };
 
   // Criar Tela 6: Documento Padrão do Google (Google Docs API v1 oficial)

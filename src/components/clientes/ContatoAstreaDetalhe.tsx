@@ -843,7 +843,7 @@ export function ContatoAstreaDetalhe({
                 <div className="flex items-center gap-2">
                   <Scale className="h-4 w-4 text-[#010E38] dark:text-[#EBB52C]" />
                   <span className="text-xs font-bold uppercase tracking-wider text-[#010E38] dark:text-[#EBB52C]">
-                    Nichos Jurídicos e Responsáveis (Jus+)
+                    Nichos Jurídicos e Responsáveis (JURI+ TECH)
                   </span>
                 </div>
                 {onGerarProposta && (
@@ -1551,7 +1551,7 @@ export function ContatoAstreaDetalhe({
 
       {/* Rodapé discreto igual aos prints */}
       <div className="pt-12 pb-2 text-center text-[11px] text-slate-500 dark:text-slate-400">
-        © copyright 2026 - Jus+ (Venda+ Tech) - Versão 2.02
+        © copyright 2026 - JURI+ TECH — Sistema ERP para Advogados - Versão 2.02
       </div>
     </div>
   );

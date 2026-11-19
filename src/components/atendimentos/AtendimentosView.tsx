@@ -898,7 +898,7 @@ export function AtendimentosView({
               },
               {
                 id: "questionario",
-                label: "Questionário Inicial (Jus+)",
+                label: "Questionário Inicial (JURI+ TECH)",
               },
             ] as const
           ).map((tab) => (
@@ -1699,7 +1699,7 @@ export function AtendimentosView({
             onClick={() => setMostrarQuestionarioCliente(true)}
             className="text-xs font-bold text-[#010E38] dark:text-[#EBB52C]"
           >
-            Abrir Questionário Inicial (Jus+)
+            Abrir Questionário Inicial (JURI+ TECH)
           </Button>
         </div>
 
@@ -1828,7 +1828,7 @@ export function AtendimentosView({
               onClick={() => setMostrarQuestionarioCliente(true)}
               className="h-9 text-xs font-bold border-[#010E38]/20 text-[#010E38] dark:text-[#F1F4F9] hover:bg-[#F1F4F9]"
             >
-              Questionário Inicial (Jus+)
+              Questionário Inicial (JURI+ TECH)
             </Button>
           )}
           {onVoltar && (

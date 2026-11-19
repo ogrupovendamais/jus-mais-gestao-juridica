@@ -541,11 +541,11 @@ export default function Publicacoes() {
         <div className="bg-gradient-to-r from-[#010E38]/5 via-[#EBB52C]/10 to-[#010E38]/5 border border-[#EBB52C]/40 rounded-xl p-3 text-xs text-[#010E38] flex items-start justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5">
             <span className="px-2 py-0.5 rounded bg-[#010E38] text-[#EBB52C] text-[10px] font-black flex items-center gap-1 shrink-0 shadow-xs">
-              <Sparkles className="w-3 h-3 text-[#EBB52C]" /> IA JUS+
+              <Sparkles className="w-3 h-3 text-[#EBB52C]" /> IA JURI+ TECH
             </span>
             <p className="leading-relaxed font-medium">
               <strong>Menos trabalho manual:</strong> otimize a gestão de publicações com tratamentos inteligentes sugeridos
-              pela Inteligência Artificial do Jus+. Prazos fatais e audiências são calculados automaticamente!
+              pela Inteligência Artificial do JURI+ TECH. Prazos fatais e audiências são calculados automaticamente!
             </p>
           </div>
           <button
@@ -1042,7 +1042,7 @@ export default function Publicacoes() {
               <div className="p-3.5 rounded-lg bg-gradient-to-br from-[#010E38]/5 via-amber-50/50 to-white border border-[#EBB52C]/40 space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs font-black text-[#010E38]">
                   <Sparkles className="w-4 h-4 text-[#EBB52C]" />
-                  <span>Resumo Executivo da IA Jus+</span>
+                  <span>Resumo Executivo da IA JURI+ TECH</span>
                 </div>
                 <p className="text-xs text-[#010E38]/80 leading-relaxed font-medium">
                   {pubSelecionada.resumoIa ||

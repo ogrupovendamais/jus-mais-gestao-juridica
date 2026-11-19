@@ -38,10 +38,10 @@ export default function Termos() {
               Termos Oficiais
             </span>
             <h2 className="text-2xl sm:text-3xl font-bold text-[#010E38] mt-3">
-              Termos de Uso do JUS+
+              Termos de Uso do JURI+ TECH
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Bem-vindo ao <strong>JUS+ Gestão Jurídica</strong>. Ao acessar e utilizar esta plataforma de gestão para escritórios de advocacia, você concorda expressamente com os seguintes termos e condições.
+              Bem-vindo ao <strong>JURI+ TECH — Sistema ERP para Advogados</strong>. Ao acessar e utilizar esta plataforma de gestão para escritórios de advocacia, você concorda expressamente com os seguintes termos e condições.
             </p>
           </div>
 
@@ -51,7 +51,7 @@ export default function Termos() {
               1. Objeto do Serviço
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              O <strong>JUS+</strong> é uma plataforma SaaS (Software as a Service) voltada ao gerenciamento de processos, clientes, prazos, documentos e fluxos financeiros para advogados e escritórios jurídicos.
+              O <strong>JURI+ TECH</strong> é uma plataforma SaaS (Software as a Service) voltada ao gerenciamento de processos, clientes, prazos, documentos e fluxos financeiros para advogados e escritórios jurídicos.
             </p>
           </section>
 
@@ -61,7 +61,7 @@ export default function Termos() {
               2. Integrações de Terceiros (Google Workspace, Google Drive e Google Docs)
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              O usuário pode opcionalmente conectar sua conta do Google Workspace / Google Cloud para facilitar o anexo e criação de documentos. O uso dessas integrações é facultativo e obedece aos termos de serviço e políticas de dados do Google LLC, garantindo que o JUS+ apenas interaja com arquivos explicitamente selecionados ou criados através da plataforma.
+              O usuário pode opcionalmente conectar sua conta do Google Workspace / Google Cloud para facilitar o anexo e criação de documentos. O uso dessas integrações é facultativo e obedece aos termos de serviço e políticas de dados do Google LLC, garantindo que o JURI+ TECH apenas interaja com arquivos explicitamente selecionados ou criados através da plataforma.
             </p>
           </section>
 
@@ -90,7 +90,7 @@ export default function Termos() {
       </main>
 
       <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} JUS+ Gestão Jurídica. Todos os direitos reservados.
+        © {new Date().getFullYear()} JURI+ TECH — Sistema ERP para Advogados. Todos os direitos reservados.
       </footer>
     </div>
   );

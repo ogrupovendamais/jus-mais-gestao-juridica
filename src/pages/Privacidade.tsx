@@ -41,7 +41,7 @@ export default function Privacidade() {
               Política de Privacidade
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Esta política descreve como o aplicativo <strong>JUS+ Gestão Jurídica</strong> coleta, utiliza, armazena e protege suas informações ao utilizar nossos serviços e integrações.
+              Esta política descreve como o aplicativo <strong>JURI+ TECH — Sistema ERP para Advogados</strong> coleta, utiliza, armazena e protege suas informações ao utilizar nossos serviços e integrações.
             </p>
           </div>
 
@@ -51,7 +51,7 @@ export default function Privacidade() {
               1. Informações que Coletamos
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              O <strong>JUS+ Gestão Jurídica</strong> coleta apenas as informações estritamente necessárias para a prestação de serviços de gestão para escritórios de advocacia e departamentos jurídicos, incluindo:
+              O <strong>JURI+ TECH</strong> coleta apenas as informações estritamente necessárias para a prestação de serviços de gestão para escritórios de advocacia e departamentos jurídicos, incluindo:
             </p>
             <ul className="list-disc list-inside text-sm text-slate-600 space-y-1.5 pl-2">
               <li>Dados cadastrais de identificação (nome, e-mail institucional e telefone);</li>
@@ -70,13 +70,13 @@ export default function Privacidade() {
             </p>
             <ul className="list-disc list-inside text-sm text-slate-700 space-y-2 pl-2">
               <li>
-                <strong>Seleção e Vinculação de Arquivos:</strong> Permitir que o usuário visualize e vincule arquivos do seu próprio Google Drive a processos e clientes gerenciados no JUS+.
+                <strong>Seleção e Vinculação de Arquivos:</strong> Permitir que o usuário visualize e vincule arquivos do seu próprio Google Drive a processos e clientes gerenciados no JURI+ TECH.
               </li>
               <li>
                 <strong>Criação de Documentos Padrão:</strong> Criar minutas e modelos jurídicos (como procurações e contratos) diretamente na conta Google Docs do usuário quando expressamente solicitado.
               </li>
               <li>
-                <strong>Não Compartilhamento:</strong> O JUS+ <strong>NÃO</strong> compartilha, transfere ou vende dados obtidos através das APIs do Google para terceiros, ferramentas de publicidade ou corretores de dados.
+                <strong>Não Compartilhamento:</strong> O JURI+ TECH <strong>NÃO</strong> compartilha, transfere ou vende dados obtidos através das APIs do Google para terceiros, ferramentas de publicidade ou corretores de dados.
               </li>
               <li>
                 <strong>Inteligência Artificial:</strong> Nenhum dado obtido através das APIs do Google é utilizado para treinar ou aprimorar modelos de inteligência artificial ou aprendizado de máquina generalizados.
@@ -119,7 +119,7 @@ export default function Privacidade() {
       </main>
 
       <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} JUS+ Gestão Jurídica. Todos os direitos reservados.
+        © {new Date().getFullYear()} JURI+ TECH — Sistema ERP para Advogados. Todos os direitos reservados.
       </footer>
     </div>
   );

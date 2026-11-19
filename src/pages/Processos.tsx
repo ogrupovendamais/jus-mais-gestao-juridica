@@ -1265,7 +1265,7 @@ const Processos = () => {
           </div>
           <div className="sm:col-span-2">
             <Label className="text-[11px] font-extrabold uppercase tracking-wider text-[#010E38]/60">
-              Status Operacional Jus+
+              Status Operacional JURI+ TECH
             </Label>
             <div className="mt-1">
               <Badge className={getStatusBadge(selectedProcesso.status)}>
@@ -2228,11 +2228,11 @@ const Processos = () => {
             <div className="p-3.5 rounded-lg bg-[#F1F4F9] border border-[#010E38]/15 space-y-2 text-xs">
               <div className="flex items-center gap-2 font-extrabold text-[#010E38]">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Como funciona a sincronização nativa Jus+ por OAB?</span>
+                <span>Como funciona a sincronização nativa JURI+ TECH por OAB?</span>
               </div>
               <p className="text-[#010E38]/80 leading-relaxed">
                 Ao informar o seu <strong>Número da OAB</strong> e{" "}
-                <strong>Estado (UF)</strong>, o Jus+ consulta diretamente a API
+                <strong>Estado (UF)</strong>, o JURI+ TECH consulta diretamente a API
                 oficial do <strong>CNJ (Comunica PJe / DJEN)</strong> em todos os
                 tribunais brasileiros (TJ, TRT, TRF, STJ), identifica os seus
                 processos, extrai <strong>Autor x Réu</strong>,{" "}
