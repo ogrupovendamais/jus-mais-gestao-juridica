@@ -1,4 +1,4 @@
-// Padrão de compliance da Cadore para nome de usuário: Nome + iniciais do meio + Sobrenome final
+// Padrão de compliance JURI+ TECH para nome de usuário: Nome + iniciais do meio + Sobrenome final
 // (ex.: "Laura Beatriz Gomes Mota" -> "Laura B G Mota"). Mesma regra de public.nome_compliance no banco.
 const PREPOSICOES = ["da", "de", "do", "das", "dos", "e"];
 

@@ -290,7 +290,7 @@ const Auth = () => {
         <div className="hidden lg:flex lg:col-span-7 flex-col justify-between pr-8 space-y-8 text-[#F1F4F9]">
           <div className="space-y-5">
             <img
-              src="/logo-completo.png"
+              src="/logo-completo.png?v=5"
               alt="JURI+ TECH — Sistema ERP para Advogados"
               className="h-28 w-auto object-contain"
             />
@@ -323,7 +323,7 @@ const Auth = () => {
         <Card className="lg:col-span-5 w-full max-w-md mx-auto border border-white/15 bg-[#F1F4F9] text-[#010E38] shadow-2xl">
           <CardHeader className="text-center pb-2">
             <div className="mx-auto w-16 h-16 rounded-xl bg-[#010E38] border border-[#EBB52C]/40 flex items-center justify-center mb-3 shadow-md p-2">
-              <img src="/logo-emblema.png" alt="JURI+ TECH" className="w-full h-full object-contain" />
+              <img src="/logo-emblema.png?v=5" alt="JURI+ TECH" className="w-full h-full object-contain" />
             </div>
             <CardTitle className="font-display text-2xl font-black text-[#010E38] tracking-[-0.5px] uppercase">
               JURI+ TECH

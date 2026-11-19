@@ -65,7 +65,7 @@ export function AppSidebar() {
         <SidebarHeader className="px-5 py-5 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl bg-[#010E38] border border-[#EBB52C]/40 flex items-center justify-center shrink-0 shadow-sm p-1">
-              <img src="/logo-emblema.png" alt="JURI+ TECH" className="w-full h-full object-contain" />
+              <img src="/logo-emblema.png?v=5" alt="JURI+ TECH" className="w-full h-full object-contain" />
             </div>
             <div className="leading-none">
               <h2 className="font-display text-lg font-black tracking-tight text-white uppercase">
