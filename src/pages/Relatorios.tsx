@@ -1,11 +1,12 @@
 import { nomeCompliance } from "@/lib/nomes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { isPast, subDays, parseISO, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { IndicadoresAstrea } from "@/components/relatorios/IndicadoresAstrea";
 import {
   Table,
   TableBody,
@@ -100,41 +101,45 @@ const Relatorios = () => {
   const [equipe, setEquipe] = useState<Equipe[]>([]);
   const [processos, setProcessos] = useState<Processo[]>([]);
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
+  const [audiencias, setAudiencias] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroPeriodo, setFiltroPeriodo] = useState<string>("all"); // "30" | "90" | "180" | "all"
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        
-        const [lancRes, eqRes, procRes, tarRes] = await Promise.all([
-          supabase
-            .from("financeiro_lancamentos")
-            .select("*, profiles!financeiro_lancamentos_user_id_fkey(id, full_name, email, role)")
-            .order("created_at", { ascending: false }),
-          supabase.from("equipe").select("*"),
-          supabase.from("processos").select("*"),
-          supabase.from("tarefas").select("*")
-        ]);
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      const [lancRes, eqRes, procRes, tarRes, audRes] = await Promise.all([
+        supabase
+          .from("financeiro_lancamentos")
+          .select("*, profiles!financeiro_lancamentos_user_id_fkey(id, full_name, email, role)")
+          .order("created_at", { ascending: false }),
+        supabase.from("equipe").select("*"),
+        supabase.from("processos").select("*"),
+        supabase.from("tarefas").select("*"),
+        supabase.from("audiencias").select("*")
+      ]);
 
-        if (lancRes.error) throw lancRes.error;
-        if (eqRes.error) throw eqRes.error;
-        if (procRes.error) throw procRes.error;
-        if (tarRes.error) throw tarRes.error;
+      if (lancRes.error) throw lancRes.error;
+      if (eqRes.error) throw eqRes.error;
+      if (procRes.error) throw procRes.error;
+      if (tarRes.error) throw tarRes.error;
 
-        setLancamentos((lancRes.data || []) as unknown as Lancamento[]);
-        setEquipe((eqRes.data || []) as Equipe[]);
-        setProcessos((procRes.data || []) as Processo[]);
-        setTarefas((tarRes.data || []) as Tarefa[]);
-      } catch (err) {
-        console.error("Erro ao carregar relatórios:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
+      setLancamentos((lancRes.data || []) as unknown as Lancamento[]);
+      setEquipe((eqRes.data || []) as Equipe[]);
+      setProcessos((procRes.data || []) as Processo[]);
+      setTarefas((tarRes.data || []) as Tarefa[]);
+      setAudiencias(audRes.data || []);
+    } catch (err) {
+      console.error("Erro ao carregar relatórios:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Função auxiliar de filtro de datas
   const filterByPeriod = (dateStr: string | null) => {
@@ -430,122 +435,144 @@ const Relatorios = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 animate-fade-in">
-      {/* Top Header com Filtro de Período e Reserva */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-foreground tracking-tight flex items-center gap-2">
-            <Briefcase className="h-7 w-7 text-[#EBB52C]" /> Dashboard Gerencial
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Métricas executivas, demonstrativo financeiro DRE e performance de parceiros.
-          </p>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="min-w-[150px]">
-            <Select value={filtroPeriodo} onValueChange={setFiltroPeriodo}>
-              <SelectTrigger className="w-full text-sm bg-background border-border/60">
-                <SelectValue placeholder="Selecionar Período" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="30">Últimos 30 dias</SelectItem>
-                <SelectItem value="90">Últimos 90 dias</SelectItem>
-                <SelectItem value="180">Últimos 6 meses</SelectItem>
-                <SelectItem value="all">Todo o Histórico</SelectItem>
-              </SelectContent>
-            </Select>
+    <div className="p-4 sm:p-6 space-y-6 animate-fade-in font-sans">
+      <Tabs defaultValue="indicadores" className="w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/10">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              Indicadores
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Acompanhamento operacional, movimentação de processos e produtividade da banca.
+            </p>
           </div>
 
-          <Card className="p-2 sm:p-3 border-border/60 bg-gradient-to-br from-card to-primary/5 flex items-center gap-3">
-            <PiggyBank className="h-8 w-8 text-[#EBB52C]" />
+          <TabsList className="grid w-full sm:w-auto grid-cols-3 bg-muted/40 p-1 border border-border/20 rounded-lg shrink-0">
+            <TabsTrigger value="indicadores" className="text-xs sm:text-sm font-semibold">Indicadores</TabsTrigger>
+            <TabsTrigger value="dre" className="text-xs sm:text-sm font-semibold">DRE & Financeiro</TabsTrigger>
+            <TabsTrigger value="parceiros" className="text-xs sm:text-sm font-semibold">Performance Parceiros</TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* ==================== ABA 1: INDICADORES ASTREA OFICIAIS ==================== */}
+        <TabsContent value="indicadores" className="mt-4">
+          <IndicadoresAstrea
+            processos={processos}
+            tarefas={tarefas}
+            audiencias={audiencias}
+            equipe={equipe}
+            userId={user?.id}
+            onRefreshData={loadData}
+          />
+        </TabsContent>
+
+        {/* ==================== ABA 2: DRE E FLUXO ==================== */}
+        <TabsContent value="dre" className="space-y-6 mt-4">
+          {/* Top Header com Filtro de Período e Reserva */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
             <div>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Fundo de Reserva (5%)</p>
-              <p className="text-base font-bold font-serif text-[#010E38] dark:text-[#EBB52C]">
-                {reservaAdministrativa.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-tight flex items-center gap-2">
+                <Briefcase className="h-6 w-6 text-[#EBB52C]" /> DRE & Demonstrações Financeiras
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                Métricas executivas, fluxo de caixa e splits da banca.
               </p>
             </div>
-          </Card>
-        </div>
-      </div>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="min-w-[150px]">
+                <Select value={filtroPeriodo} onValueChange={setFiltroPeriodo}>
+                  <SelectTrigger className="w-full text-sm bg-background border-border/60">
+                    <SelectValue placeholder="Selecionar Período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">Últimos 30 dias</SelectItem>
+                    <SelectItem value="90">Últimos 90 dias</SelectItem>
+                    <SelectItem value="180">Últimos 6 meses</SelectItem>
+                    <SelectItem value="all">Todo o Histórico</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-      {/* Grid de KPIs Jurídicos e Financeiros Principais */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* KPI 1: Lucro Líquido */}
-        <Card className="border-border/60 bg-gradient-to-br from-card via-card to-green-500/5 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-          <CardHeader className="pb-1 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Lucro Líquido Banca</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold font-serif ${lucroLiquido >= 0 ? "text-green-500" : "text-red-500"}`}>
-              {lucroLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              <Card className="p-2 sm:p-3 border-border/60 bg-gradient-to-br from-card to-primary/5 flex items-center gap-3">
+                <PiggyBank className="h-8 w-8 text-[#EBB52C]" />
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Fundo de Reserva (5%)</p>
+                  <p className="text-base font-bold font-serif text-[#010E38] dark:text-[#EBB52C]">
+                    {reservaAdministrativa.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                  </p>
+                </div>
+              </Card>
             </div>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className="text-[10px] text-muted-foreground">Margem Operacional:</span>
-              <span className="text-[10px] font-bold text-green-500">{margemLucro.toFixed(1)}%</span>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* KPI 2: Ticket Médio de Acordos */}
-        <Card className="border-border/60 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-          <CardHeader className="pb-1 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ticket Médio Acordo</CardTitle>
-            <Award className="h-4 w-4 text-[#EBB52C]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-serif text-[#010E38] dark:text-[#EBB52C]">
-              {ticketMedioAcordo.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1.5">
-              Valor médio dos acordos firmados no período.
-            </p>
-          </CardContent>
-        </Card>
+          {/* Grid de KPIs Jurídicos e Financeiros Principais */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* KPI 1: Lucro Líquido */}
+            <Card className="border-border/60 bg-gradient-to-br from-card via-card to-green-500/5 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+              <CardHeader className="pb-1 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Lucro Líquido Banca</CardTitle>
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold font-serif ${lucroLiquido >= 0 ? "text-green-500" : "text-red-500"}`}>
+                  {lucroLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                </div>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-[10px] text-muted-foreground">Margem Operacional:</span>
+                  <span className="text-[10px] font-bold text-green-500">{margemLucro.toFixed(1)}%</span>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* KPI 3: Processos Ativos */}
-        <Card className="border-border/60 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-          <CardHeader className="pb-1 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Processos Ativos</CardTitle>
-            <FileText className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-serif text-foreground">
-              {processosAtivosCount}
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1.5">
-              Ações judiciais em andamento no momento.
-            </p>
-          </CardContent>
-        </Card>
+            {/* KPI 2: Ticket Médio de Acordos */}
+            <Card className="border-border/60 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+              <CardHeader className="pb-1 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ticket Médio Acordo</CardTitle>
+                <Award className="h-4 w-4 text-[#EBB52C]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-serif text-[#010E38] dark:text-[#EBB52C]">
+                  {ticketMedioAcordo.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1.5">
+                  Valor médio dos acordos firmados no período.
+                </p>
+              </CardContent>
+            </Card>
 
-        {/* KPI 4: Produtividade da Equipe */}
-        <Card className="border-border/60 bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-          <CardHeader className="pb-1 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Eficiência da Equipe</CardTitle>
-            <CheckSquare className="h-4 w-4 text-foreground/80" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-serif text-foreground">
-              {taxaConclusaoTarefas.toFixed(0)}%
-            </div>
-            <div className="mt-2.5">
-              <Progress value={taxaConclusaoTarefas} className="h-1.5 bg-muted" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            {/* KPI 3: Processos Ativos */}
+            <Card className="border-border/60 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+              <CardHeader className="pb-1 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Processos Ativos</CardTitle>
+                <FileText className="h-4 w-4 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-serif text-foreground">
+                  {processosAtivosCount}
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1.5">
+                  Ações judiciais em andamento no momento.
+                </p>
+              </CardContent>
+            </Card>
 
-      {/* Tabs Layout */}
-      <Tabs defaultValue="dre" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 bg-muted/30 p-1 border border-border/10 rounded-lg">
-          <TabsTrigger value="dre" className="text-xs sm:text-sm">Geral & DRE do Escritório</TabsTrigger>
-          <TabsTrigger value="parceiros" className="text-xs sm:text-sm">Performance por Parceiro</TabsTrigger>
-        </TabsList>
-
-        {/* ==================== ABA 1: DRE E FLUXO ==================== */}
-        <TabsContent value="dre" className="space-y-6 mt-4">
+            {/* KPI 4: Produtividade da Equipe */}
+            <Card className="border-border/60 bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+              <CardHeader className="pb-1 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Eficiência da Equipe</CardTitle>
+                <CheckSquare className="h-4 w-4 text-foreground/80" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-serif text-foreground">
+                  {taxaConclusaoTarefas.toFixed(0)}%
+                </div>
+                <div className="mt-2.5">
+                  <Progress value={taxaConclusaoTarefas} className="h-1.5 bg-muted" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Tabela da DRE */}
             <Card className="border-border/60 lg:col-span-2">

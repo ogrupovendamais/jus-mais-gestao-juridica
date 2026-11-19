@@ -251,7 +251,7 @@ export function AppSidebar() {
                       <Link to="/relatorios" className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-3">
                           <BarChart3 className="w-4 h-4" />
-                          <span>Relatórios</span>
+                          <span>Indicadores</span>
                         </div>
                         {!canAccessModule("relatorios") && (
                           <Lock className="w-3.5 h-3.5 text-[#EBB52C] shrink-0" />
